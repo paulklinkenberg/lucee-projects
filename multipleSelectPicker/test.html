@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>MultipleSelectPicker - test</title>
+	<!-- include the jQuery framework -->
+	<script src="jquery-1.3.2.min.js" type="text/javascript"></script>
+	<!--include the MultipleSelectPicker.js file -->
+	<script type="text/javascript" src="MultipleSelectPicker.js"></script>
+	<!-- activate the MultipleSelectPicker functionality on-document-ready -->
+	<script type="text/javascript">
+		var multipleSelectPicker = new MultipleSelectPicker();
+		$(document).ready(function(){
+			// i18n: language is set via the init() function
+			// available languages: nl / default
+			multipleSelectPicker.init();
+			// multipleSelectPicker.init('default');
+		});
+	</script>
+	<style type="text/css">
+		* {
+			font-size: 12px;
+			color: #000;
+			font-family: Verdana, Geneva, sans-serif;
+		}
+		div {
+			margin-bottom: 10px;	
+		}
+	</style>
+</head>
+<body>
+	<div>
+		You'd better give the selects a specific width. Otherwise, the select will become as wide as the longest option text.
+		Then, after the MultipleSelectPicker has done it's work, the width of the 2 selects will be half of the previous width, resulting in this:
+		<select multiple="multiple" size="5" name="select1">
+			<option value="1">option 1</option>
+			<option value="2">option 2</option>
+			<option value="3">option 3</option>
+			<option value="4">option 4</option>
+			<option value="5">option 5</option>
+			<option value="6">option 6</option>
+			<option value="7">option 7</option>
+			<option value="8">option 8</option>
+			<option value="9">option 9</option>
+			<option value="10">option 10</option>
+		</select>
+	</div>
+	<div>
+		Select with <em>style="width:300px"</em>:
+		<select multiple="multiple" size="5" style="width:300px;" name="select2">
+			<option value="1">option 1</option>
+			<option value="2">option 2</option>
+			<option value="3">option 3</option>
+			<option value="4">option 4</option>
+			<option value="5">option 5</option>
+			<option value="6">option 6</option>
+			<option value="7">option 7</option>
+			<option value="8">option 8</option>
+			<option value="9">option 9</option>
+			<option value="10">option 10</option>
+		</select>
+	</div>
+	<div>
+		Select with colored options:
+		<select multiple="multiple" size="5" style="width:300px;" name="select3">
+			<option value="1" style="color:red">option 1</option>
+			<option value="2" style="color:brown">option 2</option>
+			<option value="3" style="color:yellow">option 3</option>
+			<option value="4" style="color:purple">option 4</option>
+			<option value="5" style="color:green">option 5</option>
+			<option value="6" style="color:black">option 6</option>
+			<option value="7" style="color:pink">option 7</option>
+			<option value="8" style="color:teal">option 8</option>
+			<option value="9" style="color:#066">option 9</option>
+			<option value="10" style="color:#333">option 10</option>
+		</select>
+	</div>
+</body>
+</html>
