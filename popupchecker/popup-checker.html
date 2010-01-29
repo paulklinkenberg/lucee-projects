@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Check popup blocking: all browsers</title>
+	<script type="text/javascript">
+		function hasPopupBlocker()
+		{
+			var objChild;
+			try {
+				objChild = window.open('','child','width=50,height=50,status=no,resizable=yes,x=0,y=0');
+				objChild.close();
+			}
+			catch(e) { }
+			
+			if(String(objChild).toLowerCase().indexOf('object') == -1)
+				return true;
+			return false;
+		}
+		function displayWarning(how)
+		{
+			document.getElementById('popupwarndiv').style.display=how;
+		}
+	</script>
+</head>
+<body>
+	<div style="display:none;position:absolute;top: 0px;z-index:999;width:100%; text-align:center" id="popupwarndiv"><div style="margin:0px auto; width:349px;">
+		<img src="popupwarning.png" alt="Please click on the yellow bar, and choose 'Allow popups from this site'." width="349" height="185" border="0" usemap="#Map" />
+		<map name="Map" id="Map">
+			<area shape="rect" coords="309,3,344,37" href="javascript:displayWarning('none')" title="Close this layover" />
+		</map>
+	</div></div>
+	<script type="text/javascript">
+		if (hasPopupBlocker())
+			displayWarning('block');
+	</script>
+</body>
+</html>
