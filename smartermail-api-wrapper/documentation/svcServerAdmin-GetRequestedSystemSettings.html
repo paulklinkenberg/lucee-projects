@@ -1,0 +1,113 @@
+<div style="margin-left:0px"><nobr><b>GetRequestedSystemSettings</b>: Returns the requested system settings</nobr></div>
+
+
+
+<div style="margin-left:27px"><nobr>o <b>Return Type</b>: RequestSettingsResult</nobr></div>
+<div style="margin-left:27px"><nobr>o <b>Parameters</b>:</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>AuthUserName</b>: User name used to perform this function. Requires system</nobr></div>
+
+
+<div style="margin-left:108px"><nobr>administrator privileges</nobr></div>
+
+
+
+<div style="margin-left:81px"><nobr>&#8226; <b>AuthPassword</b>: Password for the username</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>reqSettings</b>: An array of settings to return. Valid keys are:</nobr></div>
+
+
+<div style="margin-left:135px"><nobr>&#8250; <b>adminpassword (system admin password)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>adminusername (system admin username)</b></nobr></div>
+
+<div style="margin-left:135px"><nobr>&#8250; <b>allowrelay (noone, localusers, localhosts, anyone)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>deletedomainstatsafter (delete domain stats after x months)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>deletedomainstatsafterenabled (enable deletion of domain stats)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>deleteserverstatsafter (delete server stats after x months)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>deleteserverstatsafterenabled (enable deletion of server stats)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>deleteuserstatsafter (delete user stats after x months)</b></nobr></div>
+
+<div style="margin-left:135px"><nobr>&#8250; <b>deleteuserstatsafterenabled (enable deletion of user stats)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>deliverydelay (time to wait before delivering a message)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>deliverythreads (number of simultaneous outbound connections)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>disablereceivedappend (disable appending received header to</b></nobr></div>
+
+
+<div style="margin-left:162px"><nobr><b>authenticated smtp sessions)</b></nobr></div>
+
+
+
+<div style="margin-left:135px"><nobr>&#8250; <b>enforcesmtpauthlocaldelivery (require smtp auth for local deliveries)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>executecommandline (command line to execute on every spool</b></nobr></div>
+
+
+<div style="margin-left:162px"><nobr><b>message)</b></nobr></div>
+
+
+<div style="margin-left:135px"><nobr>&#8250; <b>executecommandlineenabled (enable command line processing)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>executecommandlinetimeout (terminate command line after x</b></nobr></div>
+
+
+
+<div style="margin-left:162px"><nobr><b>seconds)</b></nobr></div>
+
+
+<div style="margin-left:135px"><nobr>&#8250; <b>hostname (host name of the server)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>imapcommandtimeout (disconnect if no commands for x minutes)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>imapidleenabled (enable imap idle)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>imapmaxbadcommands (disconnect if client issues x bad commands)</b></nobr></div>
+
+<div style="margin-left:135px"><nobr>&#8250; <b>imapmaxconnections (maximum concurrent connections)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>imapretrievaldownloadpath (IMAP Retrieval download Path)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>imapretrievalinterval (IMAP Retrieval interval)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>imapretrievalthreads (IMAP Retrieval threads) </b></nobr></div>
+
+
+
+
+
+
+
+
+<div style="margin-left:135px"><nobr>&#8250; <b>ldapcommandtimeout (disconnect if no commands for x minutes)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>ldapsessiontimeout (disconnect if session exceeds x minutes)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>logouturl (redirect url when logging out)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>logouturlenabled (enable redirect on logout)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>logouturloverrideenabled (allow domains to override logout url)</b></nobr></div>
+
+<div style="margin-left:135px"><nobr>&#8250; <b>outboundip (IP to use for outbound deliveries)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>outboundipoption (domainsip, primaryip, specifiedip)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>popcommandtimeout (disconnect if no commands for x minutes)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>popmaxbadcommands (disconnect if client issues x bad commands)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>popmaxconnections (maximum concurrent connections)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>popretrievaldownloadpath (location of temporary pop retrieval files)</b></nobr></div>
+
+<div style="margin-left:135px"><nobr>&#8250; <b>popretrievalinterval (retrieve pop every x minutes)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>popretrievalthreads (maximum pop retrieval sessions)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>postmastermailbox (postmaster mailbox)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>primarydns (primary dns server, leave blank for automatic)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>secondarydns (secondary dns server, leave blank for automatic)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpauthbypassrelay (bypass relay settings when authenticated)</b></nobr></div>
+
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpcommandtimeout (disconnect if client issues x bad commands)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpexpn (enable EXPN command)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpmaxbadcommands (disconnect if client issues x bad commands)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpmaxbadrecipients (disconnect if client issues x bad recipients)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpmaxconnections (maximum concurrent connections)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpmaxhopcount (maximum hop count)</b></nobr></div>
+
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpmaxmessagesize (maximum message size in MB)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpsessiontimeout (disconnect if session exceeds x minutes)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpsessiontimeoutenabled (enable session timeout)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>smtpvrfy (enable VRFY command)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>spamcheckthreads (Maximum concurrent spam checks)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>spoolpath (path to the spool)</b></nobr></div>
+
+<div style="margin-left:135px"><nobr>&#8250; <b>submissionport (port used for submission port)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>submissionportenabled (enable submission port)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>submissionportip (ip used for submission port)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>subspools (number of subspools)</b></nobr></div>
+<div style="margin-left:135px"><nobr>&#8250; <b>timebetweenattempts (comma separated list of retry times)</b></nobr></div>
+
+
+
+
+

@@ -1,0 +1,26 @@
+
+<h3>How to use the API wrapper yourself.</h3>
+
+First, create the smartermail-object with the admin details:
+<pre>&lt;cfset variables.smartermail_obj = createObject("component", "Smartermail").init(serverURL="http://webmail.yourserver.com", wsUsername="your admin username", wsPassword="your admin password") /&gt;</pre>
+
+Then, you can call any function you like, like this:
+<pre>&lt;cfset return_xml = variables.smartermail_obj.callWs(page='<em>svcDomainAdmin</em>', method='<em>GetAllDomains</em>') /&gt;</pre>
+
+In case you need to give extra arguments to the page you are calling, you supply the extra argument 'args', like this:
+<pre>&lt;cfset extraArguments_struct = structNew() /&gt;
+&lt;cfset extraArguments_struct['DomainName'] = "somedomain.com" /&gt;
+&lt;cfset return_xml = variables.smartermail_obj.callWs(page='<em>svcUserAdmin</em>', method='<em>GetUsers</em>', <em style="font-weight:bold;">args=extraArguments_struct</em>) /&gt;</pre>
+
+In the example pages I created an option to manage the settings for multiple domains and email addresses in one time.
+This is actually pretty simple to do, since you only have to loop over a list, like this:
+<pre>&lt;cfset emailList = "email1@domain.com,email2@domain.com,email9@otherdomain.com" /&gt;
+&lt;cfloop list="#emailList#" index="email"&gt;
+	&lt;cfset form.EmailAddress = email /&gt;
+	&lt;cfset extraArguments_struct = structNew() /&gt;
+	&lt;cfset extraArguments_struct['EmailAddress'] = email /&gt;
+	&lt;cfset return_xml = variables.smartermail_obj.callWs(page="svcUserAdmin", method="GetUser", args=extraArguments_struct) /&gt;
+	&lt;--- you might want to do something with the xml you retrieved here ---&gt;
+&lt;/cfloop&gt;
+</pre>
+

@@ -1,0 +1,204 @@
+div style="margin-left:0px"><nobr><b>LicenseResult</b>: Returned by IsLicensed</nobr></div>
+
+
+<div style="margin-left:27px"><nobr>o <b>Result</b>: True or false depending on the success of the Web service request</nobr></div>
+
+<div style="margin-left:27px"><nobr>o <b>ResultCode</b>: Specific failure code if the result is false</nobr></div>
+<div style="margin-left:27px"><nobr>o <b>Message</b>: Error message detailing why the result is false</nobr></div>
+<div style="margin-left:27px"><nobr>o <b>Trial</b>: Obsolete, always false</nobr></div>
+<div style="margin-left:27px"><nobr>o <b>Expiration</b>: Obsolete</nobr></div>
+<div style="margin-left:27px"><nobr>o <b>UserMessage</b>: Obsolete </nobr></div>
+
+
+
+
+
+
+
+
+<div><nobr>Additional information on how to read and write ExCalendarItem, ExContactItem, ExTaskItem,</nobr></div>
+<div><nobr>ExNoteItem structs:</nobr></div>
+
+
+
+
+
+
+<div style="margin-left:27px"><nobr>o <b>Key: </b>An array of keys. Each key corresponds to a piece of information about the contact.</nobr></div>
+<div style="margin-left:54px"><nobr>Valid keys are:</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>displayName</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>email</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>title </b>(Mr, Mrs, Etc)</nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>firstName</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>middleName</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>lastName</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>suffix</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>fullName</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>jobTitle</b></nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>companyName</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>companyDepartment</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>companyOffice</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>companyFax</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>companyUrl</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>busStreet</b></nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>busZip</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>busCity</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>busState</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>busCountry</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>busPhone</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>busIpPhone</b></nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>busPager</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>homeStreet</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>homeZip</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>homeCity</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>homeState</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>homeCountry</b></nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>homePhone</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>homeFax</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>mobilePhone</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>WebPage</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>instantMessenger</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>birthDay </b>(date)</nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>additionalInfo</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>categories </b>(comma separated list of categories this entry belongs to)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>guid </b>(can be any unique ID)</nobr></div>
+<div style="margin-left:27px"><nobr>o <b>Value</b>: The value for the contact information. Value should be base 64 encoded</nobr></div>
+
+
+
+
+
+
+<div style="margin-left:27px"><nobr>o <b>Key: </b>An array of keys. Each key corresponds to a piece of information about the</nobr></div>
+<div style="margin-left:54px"><nobr>calendar item. Valid keys are:</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>subject</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>location </b></nobr></div>
+
+
+
+
+
+
+
+
+<div style="margin-left:81px"><nobr>&#8226; <b>description</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>startDate </b>(date)</nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>endDate </b>(date)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>invities </b>(one per invitee)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>exludeddates </b>(not used)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>reminder </b>(how many minutes before appointment)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>guid </b>(can be any unique ID)</nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>recurring </b>(true/false)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>daily </b>(true/false, only one frequency should be set)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>weekly </b>(true/false, only one frequency should be set)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>monthly </b>(true/false, only one frequency should be set)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>yearly </b>(true/false, only one frequency should be set)</nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>until </b>(date to stop recurring event)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>monthyear </b>(month of year, 1-12)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>interval </b>(every x interval)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>occurrences </b>(stop recurring after x occurrences)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>dayofmonth </b>(day of month)</nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>daysofweek </b>(days of week bitmap, Sunday = 1, Monday = 2, &#8230;, Saturday = 64)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>nthday </b>(xth occurrence of the days of week. i.e. second Saturday)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>setpos </b>(xth position of the set)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>categories </b>(comma separated list of categories this entry belongs to)</nobr></div>
+
+<div style="margin-left:27px"><nobr>o <b>Value</b>: The value for the calendar information. Value should be base 64 encoded.</nobr></div>
+
+
+
+
+
+<div style="margin-left:27px"><nobr>o <b>Key: </b>An array of keys. Each key corresponds to a piece of information about the note.</nobr></div>
+<div style="margin-left:54px"><nobr>Valid keys are:</nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>guid </b>(can be any unique ID)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>color </b>(color of the note)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>body </b>(body of the note)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>categories </b>(comma separated list of categories this entry belongs to)</nobr></div>
+<div style="margin-left:27px"><nobr>o <b>Value</b>: The value for the note information. Value should be base 64 encoded</nobr></div>
+
+
+
+
+
+
+<div style="margin-left:27px"><nobr>o <b>Key: </b>An array of keys. Each key corresponds to a piece of information about the task.</nobr></div>
+<div style="margin-left:54px"><nobr>Valid keys are:</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>subject</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>startDate </b>(date)</nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>dueDate </b>(date)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>reminder </b>(how many minutes before task)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>status </b>(NeedsAction, InProcess, Completed)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>priority </b>(0-10)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>percentComplete </b>(0-100)</nobr></div>
+
+<div style="margin-left:81px"><nobr>&#8226; <b>description</b></nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>guid </b>(can be any unique ID)</nobr></div>
+<div style="margin-left:81px"><nobr>&#8226; <b>categories </b>(comma separated list of categories this entry belongs to)</nobr></div>
+<div style="margin-left:27px"><nobr>o <b>Value</b>: The value for the task information. Value should be base 64 encoded.</nobr></div>
+
+
+
+
+
+
+
+<div><nobr><b>Glossary</b></nobr></div>
+
+
+<div><nobr>The following is a list of acronyms used in this document:</nobr></div>
+<div><nobr><b>BIND</b></nobr></div>
+<div style="position:absolute;top:57377;left:170"><nobr>Berkeley Internet Name Domain</nobr></div>
+
+<div style="position:absolute;top:57377;left:474"><nobr><b>ISP</b></nobr></div>
+<div style="position:absolute;top:57377;left:535"><nobr>Internet Service Provider</nobr></div>
+<div><nobr><b>DNS</b></nobr></div>
+<div style="position:absolute;top:57397;left:170"><nobr>Domain Name Server</nobr></div>
+<div style="position:absolute;top:57397;left:474"><nobr><b>POP</b></nobr></div>
+<div style="position:absolute;top:57397;left:535"><nobr>Post Office Protocol</nobr></div>
+<div><nobr><b>GB</b></nobr></div>
+<div style="position:absolute;top:57418;left:170"><nobr>Gigabyte</nobr></div>
+<div style="position:absolute;top:57418;left:474"><nobr><b>RAID</b></nobr></div>
+
+<div style="position:absolute;top:57418;left:535"><nobr>Redundant Array of Independent Disks</nobr></div>
+<div><nobr><b>IDS</b></nobr></div>
+<div style="position:absolute;top:57438;left:170"><nobr>Intrusion Detection System(s)</nobr></div>
+<div style="position:absolute;top:57438;left:474"><nobr><b>RAM</b></nobr></div>
+<div style="position:absolute;top:57438;left:535"><nobr>Random Access Memory</nobr></div>
+<div><nobr><b>IMAP </b>Internet Message Access Protocol</nobr></div>
+<div style="position:absolute;top:57458;left:474"><nobr><b>SATA</b></nobr></div>
+<div style="position:absolute;top:57458;left:535"><nobr>Serial Advanced Technology Attachment</nobr></div>
+
+<div><nobr><b>IP</b></nobr></div>
+<div style="position:absolute;top:57478;left:170"><nobr>Internet Protocol </nobr></div>
+<div style="position:absolute;top:57478;left:474"><nobr><b>SMTP </b>Simple Mail Transfer Protocol</nobr></div>
+
+
+<div><nobr><b>Important Notices</b></nobr></div>
+
+
+<div><nobr>The recommendations in this document reflect the opinions of its author(s) only and are based upon</nobr></div>
+<div><nobr>their knowledge and experience. No warrantee or guarantee is expressed or implied as to the efficacy or</nobr></div>
+
+<div><nobr>applicability of the information in this document for a particular environment or application.</nobr></div>
+<div><nobr>SmarterMail, SmarterTools, and their respective logos are trademarks of SmarterTools Inc.  All other</nobr></div>
+<div><nobr>trade-names and/or trademarks in this document are the property of their respective owners. </nobr></div>
+<div><nobr>Comments and suggestions regarding the contents of this document should be sent to</nobr></div>
+
+
+<div><nobr><a href="mailto:editor@smartertools.com">editor@smartertools.com</a><a href="mailto:editor@smartertools.com">.</a> </nobr></div>
+
+</body>
+</html>
