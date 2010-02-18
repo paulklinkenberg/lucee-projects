@@ -169,7 +169,7 @@
 			So just to be sure, call it in 2 times. --->
 			<cfif variables.dbType eq "mySQL">
 				<cfset variables.objQryAdapter.makeQuery(query="INSERT IGNORE INTO #variables.tablePrefix#viewCounts (postID, viewCount)
-					VALUES ('#arguments.postID#', 0)") />
+					VALUES ('#arguments.postID#', 0)", returnResult=false) />
 			</cfif>
 			<cfsavecontent variable="sql_str"><cfoutput>
 				<cfif variables.dbType eq "MSSQL">
@@ -186,7 +186,7 @@
 				SET viewCount = viewCount+1
 				WHERE postID = '#arguments.postID#'
 			</cfoutput></cfsavecontent>
-			<cfset variables.objQryAdapter.makeQuery(query=sql_str) />
+			<cfset variables.objQryAdapter.makeQuery(query=sql_str, returnResult=false) />
 			
 			<cfset _updateViewCountCache(postID=arguments.postID, increaseBy=1) />
 		</cfif>
@@ -200,9 +200,9 @@
 		
 		<cfset variables.objQryAdapter.makeQuery(query="DELETE
 			FROM #variables.tablePrefix#viewCounts
-			WHERE postID = '#arguments.postID#'") />
+			WHERE postID = '#arguments.postID#'", returnResult=false) />
 		<cfset variables.objQryAdapter.makeQuery(query="INSERT INTO #variables.tablePrefix#viewCounts (postID, viewCount)
-			VALUES ('#arguments.postID#', #arguments.viewCount#)") />
+			VALUES ('#arguments.postID#', #arguments.viewCount#)", returnResult=false) />
 	</cffunction>
 	
 	
@@ -217,7 +217,7 @@
 				postID varchar(35) UNIQUE NOT NULL
 			)
 		</cfoutput></cfsavecontent>
-		<cfset variables.objQryAdapter.makeQuery(query=sql_str) />
+		<cfset variables.objQryAdapter.makeQuery(query=sql_str, returnResult=false) />
 	</cffunction>
 	
 	

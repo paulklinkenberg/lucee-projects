@@ -30,12 +30,12 @@
 <cfparam name="data.externaldata.viewCountsOrder" default="page" />
 <cfparam name="data.externaldata.viewCountsOrderDir" default="ASC" />
 <cfsavecontent variable="sql_str">
-	SELECT <cfif findNoCase('mssql', variables.dbType)>ISNULL<cfelse>IFNULL</cfif>(viewCounts.viewCount,0) AS viewCount
-		, entry.id, entry.title, entry.name, post.posted_on
-	FROM entry
-	INNER JOIN post ON post.id = entry.id
-	LEFT OUTER JOIN viewCounts ON viewCounts.postID = entry.id
-	ORDER BY <cfif data.externaldata.viewCountsOrder eq 'page'>entry.title<cfelseif data.externaldata.viewCountsOrder eq 'date'>post.posted_on<cfelse>viewCounts.viewCount</cfif> <cfif listFindNoCase('asc,desc', data.externaldata.viewCountsOrderDir)>#data.externaldata.viewCountsOrderDir#</cfif>
+	SELECT <cfif findNoCase('mssql', variables.dbType)>ISNULL<cfelse>IFNULL</cfif>(#variables.tablePrefix#viewCounts.viewCount,0) AS viewCount
+		, #variables.tablePrefix#entry.id, #variables.tablePrefix#entry.title, #variables.tablePrefix#entry.name, #variables.tablePrefix#post.posted_on
+	FROM #variables.tablePrefix#entry
+	INNER JOIN #variables.tablePrefix#post ON #variables.tablePrefix#post.id = #variables.tablePrefix#entry.id
+	LEFT OUTER JOIN #variables.tablePrefix#viewCounts ON #variables.tablePrefix#viewCounts.postID = #variables.tablePrefix#entry.id
+	ORDER BY <cfif data.externaldata.viewCountsOrder eq 'page'>#variables.tablePrefix#entry.title<cfelseif data.externaldata.viewCountsOrder eq 'date'>#variables.tablePrefix#post.posted_on<cfelse>#variables.tablePrefix#viewCounts.viewCount</cfif> <cfif listFindNoCase('asc,desc', data.externaldata.viewCountsOrderDir)>#data.externaldata.viewCountsOrderDir#</cfif>
 </cfsavecontent>
 <cfset viewCounts_qry = variables.objQryAdapter.makeQuery(query=sql_str) />
 
