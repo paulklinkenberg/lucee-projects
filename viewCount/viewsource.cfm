@@ -109,7 +109,7 @@ Example: <cfset variables.viewablePaths = "./,/javascript/,/css/,../scripts/" />
 		<cfoutput>This is the source code of <strong>#request.filepath#</strong>.<br /><br /></cfoutput>
 		<!--- Please, leave the next line intact; thee are my credits ;-)  Thanks, Paul. --->
 		This file is part of the <a href="http://www.coldfusiondeveloper.nl/post.cfm/mangoblog-plugin-viewcount">Mangoblog viewCount plugin</a>!<br /><br />
-		<em>The code is colored using the <a href="http://www.leeftpaulnog.nl/2009/03/my-supreme-coldfusion-code-coloring.html">Coldfusion code coloring component</a> by <a href="http://www.leeftpaulnog.nl/">Paul Klinkenberg</a>.</em>
+		<em>The code is colored using the <a href="http://www.coldfusiondeveloper.nl/post.cfm/my-supreme-coldfusion-code-coloring">Coldfusion code coloring component</a> by <a href="http://www.coldfusiondeveloper.nl/">Paul Klinkenberg</a>.</em>
 	</p>
 	<cfoutput>#codeColoring_obj.colorString(dataString=txt, lineNumbers=false)#</cfoutput></body>
 </html>
