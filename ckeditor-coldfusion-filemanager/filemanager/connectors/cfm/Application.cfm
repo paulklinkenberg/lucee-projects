@@ -20,7 +20,16 @@
 <!--- include the config data --->
 <cfinclude template="filemanager.config.cfm" />
 
-<!--- it's your function: how do you determine when a user can add/edit files? --->
+<!--- it's your function: how do you determine when a user can add/edit files?
+Some options:
+- check for the existence of a specific cookie
+	<cfif structKeyExists(cookie, "userLoggedIn")><cfreturn true /><cfelse><cfreturn false /></cfif>
+- first include the Application.cfm from your website here, and then check if the user isLoggedIn()
+	<cfinclude template="/Application.cfm" />
+	<cfif isUserLoggedIn()><cfreturn true /><cfelse><cfreturn false /></cfif>
+- check on IP
+	<cfif cgi.remote_addr eq "123.45.67.89"><cfreturn true /><cfelse><cfreturn false /></cfif>
+ --->
 <cffunction name="isAllowed" access="public" returntype="boolean">
-	<cfreturn true />
+	<cfreturn false />
 </cffunction>
