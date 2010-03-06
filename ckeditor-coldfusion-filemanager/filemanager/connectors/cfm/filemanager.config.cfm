@@ -10,8 +10,8 @@
  *  @version	1.0
  *	@copyright	Authors
 --->
-<cfset request.uploadWebRoot = "/uploads/" />
-<cfset request.language = "nl" /><!--- see directory 'lang' --->
+<cfset request.uploadWebRoot = "/uploads/" /><!--- Path relative to the website's root, i.e. '/uploads/' or '/images/' --->
+<cfset request.language = "en" /><!--- see directory 'lang' --->
 <cfset request.maxFileSizeKB = 10000 /><!--- max. upload file size, in KiloBytes (1.000 KB = 1 MB) --->
 <cfset request.onlyImageUploads = false />
 <cfset request.allowedImageExtensions = "jpg,jpeg,gif,png" />

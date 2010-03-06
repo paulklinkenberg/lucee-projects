@@ -39,10 +39,10 @@ CKEDITOR.editorConfig = function( config )
 	];
 	
 
-	config.filebrowserBrowseUrl = '/ckeditor/filemanager/trunk/index.html';
- 	config.filebrowserImageBrowseUrl = '/ckeditor/filemanager/trunk/index.html?type=Images&currentFolder=/Image/';
- 	config.filebrowserFlashBrowseUrl = '/ckeditor/filemanager/trunk/index.html?type=Flash&currentFolder=/Flash/';
- 	config.filebrowserUploadUrl = '/ckeditor/filemanager/trunk/connectors/cfm/filemanager.cfm?command=QuickUpload&type=Files&currentFolder=/';
- 	config.filebrowserImageUploadUrl = '/ckeditor/filemanager/trunk/connectors/cfm/filemanager.cfm?command=QuickUpload&type=Images&currentFolder=/Images/';
- 	config.filebrowserFlashUploadUrl = '/ckeditor/filemanager/trunk/connectors/cfm/filemanager.cfm?command=QuickUpload&type=Flash&currentFolder=/Flash/';
+	config.filebrowserBrowseUrl = '/ckeditor/filemanager/index.html';
+ 	config.filebrowserImageBrowseUrl = '/ckeditor/filemanager/index.html?type=Images&currentFolder=/Image/';
+ 	config.filebrowserFlashBrowseUrl = '/ckeditor/filemanager/index.html?type=Flash&currentFolder=/Flash/';
+ 	config.filebrowserUploadUrl = '/ckeditor/filemanager/connectors/cfm/filemanager.cfm?command=QuickUpload&type=Files&currentFolder=/';
+ 	config.filebrowserImageUploadUrl = '/ckeditor/filemanager/connectors/cfm/filemanager.cfm?command=QuickUpload&type=Images&currentFolder=/Image/';
+ 	config.filebrowserFlashUploadUrl = '/ckeditor/filemanager/connectors/cfm/filemanager.cfm?command=QuickUpload&type=Flash&currentFolder=/Flash/';
 };
