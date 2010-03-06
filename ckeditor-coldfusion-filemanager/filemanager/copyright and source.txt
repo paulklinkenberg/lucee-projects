@@ -1,0 +1,4 @@
+Please see http://labs.corefive.com/Projects/FileManager/
+
+svn://corefive.com/svn/filemanager/
+Revision 16 at time of writing (6 march 2010)
