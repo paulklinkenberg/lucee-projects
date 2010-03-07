@@ -378,10 +378,12 @@
 		<cfset var cfimage_struct = "" />
 		<cfset var imageData_struct = "" />
 		<cfif not structKeyExists(variables.imageInfo_struct, arguments.path)>
-			<cfset imageData_struct = {Width="---", Height="---"} />
-		<!---	<cfimage action="info" source="#arguments.path#" structname="cfimage_struct" />
+			<cfimage action="info" source="#arguments.path#" structname="cfimage_struct" />
+			<!--- workaround for railobug #611: https://jira.jboss.org/jira/browse/RAILO-611 --->
+			<cfif structKeyExists(server, "Railo")>
+				<cfset cfimage_struct = duplicate(cfimage_struct) />
+			</cfif>
 			<cfset imageData_struct = {Width=cfimage_struct.width, Height=cfimage_struct.height} />
-		--->
 			<cfset structInsert(variables.imageInfo_struct, arguments.path, imageData_struct, true) />
 		</cfif>
 		<cfreturn variables.imageInfo_struct[arguments.path] />
