@@ -4,6 +4,10 @@
 	
 	toXML function made by Paul Klinkenberg, 25-feb-2009
 	http://www.coldfusiondeveloper.nl/post.cfm/toxml-function-for-coldfusion
+	
+	Version 1.1, March 8, 2010
+	Now using <cfsavecontent> while generating the xml output in the functions, since it increases process speed
+	Thanks to Brian Meloche (http://www.brianmeloche.com/blog/) for pointing it out
 --->
 
 	<cffunction name="toXML" returntype="string" access="public" output="no" hint="Recursively converts any kind of data to xml">
@@ -11,31 +15,36 @@
 		<cfargument name="rootelement" type="string" required="false" default="data" />
 		<cfargument name="elementattributes" type="string" required="false" default="" hint="Optional string like 'order=2', which will be added into the starting rootElement tag." />
 		<cfargument name="addXMLHeader" type="boolean" required="no" default="false" hint="Whether or not to add the &lt;?xml?&gt; tag" />
-		<cfset var s = iif(addXMLHeader, de("<?xml version=""1.0"" encoding=""UTF-8""?>"), de('')) />
-
+		<cfset var s = "" />
+		
 		<!---add space before the attributes, if any--->
 		<cfif len(elementattributes)>
 			<cfset elementattributes = " " & trim(elementattributes) />
 		</cfif>
 		
-		<cfif isNumeric(data)>
-			<cfset s = s & "<#rootelement##elementattributes#>#data#</#rootelement#>" />
-		<cfelseif IsBoolean(data)>
-			<cfset s = s & "<#rootelement##elementattributes#>#iif(data, 1, 0)#</#rootelement#>" />
-		<cfelseif IsSimpleValue(data)>
-			<cfset s = s & "<#rootelement##elementattributes#>#xmlFormat(data)#</#rootelement#>" />
-		<cfelseif IsQuery(data)>
-			<cfset s = s & _queryToXML(data, rootelement, elementattributes) />
-		<cfelseif IsArray(data)>
-			<cfset s = s & _arrayToXML(data, rootelement, elementattributes) />
-		<cfelseif IsStruct(data)>
-			<cfset s = s & _structToXML(data, rootelement, elementattributes) />
-		<!--- is it an exception, like cfcatch? --->
-		<cfelseif refindNoCase("^coldfusion\..*Exception$", data.getClass().getName())>
-			<cfset s = s & _structToXML(data, rootelement, elementattributes) />
-		<cfelse>
-			<cfset s = s & "<#rootelement##elementattributes#>Unknown object of type #_data.getClass().getName()#</#rootelement#>" />
-		</cfif>
+		<cfsavecontent variable="s"><cfoutput><cfif addXMLHeader><?xml version="1.0" encoding="UTF-8"?>
+</cfif><!---
+			---><cfif isNumeric(data)><!---
+				---><#rootelement##elementattributes#>#data#</#rootelement#><!---
+			---><cfelseif IsBoolean(data)><!---
+				---><#rootelement##elementattributes#>#iif(data, 1, 0)#</#rootelement#><!---
+			---><cfelseif IsSimpleValue(data) and not len(data)><!---
+				---><#rootelement##elementattributes#/><!---
+			---><cfelseif IsSimpleValue(data)><!---
+				---><#rootelement##elementattributes#>#xmlFormat(data)#</#rootelement#><!---
+			---><cfelseif IsQuery(data)><!---
+				--->#_queryToXML(data, rootelement, elementattributes)#<!---
+			---><cfelseif IsArray(data)><!---
+				--->#_arrayToXML(data, rootelement, elementattributes)#<!---
+			---><cfelseif IsStruct(data)><!---
+				--->#_structToXML(data, rootelement, elementattributes)#<!---
+			---><!--- is it an exception, like cfcatch? ---><!---
+			---><cfelseif refindNoCase("^coldfusion\..*Exception$", data.getClass().getName())><!---
+				--->#_structToXML(data, rootelement, elementattributes)#<!---
+			---><cfelse><!---
+				---><#rootelement##elementattributes#>Unknown object of type #_data.getClass().getName()#</#rootelement#><!---
+			---></cfif><!---
+		---></cfoutput></cfsavecontent>
 
 		<cfreturn s />
 	</cffunction>
@@ -49,13 +58,13 @@
 		<cfset var s = "" />
 		<cfset var x = "" />
 		
-		<cfset s = s & "<" & arguments.rootelement & " type=""array""#elementattributes#>">
-		<cfloop index="x" from="1" to="#arrayLen(arguments.data)#">
-			<cfset s = s & toXML(data=arguments.data[x], rootelement=arguments.itemelement, elementattributes="order=""#x#""") />
-		</cfloop>
-		<cfset s = s & "</" & arguments.rootelement & ">">
+		<cfsavecontent variable="s"><cfoutput><#arguments.rootelement# type="array"#elementattributes#><!---
+			---><cfloop index="x" from="1" to="#arrayLen(arguments.data)#"><!---
+				--->#toXML(data=arguments.data[x], rootelement=arguments.itemelement, elementattributes="order=""#x#""")#<!---
+			---></cfloop><!---
+		---></#arguments.rootelement#></cfoutput></cfsavecontent>
 		
-		<cfreturn s>
+		<cfreturn s />
 	</cffunction>
 	
 	
@@ -65,25 +74,16 @@
 		<cfargument name="elementattributes" type="string" required="false" default="" />
 		<cfargument name="itemelement" type="string" required="false" default="row">
 		<cfset var s = "" />
-		<cfset var col = "">
-		<cfset var columns = arguments.data.columnlist>
-		<cfset var txt = "">
+		<cfset var col = "" />
+		<cfset var columns = arguments.data.columnlist />
 		
-		<cfset s = s & "<" & arguments.rootelement & " type=""query""#elementattributes#>">
-		
-		<cfloop query="arguments.data">
-			<cfset s = s & "<" & arguments.itemelement & " order=""#data.currentrow#"">">
-	
-			<cfloop index="col" list="#columns#">
-				<cfset s = s & toXML(data=arguments.data[col][currentRow], rootElement=col) />
-			</cfloop>
-			
-			<cfset s = s & "</" & arguments.itemelement & ">">
-		</cfloop>
-		
-		<cfset s = s & "</" & arguments.rootelement & ">">
-		
-		<cfreturn s>
+		<cfsavecontent variable="s"><cfoutput><#arguments.rootelement# type="query"#elementattributes#><!---
+			---><cfloop query="arguments.data"><#arguments.itemelement# order="#data.currentrow#"><!---
+				---><cfloop index="col" list="#columns#">#toXML(data=arguments.data[col][currentRow], rootElement=col)#</cfloop><!---
+			---></#arguments.itemelement#></cfloop>
+		</#arguments.rootelement#></cfoutput></cfsavecontent>
+
+		<cfreturn s />
 	</cffunction>
 	
 	
@@ -92,17 +92,14 @@
 		<cfargument name="rootelement" type="string" required="false" default="data">
 		<cfargument name="elementattributes" type="string" required="false" default="" />
 		<cfargument name="itemelement" type="string" required="false" default="object">
-		<cfset var s = "<" & arguments.rootelement & " type=""struct""#elementattributes#><" & arguments.itemelement & ">" />
+		<cfset var s = "" />
 		<cfset var keys = structKeyList(arguments.data)>
 		<cfset var key = "">
 		
-		<cfloop index="key" list="#keys#">
-			<cfset s = s & toXML(data=arguments.data[key], rootelement=key) />
-		</cfloop>
-		
-		<cfset s = s & "</" & arguments.itemelement & "></" & arguments.rootelement & ">">
-		
-		<cfreturn s>
+		<cfsavecontent variable="s"><cfoutput><#arguments.rootelement# type="struct"#elementattributes#><#arguments.itemelement#><!---
+			---><cfloop index="key" list="#keys#">#toXML(data=arguments.data[key], rootelement=key)#</cfloop><!---
+		---></#arguments.itemelement#></#arguments.rootelement#></cfoutput></cfsavecontent>
+		<cfreturn s />
 	</cffunction>
 
 
