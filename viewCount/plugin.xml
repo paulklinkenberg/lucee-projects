@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="nl.coldfusiondeveloper.mango.plugins.viewCount" name="viewCount" version="1.2.3" provider-name="Paul Klinkenberg" class="viewCount.PluginHandler">
+<plugin id="nl.coldfusiondeveloper.mango.plugins.viewCount" name="viewCount" version="1.3" provider-name="Paul Klinkenberg" class="viewCount.PluginHandler">
 	<description><![CDATA[ Shows the number of times a blog post has been viewed ]]></description>
 	<requiresVersion match="greaterOrEqual">0.1</requiresVersion>
 	<listens>
@@ -8,5 +8,7 @@
 		<event name="updateViewCount" type="synch" priority="5" />
 		<event name="settingsNav" type="synch" priority="5" />
 		<event name="showViewCountSettings" type="synch" priority="5" />
+		<event name="customPostsNav" type="synch" priority="5" />
+		<event name="postsNav" type="synch" priority="5" />
 	</listens>
 </plugin>

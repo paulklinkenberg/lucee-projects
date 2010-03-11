@@ -1,4 +1,4 @@
-<cfoutput>
+<cfoutput><cftry>
 <form method="post" action="#cgi.script_name#">
 	<p>
 		<label for="excludeSearchEngines">Count views from web spiders/crawlers?</label>
@@ -17,6 +17,13 @@
 			<em>(numeric; 0 = count each page view)</em>
 		</span>
 	</p>
+	<p>
+		<label for="showPublicly">Show viewCount in website?</label>
+		<span class="field"><select name="showPublicly">
+			<option value="1">Yes</option>
+			<option value="0"<cfif getSetting('showPublicly') eq 0> selected="selected"</cfif>>No</option>
+		</select></span>
+	</p>
 	
 	<div class="actions">
 		<input type="submit" class="primaryAction" value="Submit"/>
@@ -29,15 +36,7 @@
 
 <cfparam name="data.externaldata.viewCountsOrder" default="page" />
 <cfparam name="data.externaldata.viewCountsOrderDir" default="ASC" />
-<cfsavecontent variable="sql_str">
-	SELECT <cfif findNoCase('mssql', variables.dbType)>ISNULL<cfelse>IFNULL</cfif>(#variables.tablePrefix#viewCounts.viewCount,0) AS viewCount
-		, #variables.tablePrefix#entry.id, #variables.tablePrefix#entry.title, #variables.tablePrefix#entry.name, #variables.tablePrefix#post.posted_on
-	FROM #variables.tablePrefix#entry
-	INNER JOIN #variables.tablePrefix#post ON #variables.tablePrefix#post.id = #variables.tablePrefix#entry.id
-	LEFT OUTER JOIN #variables.tablePrefix#viewCounts ON #variables.tablePrefix#viewCounts.postID = #variables.tablePrefix#entry.id
-	ORDER BY <cfif data.externaldata.viewCountsOrder eq 'page'>#variables.tablePrefix#entry.title<cfelseif data.externaldata.viewCountsOrder eq 'date'>#variables.tablePrefix#post.posted_on<cfelse>#variables.tablePrefix#viewCounts.viewCount</cfif> <cfif listFindNoCase('asc,desc', data.externaldata.viewCountsOrderDir)>#data.externaldata.viewCountsOrderDir#</cfif>
-</cfsavecontent>
-<cfset viewCounts_qry = variables.objQryAdapter.makeQuery(query=sql_str) />
+<cfset viewCounts_qry = getViewCounts(order=data.externaldata.viewCountsOrder, dir=data.externaldata.viewCountsOrderDir) />
 
 <hr />
 <h3>View Counts so far</h3>
@@ -80,4 +79,5 @@
 		</tfoot>
 	</table>
 </form>
-</cfoutput>
+<cfcatch><cfdump var="#cfcatch#" /></cfcatch>
+</cftry></cfoutput>

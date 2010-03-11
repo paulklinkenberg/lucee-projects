@@ -13,7 +13,7 @@
 		<cfset variables.preferencesManager = arguments.preferences />
 		<cfset variables.manager = arguments.mainManager />
 		
-		<cfset initSettings(maxHours=2, excludeSearchEngines=1) />
+		<cfset initSettings(maxHours=2, excludeSearchEngines=1, showPublicly=1) />
 
 		<!--- get database related specs and handler --->
 		<cfset variables.objQryAdapter = variables.manager.getQueryInterface() />
@@ -69,12 +69,14 @@
 			</cfif>
 		<cfelseif eventName eq "beforePostContentEnd">
 			<!--- this is a template event, there should be a context and a request --->
-			<cfset outputData = arguments.event.getOutputData() />
 			<cfset context = arguments.event.getContextData() />
 			<cfif structkeyexists(context,"currentPost")>
 				<cfset postID = context.currentPost.getID() />
 				<cfset _updateViewCount(postID) />
-				<cfset arguments.event.setOutputData(outputData & " | " & getViewCountHTML(postID)) />
+				<cfif getSetting('showPublicly') eq 1>
+					<cfset outputData = arguments.event.getOutputData() />
+					<cfset arguments.event.setOutputData(outputData & " | " & getViewCountHTML(postID)) />
+				</cfif>
 			</cfif>
 		<!--- admin nav event --->
 		<cfelseif eventName eq "settingsNav">
@@ -85,6 +87,34 @@
 			<cfset link.eventName = "showViewCountSettings" />
 			
 			<cfset arguments.event.addLink(link) />
+		<!--- show the viewCounts in the admin posts overview --->
+		<cfelseif listFindNoCase("postsNav,customPostsNav", eventName)>
+			<!--- get all viewcounts --->
+			<cfset viewCounts_qry = getViewCounts() />
+			
+			<!--- create javascript to inject the counts into the existing table --->
+			<cfsavecontent variable="javascript_str"><cfoutput>
+				<script type="text/javascript">
+					$(function(){
+						var counts = {0:0<cfloop query="viewCounts_qry">, '#id#':#viewCount#</cfloop>};
+						var $postsTRs = $('##content tr');
+						$postsTRs.each(function()
+						{
+							var $a = $('a:first', this);
+							if ($a.length)
+							{
+								var id = $a.get(0).href.replace(/^.*?[\?;&]id=([0-9A-F-]+).*$/i, "$1");
+								var td = "<td style=\"text-align:right\">" + counts[id] + "</td>";
+							} else
+								var td = "<th>Views</th>";
+							$(this).append($(td).addClass($a.parent().attr('class')));
+						});
+					});
+				</script>
+			</cfoutput></cfsavecontent>
+			<!--- add javascript to the page --->
+			<cfhtmlhead text="#javascript_str#" />
+			
 		<!--- admin event --->
 		<cfelseif eventName eq "showViewCountSettings">
 			<cfif variables.manager.isCurrentUserLoggedIn()>
@@ -93,7 +123,9 @@
 					<cfif not isNumeric(data.externaldata.maxHours) or data.externaldata.maxHours lt 0 or int(data.externaldata.maxHours) neq data.externaldata.maxHours>
 						<cfset err_str = '<p class="error">The number of hours is invalid!</p>' />
 					<cfelse>
-						<cfset setSettings(maxHours=data.externaldata.maxHours, excludeSearchEngines=data.externaldata.excludeSearchEngines) />
+						<cfset setSettings(maxHours=data.externaldata.maxHours
+							, excludeSearchEngines=data.externaldata.excludeSearchEngines
+							, showPublicly=data.externaldata.showPublicly) />
 						<cfset persistSettings() />
 																	
 						<cfset data.message.setstatus("success") />
@@ -169,7 +201,7 @@
 			So just to be sure, call it in 2 times. --->
 			<cfif variables.dbType eq "mySQL">
 				<cfset variables.objQryAdapter.makeQuery(query="INSERT IGNORE INTO #variables.tablePrefix#viewCounts (postID, viewCount)
-					VALUES ('#arguments.postID#', 0)") />
+					VALUES ('#arguments.postID#', 0)", returnResult=false) />
 			</cfif>
 			<cfsavecontent variable="sql_str"><cfoutput>
 				<cfif variables.dbType eq "MSSQL">
@@ -186,7 +218,7 @@
 				SET viewCount = viewCount+1
 				WHERE postID = '#arguments.postID#'
 			</cfoutput></cfsavecontent>
-			<cfset variables.objQryAdapter.makeQuery(query=sql_str) />
+			<cfset variables.objQryAdapter.makeQuery(query=sql_str, returnResult=false) />
 			
 			<cfset _updateViewCountCache(postID=arguments.postID, increaseBy=1) />
 		</cfif>
@@ -200,9 +232,9 @@
 		
 		<cfset variables.objQryAdapter.makeQuery(query="DELETE
 			FROM #variables.tablePrefix#viewCounts
-			WHERE postID = '#arguments.postID#'") />
+			WHERE postID = '#arguments.postID#'", returnResult=false) />
 		<cfset variables.objQryAdapter.makeQuery(query="INSERT INTO #variables.tablePrefix#viewCounts (postID, viewCount)
-			VALUES ('#arguments.postID#', #arguments.viewCount#)") />
+			VALUES ('#arguments.postID#', #arguments.viewCount#)", returnResult=false) />
 	</cffunction>
 	
 	
@@ -217,7 +249,7 @@
 				postID varchar(35) UNIQUE NOT NULL
 			)
 		</cfoutput></cfsavecontent>
-		<cfset variables.objQryAdapter.makeQuery(query=sql_str) />
+		<cfset variables.objQryAdapter.makeQuery(query=sql_str, returnResult=false) />
 	</cffunction>
 	
 	
@@ -258,7 +290,7 @@
 				SELECT postID, viewCount
 				FROM #variables.tablePrefix#viewCounts
 			</cfoutput></cfsavecontent>
-			<cfset sel_qry = variables.objQryAdapter.makeQuery(query=sql_str) />
+			<cfset sel_qry = variables.objQryAdapter.makeQuery(query=sql_str, returnResult=true) />
 
 			<cfloop query="sel_qry">
 				<cfset structInsert(viewCounts_struct, sel_qry.postID, sel_qry.viewCount) />
@@ -300,6 +332,23 @@
 		<!--- remember this view including the view time --->
 		<cfset structInsert(application._viewCountIPs[arguments.postID], arguments.ip, now(), true) />
 		<cfreturn false />
+	</cffunction>
+	
+	
+	<cffunction name="getViewCounts" access="public" returntype="query" hint="I return a query with all viewcounts, optionally sorted">
+		<cfargument name="order" type="string" required="no" default="page" />
+		<cfargument name="dir" type="string" required="no" default="ASC" hint="ASC or DESC" />
+		<cfset var sql_str = "" />
+		
+		<cfsavecontent variable="sql_str"><cfoutput>
+			SELECT <cfif findNoCase('mssql', variables.dbType)>ISNULL<cfelse>IFNULL</cfif>(#variables.tablePrefix#viewCounts.viewCount,0) AS viewCount
+				, #variables.tablePrefix#entry.id, #variables.tablePrefix#entry.title, #variables.tablePrefix#entry.name, #variables.tablePrefix#post.posted_on
+			FROM #variables.tablePrefix#entry
+			INNER JOIN #variables.tablePrefix#post ON #variables.tablePrefix#post.id = #variables.tablePrefix#entry.id
+			LEFT OUTER JOIN #variables.tablePrefix#viewCounts ON #variables.tablePrefix#viewCounts.postID = #variables.tablePrefix#entry.id
+			ORDER BY <cfif arguments.order eq 'page'>#variables.tablePrefix#entry.title<cfelseif arguments.order eq 'date'>#variables.tablePrefix#post.posted_on<cfelse>#variables.tablePrefix#viewCounts.viewCount</cfif> <cfif listFindNoCase('asc,desc', arguments.dir)>#arguments.dir#</cfif>
+		</cfoutput></cfsavecontent>
+		<cfreturn variables.objQryAdapter.makeQuery(query=sql_str, returnResult=true) />
 	</cffunction>
 	
 </cfcomponent>
