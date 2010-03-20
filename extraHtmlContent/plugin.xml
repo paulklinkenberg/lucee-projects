@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="nl.coldfusiondeveloper.mango.plugins.extrahtmlcontent" name="extrahtmlcontent" version="1.0" provider-name="Paul Klinkenberg" class="extrahtmlcontent.PluginHandler">
+	<description><![CDATA[ Gives you the ability to add extra html before the end of the &lt;head&gt; and &lt;body&gt; content of your blog ]]></description>
+	<requiresVersion match="greaterOrEqual">0.1</requiresVersion>
+	<listens>
+		<event name="beforeHtmlHeadEnd" type="synch" priority="5" />
+		<event name="beforeHtmlBodyEnd" type="synch" priority="5" />
+		<event name="showextrahtmlcontentSettings" type="synch" priority="5" />
+		<event name="settingsNav" type="synch" priority="5" />
+	</listens>
+</plugin>
