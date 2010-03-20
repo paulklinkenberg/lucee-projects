@@ -37,12 +37,12 @@
 --->
 
 <!--- usage: leave empty if all files of the directory/ies may be viewed. Otherwise, use a comma-delimited list. --->
-<cfset variables.viewablefiles = "plugin.xml,PluginHandler.cfc,settingsForm.cfm" />
+<cfset variables.viewablefiles = "smartermail.cfc,smartermailapi.cfm,index.cfm" />
 <!--- usage: leave empty if all file-extensions may be viewed. Otherwise, use a comma-delimited list. --->
-<cfset variables.viewableExtensions = "cfm,cfc,cfml,txt,js,htm,html,xml" />
+<cfset variables.viewableExtensions = "cfm,cfc,cfml,txt,js,htm,html" />
 <!--- usage: absolute path from site-root, or relative from THIS directory. It will be expanded by expandPath() function.
 Example: <cfset variables.viewablePaths = "./,/javascript/,/css/,../scripts/" /> --->
-<cfset variables.viewablePaths = "./,admin/" />
+<cfset variables.viewablePaths = "./" />
 
 <!---------------------------------- DON'T MODIFY UNDERNEATH THIS LINE ------------------------------------>
 <!---create the codecoloring object --->
