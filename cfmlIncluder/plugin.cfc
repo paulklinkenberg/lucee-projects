@@ -50,7 +50,7 @@
 					<fieldset id="customFieldsFieldset" class="">
 						<legend>&lt;cfinclude&gt;</legend>
 						<div>
-							<label for="cfmlincluder">Pad naar include</label>
+							<label for="cfmlincluder">Path to include file</label>
 							<span class="field"><input type="text" name="#variables.customFieldKey#" id="cfmlincluder" value="#local.includeFile#" size="40" /></span>
 						</div>
 					</fieldset>
