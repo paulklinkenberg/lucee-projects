@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="nl.coldfusiondeveloper.mango.plugins.adsense" name="adsense" version="1.1" provider-name="Paul Klinkenberg" class="adsense.PluginHandler">
+<plugin id="nl.coldfusiondeveloper.mango.plugins.adsense" name="adsense" version="1.1.1" provider-name="Paul Klinkenberg" class="adsense.PluginHandler">
 	<description><![CDATA[ Shows adsense ads (or others) on your blog ]]></description>
 	<requiresVersion match="greaterOrEqual">0.1</requiresVersion>
 	<listens>
 		<event name="showAdsense" type="synch" priority="5" />
-		<event name="beforePostContentEnd" type="synch" priority="5" />
+		<event name="beforePostContentEnd" type="synch" priority="1" />
 		<event name="settingsNav" type="synch" priority="5" />
 		<event name="showAdSenseSettings" type="synch" priority="5" />
 		<event name="dashboardPod" type="synch" priority="5" />

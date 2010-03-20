@@ -18,9 +18,10 @@
 		<p>
 			<label for="showOnIterationNrs">On which iterations should the advertisements be shown?</label>
 			<span class="hint">If you want to show ads on your index page, but only after the 1st, 3rd, and 5th item, then insert "1,3,5" here.<br />
-			You can leave this field empty if you want to show ads on every call.</span>
+			You can leave this field empty if you want to show ads on every call.<br />
+			Note: adSense only allows for 3 standard ads per page!</span>
 			<span class="field"><input type="text" id="showOnIterationNrs" name="showOnIterationNrs" value="#getSetting('showOnIterationNrs')#" size="12" />
-				<em>(numeric list, or leave empty)</em>
+				<em>(numeric list, max. 3 items, or leave empty)</em>
 			</span>
 		</p>
 		
