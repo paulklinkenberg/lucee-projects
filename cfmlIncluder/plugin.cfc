@@ -77,9 +77,10 @@
 				<cfif local.data.customFieldExists(variables.customFieldKey)>
 					<cfset local.includefile = local.data.getCustomField(variables.customFieldKey).value />
 					<cfif len(local.includefile) or 1>
-						<cfsavecontent variable="local.includeOutput"><cfoutput>
-							<cfinclude template="#local.includefile#" />
-						</cfoutput></cfsavecontent>
+						<!--- we include the file by using an external cfc. That way the variables scope of this component will not get dirty.--->
+						<cfinvoke component="Includer" method="include" returnvariable="local.includeOutput">
+							<cfinvokeargument name="path" value="#local.includefile#" />
+						</cfinvoke>
 						<cfset arguments.event.setOutputData(arguments.event.getOutputData() & local.includeOutput) />
 					</cfif>
 				</cfif>
