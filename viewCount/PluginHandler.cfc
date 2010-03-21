@@ -51,6 +51,7 @@
 		<cfset var link = "" />
 		<cfset var page = "" />
 		<cfset var eventName = arguments.event.getName() />
+		<cfset var javascript_str = "" />
 		
 		<cfif eventName eq "showViewCount">
 			<!--- this is a template event, there should be a context and a request --->

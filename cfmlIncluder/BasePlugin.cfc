@@ -91,6 +91,7 @@
 	</cffunction>
 	
 	<cffunction name="persistSettings" access="public" output="false" returntype="void">
+		<cfset var key = "" />
 		<cfloop collection="#variables.settings#" item="key">
 			<cfset getPreferencesManager().put(getSettingsPath(), key, variables.settings[key]) />
 		</cfloop>

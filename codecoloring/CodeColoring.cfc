@@ -243,7 +243,7 @@
 		</cfloop>
 		
 		<!--- replace double single quotes within single quoted strings in cf-tags to html entities, i.e. myvar='one ''big'' var' --->
-		<!--- This one is mucho faster, but can give inaccurate results (i.e. <cfset t = '''' />)
+		<!--- This one is mucho faster, but can give inaccurate results (i.e. <cfset local.t = '''' />)
 		: <cfset local.reg = "''([^']+'[^'])" /> --->
 		<cfset local.reg = "(<[a-z0-9_]+[[:space:]][^'"">]*" & "([^'"">]*(['""])[^'""]*\3)*[^'"">]*'[^']*)''" />
 		<cfloop condition="reFindNoCase(local.reg, local.data)">

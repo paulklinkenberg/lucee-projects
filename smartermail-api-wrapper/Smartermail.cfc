@@ -122,7 +122,8 @@
 	<cffunction name="_getExtraSoapBody" access="private" returntype="string">
 		<cfargument name="page" type="string" required="yes" hint="svcAliasAdmin,svcDomainAdmin,svcMailListAdmin,svcProductInfo,svcGlobalUpdate,svcDomainAliasAdmin,svcUserAdmin,svcServerAdmin,svcOutlookAddin" />
 		<cfargument name="method" type="string" required="yes" />
-
+		<cfset var q = "" />
+		
 		<cfif not structKeyExists(variables, "methodArguments")>
 			<cffile action="read" file="#expandPath('./wddx/methodArguments.wddx')#" variable="q" />
 			<cfwddx action="wddx2cfml" input="#q#" output="variables.methodArguments" />
@@ -145,11 +146,11 @@
 		<cfset var doIndent = false />
 		<cfset var nextStartTagOnSameLine = false />
 		
-		<cfset code = rereplace(code, '[\n\r\t]+', '', 'all') />
-		<cfloop condition="refind('<(.*?>)', code)">
+		<cfset arguments.code = rereplace(arguments.code, '[\n\r\t]+', '', 'all') />
+		<cfloop condition="refind('<(.*?>)', arguments.code)">
 			<cfset doIndent = false />
-			<cfset findings = refind('<(.*?>)', code, 1, true) />
-			<cfset tag = mid(code, findings.pos[2], findings.len[2]) />
+			<cfset findings = refind('<(.*?>)', arguments.code, 1, true) />
+			<cfset tag = mid(arguments.code, findings.pos[2], findings.len[2]) />
 			<!---end-tag--->
 			<cfif find('/', tag) eq 1>
 				<cfif lastTag neq rereplace(tag, '(/|>)', '', 'all')>
@@ -170,13 +171,13 @@
 				<cfset nextStartTagOnSameLine = false />
 			</cfif>
 			<cfif doIndent and indent gt -1>
-				<cfset code = replace(code, '<#tag#', '#chr(10)##repeatString('    ', indent)#±#tag#') />
+				<cfset arguments.code = replace(arguments.code, '<#tag#', '#chr(10)##repeatString('    ', indent)#±#tag#') />
 			<cfelse>
-				<cfset code = replace(code, '<#tag#', '±#tag#') />
+				<cfset arguments.code = replace(code, '<#tag#', '±#tag#') />
 			</cfif>
 			<cfset lastTag = rereplace(tag, '(^/|[\?/]?>)', '', 'all') />
 		</cfloop>
-		<cfset code = replace(code, '±', '<', 'all') />
-		<cfreturn code />
+		<cfset arguments.code = replace(arguments.code, '±', '<', 'all') />
+		<cfreturn arguments.code />
 	</cffunction>
 </cfcomponent>

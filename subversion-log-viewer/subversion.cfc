@@ -69,7 +69,9 @@
 	<cffunction name="getinfo" returntype="struct">
 		<cfargument name="svnPath" type="string" required="no" default="#variables.settings.svnPath#" />
 		<cfset var stInfo = structNew() />
-
+		<cfset var line = "" />
+		<cfset var strInfo = "" />
+		
 		<!--- Get the current working copy info --->
 		<cfexecute name="#variables.settings.executable#" arguments="info #arguments.svnPath##variables.userAndPasswordArgument#" variable="strInfo" timeout="60"></cfexecute>
 

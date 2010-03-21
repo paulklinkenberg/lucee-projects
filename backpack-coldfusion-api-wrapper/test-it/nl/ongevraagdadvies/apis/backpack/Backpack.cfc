@@ -376,9 +376,9 @@ Email page to yourself: /ws/page/1234/email
 		<cfset var requestBody_xml = _createRequestXml(argumentCollection=arguments) />
 		<cfset var httpResponse_struct = structNew() />
 		<cfset var httpResponse_xml = "" />
-		
 		<cfset var reFindPos_struct = "" />
 		<cfset var valueNameToBeReplaced = "" />
+		<cfset var debugStruct = structNew() />
 		
 		<!--- <comment author="P. Klinkenberg"> replace all optional variable pointers (= argument names wrapped in curly braces, i.e. {id}) with the argument values </comment> --->
 		<cfloop condition="reFind('\{([^\}]+)\}', requestUrl_str)">

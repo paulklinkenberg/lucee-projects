@@ -18,31 +18,31 @@
 		<cfset var s = "" />
 		
 		<!---add space before the attributes, if any--->
-		<cfif len(elementattributes)>
-			<cfset elementattributes = " " & trim(elementattributes) />
+		<cfif len(arguments.elementattributes)>
+			<cfset arguments.elementattributes = " " & trim(arguments.elementattributes) />
 		</cfif>
 		
 		<cfsavecontent variable="s"><cfoutput><cfif addXMLHeader><?xml version="1.0" encoding="UTF-8"?>
 </cfif><!---
 			---><cfif isNumeric(data)><!---
-				---><#rootelement##elementattributes#>#data#</#rootelement#><!---
+				---><#rootelement##arguments.elementattributes#>#data#</#rootelement#><!---
 			---><cfelseif IsBoolean(data)><!---
-				---><#rootelement##elementattributes#>#iif(data, 1, 0)#</#rootelement#><!---
+				---><#rootelement##arguments.elementattributes#>#iif(data, 1, 0)#</#rootelement#><!---
 			---><cfelseif IsSimpleValue(data) and not len(data)><!---
-				---><#rootelement##elementattributes#/><!---
+				---><#rootelement##arguments.elementattributes#/><!---
 			---><cfelseif IsSimpleValue(data)><!---
-				---><#rootelement##elementattributes#>#xmlFormat(data)#</#rootelement#><!---
+				---><#rootelement##arguments.elementattributes#>#xmlFormat(data)#</#rootelement#><!---
 			---><cfelseif IsQuery(data)><!---
-				--->#_queryToXML(data, rootelement, elementattributes)#<!---
+				--->#_queryToXML(data, rootelement, arguments.elementattributes)#<!---
 			---><cfelseif IsArray(data)><!---
-				--->#_arrayToXML(data, rootelement, elementattributes)#<!---
+				--->#_arrayToXML(data, rootelement, arguments.elementattributes)#<!---
 			---><cfelseif IsStruct(data)><!---
-				--->#_structToXML(data, rootelement, elementattributes)#<!---
+				--->#_structToXML(data, rootelement, arguments.elementattributes)#<!---
 			---><!--- is it an exception, like cfcatch? ---><!---
 			---><cfelseif refindNoCase("^coldfusion\..*Exception$", data.getClass().getName())><!---
-				--->#_structToXML(data, rootelement, elementattributes)#<!---
+				--->#_structToXML(data, rootelement, arguments.elementattributes)#<!---
 			---><cfelse><!---
-				---><#rootelement##elementattributes#>Unknown object of type #_data.getClass().getName()#</#rootelement#><!---
+				---><#rootelement##arguments.elementattributes#>Unknown object of type #_data.getClass().getName()#</#rootelement#><!---
 			---></cfif><!---
 		---></cfoutput></cfsavecontent>
 
