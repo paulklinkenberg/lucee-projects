@@ -1,4 +1,12 @@
-<cfcomponent output="no">
+<!---
+	Diff.cfc
+	Written by http://www.shlomygantz.com/blog/index.cfm/2005/11/3/Diff-cfc-A-ColdFusion-diff-component
+	
+	Edited by Paul Klinkenberg, www.coldfusiondeveloper.nl
+	for project Subversion repository browser: http://www.coldfusiondeveloper.nl/post.cfm/subversion-repository-browser-in-coldfusion
+	
+	Version 1.0, March 2010
+---><cfcomponent output="no">
 
 	<!--- This function accepts 2 arrays of lines, compares them and adds empty lines where needed --->
 	<cffunction name="compareArray" returntype="struct" output="false" access="public">

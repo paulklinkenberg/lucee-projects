@@ -1,11 +1,22 @@
 <cfcomponent displayname="svnbrowser" output="false" hint="Subversion Repository Browser">
 	<!---
 	svn browser
-	Original Code by Rick Osborne
+	Original Code by Rick Osborne: http://code.google.com/p/cfdiff/
 
 	License: Mozilla Public License (MPL) version 1.1 - http://www.mozilla.org/MPL/
 	READ THE LICENSE BEFORE YOU USE OR MODIFY THIS CODE
+	
+	Edited by Paul Klinkenberg, www.coldfusiondeveloper.nl
+	for project Subversion repository browser: http://www.coldfusiondeveloper.nl/post.cfm/subversion-repository-browser-in-coldfusion
+	
+	Version 1.0, March 2010
+		Among other things, I added the option to use svn:// repository urls instead of only http://.
 	--->
+
+
+	<!--- You *probably* won't have to edit anything below this line.
+	But if you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
+	
 	<cffunction name="init" output="true" returntype="svnbrowser" description="Initialize our object" displayname="init">
 		<cfargument name="RepositoryURL" type="string" required="true">
 		<cfargument name="Username" type="string" required="false" default="">
@@ -67,9 +78,9 @@
 				<cfset Q.URL[Q.RecordCount]=u>
 			</cfloop>
 			<cfquery dbtype="query" name="Q">
-			SELECT *
-			FROM Q
-			ORDER BY Kind, URL, Revision DESC
+				SELECT *
+				FROM Q
+				ORDER BY Kind, URL, Revision DESC
 			</cfquery>
 		</cfif>
 		<cfreturn Q>
@@ -149,9 +160,9 @@
 				<cfset Q.Kind[Q.RecordCount]="file">
 			</cfloop>
 			<cfquery dbtype="query" name="Q">
-			SELECT *
-			FROM Q
-			ORDER BY Revision DESC
+				SELECT *
+				FROM Q
+				ORDER BY Revision DESC
 			</cfquery>
 		</cfif>
 		<cfreturn Q>

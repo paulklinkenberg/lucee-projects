@@ -1,4 +1,12 @@
-table.diff td { line-height: 110% !important; }
+/*
+	cfdiff.css
+	Original Code by Rick Osborne: http://code.google.com/p/cfdiff/
+	
+	Edited by Paul Klinkenberg, www.coldfusiondeveloper.nl
+	for project Subversion repository browser: http://www.coldfusiondeveloper.nl/post.cfm/subversion-repository-browser-in-coldfusion
+	
+	Version 1.0, March 2010
+*/table.diff td { line-height: 110% !important; }
 .list { border: 1px solid #999; }
 .list th, .list td { padding: 2px; }
 .list th, .list tfoot tr { background-color: #ddd; }
