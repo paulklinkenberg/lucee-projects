@@ -1,0 +1,31 @@
+table.diff td { line-height: 110% !important; }
+.list { border: 1px solid #999; }
+.list th, .list td { padding: 2px; }
+.list th, .list tfoot tr { background-color: #ddd; }
+.list .smokin { color: #f00; }
+.list .hot { color: #c00; }
+.list .fresh { color: #c80; }
+.list .fine { color: #440; }
+.list .aged { color: #666; }
+.even { background-color: #eee; }
+.diff { font-family: 'Bitstream Vera Sans Mono', 'Bitstream Vera Mono', 'Vera Mono', 'Vera Sans Mono', 'Lucida Console', 'Lucida Typewriter', monospace, fixed-width, fixed; font-size: 11px;
+border: 1px solid #666; }
+.diff .ins { background-color: #dfd; }
+.diff .del { background-color: #fdd; }
+.diff .upd { background-color: #ddf; }
+.diff .notsame { background-color:#9CF; }
+.diff .code { width: 50%; }
+.diff .code div { overflow: hidden; }
+.diff td, .diff tr { vertical-align: top; }
+.diff tr.sep td { font-size:1px; background-color:#999; border:3px solid #fff; border-width:3px 0px; }
+.diff .linenum { font-size: 11px; background: #eee url(images/same-line.gif) repeat-y top right; border-left: 1px solid #ddd; border-right: 1px solid #ddd; text-align: right; color: #555; }
+.diff th { background-color: #eee; padding:3px; border: 1px solid #ddd; border-left: none; font-size:11px; }
+.diff .top td, .diff .whole td { border-top: 2px solid #999; margin-top: 1em; }
+.diff .bottom td, .diff .whole td { border-bottom: 2px solid #999; margin-bottom: 1em; }
+.diff .only td { border-top: none; border-bottom: none; margin-top: auto; margin-bottom: auto; }
+.diff tr:hover, .diff tr:hover .linenum { background-color:#FF9; }
+.diff tr:hover td { border-bottom: 1px solid #900; }
+.num { text-align: right; }
+.links a { float: left; margin-right: 8px; }
+.date { text-align: center; }
+.content pre { background-color: #F4F4F4; border: 1px solid #666; padding: 5px; }
