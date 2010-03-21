@@ -20,6 +20,10 @@
 		- Added optional hyperlinking of urls within the code.
 		- Improved the coloring of tags which have tags inside, like <option <cfif x> selected</cfif> value="z">
 		- Fixed some small issues
+		
+		March 21, 2010, Paul Klinkenberg, www.coldfusiondeveloper.nl
+		Version 1.2.1
+		- Fixed an unscoped variable in _formatCss function
 	--->
 	<cfset variables.css_strs = ArrayNew(1) />
 
@@ -231,7 +235,7 @@
 		<cfset local.timerText_str = listAppend(local.timerText_str, _giveTimer("quotes within quotes")) />
 
 		<!--- replace double double quotes within double quoted strings in cf-tags to html entities, i.e. myvar="one ""big"" var" --->
-		<!--- This one is mucho faster, but can give inaccurate results (i.e. <cfset t = """" />)
+		<!--- This one is mucho faster, but can give inaccurate results (i.e. <cfset local.t = """" />)
 		: <cfset local.reg = """""([^""]+""[^""])" /> --->
 		<cfset local.reg = "(<[a-z0-9_]+[[:space:]][^'"">]*" & "([^'"">]*(['""])[^'""]*\3)*[^'"">]*""[^""]*)""""" />
 		<cfloop condition="reFindNoCase(local.reg, local.data)">
@@ -437,7 +441,7 @@ variables.css_strs = #ArrayToList(variables.css_strs, chr(13))#-->" />
 
 	<cffunction name="_formatCss" access="private" returntype="string" output="no">
 		<cfargument name="style_str" type="string" required="yes" />
-		
+		<cfset var style_str = "" />
 		<!--- all css selectors dark blue, and all css values lighter blue --->
 		<cfset var reg = "((^|{)[^}{]*?[[:space:]]*)([^:;{}«»]+)(:[[:space:]]*)([^;«\}]+)([«;\}]|$)" />
 		
