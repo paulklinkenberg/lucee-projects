@@ -17,29 +17,54 @@
 	<!--- You *probably* won't have to edit anything below this line.
 	But if you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 	
+	<cfset variables.useClassLoader = true />
+	
+	
+	<cffunction name="loadSvnClass" returntype="any" access="private" hint="I return java class instances">
+		<cfargument name="class" type="string" required="yes" />
+		<cfset var paths = arrayNew(1) />
+		<cfif variables.useClassLoader>
+			<cfif not structKeyExists(variables, "_javaClassLoader")>
+				<cfset paths[1] = expandPath("./jar-files/svnkit.jar") />
+				<cfset variables._javaClassLoader = createObject("component", "javaloader.JavaLoader").init(paths) />
+			</cfif>
+			<cfreturn variables._javaClassLoader.create(arguments.class) />
+		<cfelse>
+			<cfreturn createObject("java", arguments.class) />
+		</cfif>
+	</cffunction>
+	
+	
 	<cffunction name="init" output="true" returntype="svnbrowser" description="Initialize our object" displayname="init">
 		<cfargument name="RepositoryURL" type="string" required="true">
 		<cfargument name="Username" type="string" required="false" default="">
 		<cfargument name="Password" type="string" required="false" default="">
 		<cfset var URL_obj = "" />
+		<cfset var args = arrayNew(1) />
+		<cfset var auth_obj = "" />
 		<!---
 		The TMate JavaSVN library requires the following notice, so don't delete it!
 		Copyright (c) 2004-2006 TMate Software. All rights reserved.
 		It can be acquired from: http://tmate.org/svn/
 		--->
 		<cfif find("http", Arguments.RepositoryURL) eq 1>
-			<cfset this.drf=CreateObject("java","org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory").setup() />
+			<cfset this.drf=loadSvnClass("org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory") />
 		<cfelse>
-			<cfset this.drf=CreateObject("java","org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl").setup() />
+			<cfset this.drf=loadSvnClass("org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl") />
 		</cfif>
-		<cfset this.srf=CreateObject("java","org.tmatesoft.svn.core.io.SVNRepositoryFactory") />
+		<cfset this.drf.setup() />
+		
 		<cfset this.URL=Arguments.RepositoryURL>
 		<cfset this.User=Arguments.Username>
 		<cfset this.Password=Arguments.Password>
-		<cfset URL_obj = CreateObject("java","org.tmatesoft.svn.core.SVNURL").parseURIEncoded(this.URL) />
-		<cfset this.Repository=this.srf.create(URL_obj)>
+		<cfset args[1] = this.URL />
+		<cfset URL_obj = loadSvnClass("org.tmatesoft.svn.core.SVNURL") />
+		<cfset URL_obj = URL_obj.parseURIEncoded(this.URL) />
+		<cfset this.srf = loadSvnClass("org.tmatesoft.svn.core.io.SVNRepositoryFactory") />
+		<cfset this.Repository = this.srf.create(URL_obj) />
 		<cfif (this.User NEQ "")>
-			<cfset this.Repository.setAuthenticationManager( CreateObject("java", "org.tmatesoft.svn.core.wc.SVNWCUtil").createDefaultAuthenticationManager(this.User, this.Password))>
+			<cfset auth_obj = loadSvnClass("org.tmatesoft.svn.core.wc.SVNWCUtil") />
+			<cfset this.Repository.setAuthenticationManager( auth_obj.createDefaultAuthenticationManager(this.User, this.Password))>
 		</cfif>
 		<cfreturn this>
 	</cffunction>
@@ -91,11 +116,12 @@
 		<cfargument name="Resource" type="string" required="true">
 		<cfargument name="Version" type="numeric" required="true">
 		<cfset var Q=QueryNew("Name,Author,Message,Date,Kind,Path,Revision,Size,URL,Content")>
-		<cfset var props=CreateObject("java","org.tmatesoft.svn.core.SVNProperties").init() />
-		<cfset var out=CreateObject("java","java.io.ByteArrayOutputStream").init()>
+		<cfset var props = loadSvnClass("org.tmatesoft.svn.core.SVNProperties") />
+		<cfset var out = CreateObject("java","java.io.ByteArrayOutputStream").init()>
 		<cfset var MimeType="">
 		<cfset var NodeKind="">
 		<cfset var local = structNew() />
+		<cfset props.init() />
 		<cftry>
 			<cfset NodeKind=this.Repository.checkPath(JavaCast("string",Arguments.Resource),JavaCast("int",Arguments.Version))>
 			<cfcatch>

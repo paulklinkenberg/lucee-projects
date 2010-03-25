@@ -18,11 +18,11 @@
   BEGIN SITE-SPECIFIC SETTINGS
 ===============================================================
 --->
-<cfset variables.urlToThisFile = "/svn.cfm" />
 <cfset RepositoryURL="svn://yourserver.com/projectname/trunk/">
 <cfparam name="url.repositorypath" default="" />
 <cfset RepositoryUsername="username" />
 <cfset RepositoryPassword="password" />
+<cfset variables.urlToThisFile = cgi.SCRIPT_NAME />
 <!--- We don't want to provide the ability to diff everything, just certain file types --->
 <cfset Diffable="cfc,cfm,cfml,txt,plx,php,php4,php5,asp,aspx,xml,html,htm,sql,css,js">
 <cfset DiffGraphic='<img src="/cfdiff/images/diff.png" width="16" width="16" alt="View the difference between this file and the previous version" border="0" />'>
@@ -131,7 +131,7 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 	<cfset variables.action = "listing" />
 </cfif>
 
-<cfsavecontent variable="headText"><cfoutput><link rel="stylesheet" href="/cfdiff/cfdiff.css" type="text/css" />
+<cfsavecontent variable="headText"><cfoutput><link rel="stylesheet" href="cfdiff.css" type="text/css" />
 </cfoutput></cfsavecontent>
 <cfhtmlhead text="#headText#" />
 <cfoutput>
