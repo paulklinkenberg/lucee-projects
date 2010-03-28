@@ -24,6 +24,10 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *    ALWAYS LEAVE THIS COPYRIGHT NOTICE IN PLACE!
+ 
+ 	Version 1.1
+	By: Paul Klinkenberg, http://www.coldfusiondeveloper.nl/post.cfm/smartermail-api-wrapper-coldfusion
+	Changes in the smartermail API wrapper code, to make it CF7/8 compatible.
  */
 --->
 	<cfset this.serverURL = "" />
