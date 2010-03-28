@@ -57,9 +57,12 @@
 		<cfset var soapBody = createSoapBody(argumentCollection=arguments) />
 		<cfset var cfhttpReturn_struct = structNew() />
 
-		<cfhttp method="post" url="#this.serverURL#/Services/#arguments.page#.asmx" throwonerror="yes" result="cfhttpReturn_struct">
+		<cfhttp method="post" url="#this.serverURL#/Services/#arguments.page#.asmx" throwonerror="yes" result="cfhttpReturn_struct" charset="utf-8">
 			<cfhttpparam type="header" name="Content-Type" value="application/soap+xml" />
 			<cfhttpparam type="body" value="#soapBody#" />
+			<!--- to prevent getting compressed output back, which cf doesn't understand: --->
+			<cfhttpparam type="Header" name="Accept-Encoding" value="deflate;q=0" />
+	        <cfhttpparam type="Header" name="TE" value="deflate;q=0" />
 		</cfhttp>
 		<cfif arguments.returnXml>
 			<cfreturn xmlParse( _cleanXml(cfhttpReturn_struct.filecontent.toString()) ) />
@@ -154,7 +157,7 @@
 			<!---end-tag--->
 			<cfif find('/', tag) eq 1>
 				<cfif lastTag neq rereplace(tag, '(/|>)', '', 'all')>
-					<cfset indent-=1 />
+					<cfset indent = indent-1 />
 					<cfset doIndent = true />
 				<cfelse>
 					<cfset nextStartTagOnSameLine = true />
@@ -165,7 +168,7 @@
 			<!--- start tag--->
 			<cfelseif not find('?>', tag)>
 				<cfif not nextStartTagOnSameLine>
-					<cfset indent+=1 />
+					<cfset indent = indent+1 />
 				</cfif>
 				<cfset doIndent = true />
 				<cfset nextStartTagOnSameLine = false />

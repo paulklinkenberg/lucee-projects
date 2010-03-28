@@ -13,6 +13,7 @@
 				<p class="error">Error occured in smartermail.cfc:<br />
 					<cfoutput><em>#cfcatch.Message# #cfcatch.detail#</em></cfoutput>
 				</p>
+				<cfdump var="#cfcatch#" />
 			</cfcatch>
 		</cftry>
 		<cfif findNoCase('<ResultCode>-1</ResultCode>', domains_xml)>
@@ -115,7 +116,9 @@
 						<cfif structKeyExists(session, "username")>
 							<cfloop list="#session.domainsList_str#" index="dom">
 								<!--- get current email addresses --->
-								<cfset emails_xml = variables.smartermail_obj.callWs(page='svcDomainAdmin', method='GetDomainUsers', args={'DomainName':dom}) />
+								<cfset variables.args = structNew() />
+								<cfset variables.args['DomainName'] = dom />
+								<cfset emails_xml = variables.smartermail_obj.callWs(page='svcDomainAdmin', method='GetDomainUsers', args=variables.args) />
 								<cfset users_arr = xmlSearch(emails_xml, "//Users/string/") />
 								<cfloop from="1" to="#arrayLen(variables.users_arr)#" index="i">
 									<cfset user = users_arr[i].xmlText & "@#dom#" />
