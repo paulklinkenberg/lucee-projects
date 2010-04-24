@@ -31,5 +31,5 @@ Some options:
 	<cfif cgi.remote_addr eq "123.45.67.89"><cfreturn true /><cfelse><cfreturn false /></cfif>
  --->
 <cffunction name="isAllowed" access="public" returntype="boolean">
-	<cfreturn false />
+	<cfreturn true />
 </cffunction>
