@@ -24,6 +24,9 @@
 			<cfcase value="add">
 				<cfif structKeyExists(form, "currentpath") and len(form.currentpath)>
 					<cfset application.filemanager_obj.addFile(path=form.currentpath, formfieldname="newfile") />
+				<!--- quick uploads --->
+				<cfelseif structKeyExists(url, "currentfolder") and len(url.currentfolder)>
+					<cfset application.filemanager_obj.addFile(path=url.currentfolder, formfieldname="upload", textarea=false) />
 				<cfelse>
 					<cfset application.filemanager_obj.returnError("Path was not given for the 'add' function.") />
 				</cfif>

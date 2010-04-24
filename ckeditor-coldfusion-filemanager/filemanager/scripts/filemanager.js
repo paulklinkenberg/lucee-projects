@@ -537,17 +537,17 @@ $(function(){
 	$('#fileinfo').data('view', 'grid');
 
 	// Set buttons to switch between grid and list views.
-	$('#grid').click(function(){
-		$(this).addClass('ON');
-		$('#list').removeClass('ON');
-		$('#fileinfo').data('view', 'grid');
-		getFolderInfo($('#currentpath').val());
-	});
-	
 	$('#list').click(function(){
 		$(this).addClass('ON');
 		$('#grid').removeClass('ON');
 		$('#fileinfo').data('view', 'list');
+		getFolderInfo($('#currentpath').val());
+	});
+
+	$('#grid').click(function(){
+		$(this).addClass('ON');
+		$('#list').removeClass('ON');
+		$('#fileinfo').data('view', 'grid');
 		getFolderInfo($('#currentpath').val());
 	});
 
@@ -587,4 +587,7 @@ $(function(){
 	}, function(file){
 		getFileInfo(file);
 	});
+	
+	// show files of the current dir as a grid
+	$('#grid').click();
 });

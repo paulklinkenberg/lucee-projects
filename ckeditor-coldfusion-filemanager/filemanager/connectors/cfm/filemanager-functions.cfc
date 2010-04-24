@@ -296,30 +296,32 @@
 	<cffunction name="addFile" returntype="void" access="public">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="formfieldname" required="yes" type="string" />
+		<cfargument name="textarea" required="yes" type="boolean" default="true" />
 		<cfset var file_struct = "" />
 		<cfset var newFileName = "" />
 		<cfset var loopCounter_num = 0 />
 		<cfset var returnData_struct = structNew() />
+		<cfset var imageData = "" />
 
 		<!--- upload the file --->
 		<cftry>
 			<cffile action="upload" destination="#getTempDirectory()#" filefield="#formfieldname#" nameconflict="makeunique" result="file_struct" />
 			<cfcatch>
-				<cfset returnError(str=translate('INVALID_FILE_UPLOAD'), textarea=true) />
+				<cfset returnError(str=translate('INVALID_FILE_UPLOAD'), textarea=arguments.textarea) />
 			</cfcatch>
 		</cftry>
 		<!--- check for max file size --->
 		<cfif file_struct.filesize gt request.maxFileSizeKB*1024>
-			<cfset returnError(str=translate('UPLOAD_FILES_SMALLER_THAN', request.maxFileSizeKB & "KB"), textarea=true) />
+			<cfset returnError(str=translate('UPLOAD_FILES_SMALLER_THAN', request.maxFileSizeKB & "KB"), textarea=arguments.textarea) />
 		</cfif>
 		<!--- check for allowed extensions --->
 		<cfif not request.allowAllFiles and not listFindNoCase(request.allowedExtensions, file_struct.serverfileExt)>
-			<cfset returnError(str=translate('INVALID_FILE_UPLOAD'), textarea=true) />
+			<cfset returnError(str=translate('INVALID_FILE_UPLOAD'), textarea=arguments.textarea) />
 		</cfif>
 		<!--- check if it is/should be an image --->
 		<cfif request.onlyImageUploads or (structKeyExists(form, "type") and form.type eq "Images")>
 			<cfif not listFindNoCase(request.allowedImageExtensions, file_struct.serverfileExt)>
-				<cfset returnError(str=translate('UPLOAD_IMAGES_TYPES_ABC', request.allowedImageExtensions), textarea=true) />
+				<cfset returnError(str=translate('UPLOAD_IMAGES_TYPES_ABC', request.allowedImageExtensions), textarea=arguments.textarea) />
 			</cfif>
 		</cfif>
 		<cfset newFileName = rereplace(file_struct.serverfileName, "[^a-zA-Z0-9-_]+", "-", "all") & ".#file_struct.serverFileExt#" />
@@ -344,12 +346,21 @@
 		destination="#_getPath(arguments.path, newFileName)#" />
 		
 		<!--- response to client --->
-		<cfset returnData_struct = structNew() />
-		<cfset structInsert(returnData_struct, "Error", "") />
-		<cfset structInsert(returnData_struct, "Code", 0) />
-		<cfset structInsert(returnData_struct, "Path", arguments.path) />
-		<cfset structInsert(returnData_struct, "Name", newFileName) />
-		<cfset _doOutput(jsondata=returnData_struct, textarea=true) />
+		<cfif arguments.textarea>
+			<cfset returnData_struct = structNew() />
+			<cfset structInsert(returnData_struct, "Error", "") />
+			<cfset structInsert(returnData_struct, "Code", 0) />
+			<cfset structInsert(returnData_struct, "Path", arguments.path) />
+			<cfset structInsert(returnData_struct, "Name", newFileName) />
+			<cfset _doOutput(jsondata=returnData_struct, textarea=true) />
+		<!--- hacker-the-hack: a quick fix for the Quick-upload function within CKEDITOR. --->
+		<cfelse>
+			<cfcontent type="text/html" reset="yes" />
+			<cfoutput><script type="text/javascript">
+				window.parent.CKEDITOR.tools.callFunction(#url.CKEditorFuncNum#, '#jsStringFormat(_getWebPath(arguments.path, newFilename))#');
+			</script></cfoutput>
+			<cfabort />
+		</cfif>
 	</cffunction>
 	
 	
@@ -377,7 +388,7 @@
 	</cffunction>
 	
 	
-	<cffunction name="_getWebPath" access="private" returntype="string">
+	<cffunction name="_getWebPath" access="private" returntype="string" output="no">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="filename" type="string" required="no" default="" />
 		<cfset var absPath_str = _getPath(arguments.path, arguments.filename) />
@@ -397,7 +408,14 @@
 		<cfset var cfimage_struct = "" />
 		<cfset var imageData_struct = structNew() />
 		<cfif not structKeyExists(variables.imageInfo_struct, arguments.path)>
-			<cfimage action="info" source="#arguments.path#" structname="cfimage_struct" />
+			<cftry>
+				<cfimage action="info" source="#arguments.path#" structname="cfimage_struct" />
+				<cfcatch>
+					<cfset cfimage_struct = structNew() />
+					<cfset cfimage_struct['width'] = 'Error ' />
+					<cfset cfimage_struct['height'] = jsstringformat("#getfilefrompath(arguments.path)#: #cfcatch.message#") />
+				</cfcatch>
+			</cftry>
 			<!--- workaround for railobug #611: https://jira.jboss.org/jira/browse/RAILO-611 --->
 			<cfif structKeyExists(server, "Railo")>
 				<cfset cfimage_struct = duplicate(cfimage_struct) />
