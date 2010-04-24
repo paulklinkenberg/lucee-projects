@@ -41,7 +41,9 @@
 	<cffunction name="returnError" returntype="void" access="public">
 		<cfargument name="str" required="yes" type="string" />
 		<cfargument name="textarea" type="boolean" required="no" default="false" />
-		<cfset var returnData_struct = {"Error"=arguments.str, "Code"=-1} />
+		<cfset var returnData_struct = structNew() />
+		<cfset structInsert(returnData_struct, "Error", arguments.str) />
+		<cfset structInsert(returnData_struct, "Code", -1) />
 		<cfset _doOutput(jsonData=returnData_struct, textarea=arguments.textarea) />
 	</cffunction>
 	
@@ -103,7 +105,10 @@
 			<cfset _clearImageInfoCache(arguments.path) />
 		</cfif>
 		
-		<cfset jsondata_struct = {"Error"="", "Code"=0, "Path"="#shortenedWebPath#"} />
+		<cfset jsondata_struct = structNew() />
+		<cfset structInsert(jsondata_struct, "Error", "") />
+		<cfset structInsert(jsondata_struct, "Code", 0) />
+		<cfset structInsert(jsondata_struct, "Path", shortenedWebPath) />
 		<cfset _doOutput(jsondata_struct) />
 	</cffunction>
 	
@@ -204,7 +209,7 @@
 		<cfset var fileOrDirName = listlast(oldDirPath, variables.separator) />
 		<cfset var isDir = _isDirectory(oldDirPath) />
 		<cfset var dirList_qry = "" />
-		<cfset var returnData_struct = {} />
+		<cfset var returnData_struct = structNew() />
 
 		<!--- make sure the newName has no illegal characters--->
 		<cfset arguments.newName = rereplace(arguments.newName, "[^a-zA-Z0-9\-_]+", "-", "ALL") />
@@ -248,7 +253,13 @@
 		</cfif>
 
 		<!--- response to client --->
-		<cfset returnData_struct = {"Error"="", "Code"=0, "Old Path"=arguments.oldPath, "Old Name"=fileOrDirName, "New Path"="#oldParentPath##arguments.newName#", "New Name"=arguments.newName} />
+		<cfset returnData_struct = structNew() />
+		<cfset structInsert(returnData_struct, "Error", "") />
+		<cfset structInsert(returnData_struct, "Code", 0) />
+		<cfset structInsert(returnData_struct, "Old Path", arguments.oldPath) />
+		<cfset structInsert(returnData_struct, "Old Name", fileOrDirName) />
+		<cfset structInsert(returnData_struct, "New Path", "#oldParentPath##arguments.newName#") />
+		<cfset structInsert(returnData_struct, "New Name", arguments.newName) />
 		<cfset _doOutput(returnData_struct) />
 	</cffunction>
 	
@@ -257,7 +268,7 @@
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="dirname" required="yes" type="string" />
 		<cfset var newDirPath = "" />
-		<cfset var returnData_struct = {} />
+		<cfset var returnData_struct = structNew() />
 		
 		<cfset arguments.dirName = rereplace(arguments.dirName, "[^a-zA-Z0-9-_]+", "-", "ALL") />
 		<cfset newDirPath = _getPath(arguments.path, arguments.dirname) />
@@ -273,7 +284,11 @@
 		</cftry>
 		
 		<!--- response to client --->
-		<cfset returnData_struct = {"Parent"=arguments.path, "Name"=arguments.dirName, "Error"="", "Code"=0} />
+		<cfset returnData_struct = structNew() />
+		<cfset structInsert(returnData_struct, "Error", "") />
+		<cfset structInsert(returnData_struct, "Code", 0) />
+		<cfset structInsert(returnData_struct, "Parent", arguments.path) />
+		<cfset structInsert(returnData_struct, "Name", arguments.dirName) />
 		<cfset _doOutput(returnData_struct) />
 	</cffunction>
 	
@@ -284,7 +299,7 @@
 		<cfset var file_struct = "" />
 		<cfset var newFileName = "" />
 		<cfset var loopCounter_num = 0 />
-		<cfset var returnData_struct = {} />
+		<cfset var returnData_struct = structNew() />
 
 		<!--- upload the file --->
 		<cftry>
@@ -329,7 +344,11 @@
 		destination="#_getPath(arguments.path, newFileName)#" />
 		
 		<!--- response to client --->
-		<cfset returnData_struct = {"Path"=arguments.path, "Name"=newFileName, "Error"="", "Code"=0} />
+		<cfset returnData_struct = structNew() />
+		<cfset structInsert(returnData_struct, "Error", "") />
+		<cfset structInsert(returnData_struct, "Code", 0) />
+		<cfset structInsert(returnData_struct, "Path", arguments.path) />
+		<cfset structInsert(returnData_struct, "Name", newFileName) />
 		<cfset _doOutput(jsondata=returnData_struct, textarea=true) />
 	</cffunction>
 	
@@ -376,14 +395,15 @@
 	<cffunction name="_getImageInfo" access="private" returntype="struct">
 		<cfargument name="path" required="yes" type="string" />
 		<cfset var cfimage_struct = "" />
-		<cfset var imageData_struct = "" />
+		<cfset var imageData_struct = structNew() />
 		<cfif not structKeyExists(variables.imageInfo_struct, arguments.path)>
 			<cfimage action="info" source="#arguments.path#" structname="cfimage_struct" />
 			<!--- workaround for railobug #611: https://jira.jboss.org/jira/browse/RAILO-611 --->
 			<cfif structKeyExists(server, "Railo")>
 				<cfset cfimage_struct = duplicate(cfimage_struct) />
 			</cfif>
-			<cfset imageData_struct = {Width=cfimage_struct.width, Height=cfimage_struct.height} />
+			<cfset structInsert(imageData_struct, "Width", cfimage_struct.width) />
+			<cfset structInsert(imageData_struct, "Height", cfimage_struct.height) />
 			<cfset structInsert(variables.imageInfo_struct, arguments.path, imageData_struct, true) />
 		</cfif>
 		<cfreturn variables.imageInfo_struct[arguments.path] />
