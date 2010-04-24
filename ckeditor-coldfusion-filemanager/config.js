@@ -38,11 +38,13 @@ CKEDITOR.editorConfig = function( config )
 		['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink','-','RemoveFormat']
 	];
 	
-
+// the 'currentfolder' is relative to the path 'request.uploadWebRoot' which is set in
+// /filemanaer/connectors/cfm/filemanager.config.cfm. So, if your uploadWebroot is '/uploads/',
+// and the 'currentFolder is '/Image/', then the files will be uploaded to /uploads/Image/.
 	config.filebrowserBrowseUrl = '/ckeditor/filemanager/index.html';
  	config.filebrowserImageBrowseUrl = '/ckeditor/filemanager/index.html?type=Images&currentFolder=/Image/';
  	config.filebrowserFlashBrowseUrl = '/ckeditor/filemanager/index.html?type=Flash&currentFolder=/Flash/';
- 	config.filebrowserUploadUrl = '/ckeditor/filemanager/connectors/cfm/filemanager.cfm?command=QuickUpload&type=Files&currentFolder=/';
- 	config.filebrowserImageUploadUrl = '/ckeditor/filemanager/connectors/cfm/filemanager.cfm?command=QuickUpload&type=Images&currentFolder=/Image/';
- 	config.filebrowserFlashUploadUrl = '/ckeditor/filemanager/connectors/cfm/filemanager.cfm?command=QuickUpload&type=Flash&currentFolder=/Flash/';
+ 	config.filebrowserUploadUrl = '/ckeditor/filemanager/connectors/cfm/filemanager.cfm?mode=add&type=Files&currentFolder=/File/';
+ 	config.filebrowserImageUploadUrl = '/ckeditor/filemanager/connectors/cfm/filemanager.cfm?mode=add&type=Images&currentFolder=/Image/';
+ 	config.filebrowserFlashUploadUrl = '/ckeditor/filemanager/connectors/cfm/filemanager.cfm?mode=add&type=Flash&currentFolder=/Flash/';
 };
