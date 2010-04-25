@@ -8,6 +8,7 @@
  *	@author		Paul Klinkenberg, www.coldfusiondeveloper.nl/post.cfm/cfm-connector-for-ckeditor-corefive-Filemanager
  *  @date		February 28, 2010
  *  @version	1.0
+ 				1.1 April 25, 2010: Fixed some bugs and added some functionality
  *	@copyright	Authors
 --->
 <cfapplication name="filemanager_#cgi.http_host#" applicationtimeout="#createTimeSpan(1,0,0,0)#" sessionmanagement="no" clientmanagement="no" />
