@@ -31,6 +31,8 @@ function _setCMSLinks()
 }
 function _checkActivatedCMSLink()
 {
+	if (typeof(jQuery) == "undefined")
+		return;
 	var container = CKEDITOR.dialog.getCurrent().getContentElement( 'info', 'CMSLinks' ).domId;
 	var sel = jQuery('#'+container+' select').get(0);
 	var currLink = CKEDITOR.dialog.getCurrent().getContentElement( 'info', 'url' ).getValue();
