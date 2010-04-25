@@ -45,7 +45,7 @@ function _checkActivatedCMSLink()
 	}
 }
 // load the data
-if (jQuery)
+if (typeof(jQuery) != "undefined")
 {
 	var myLinkList = jQuery.ajax({url:"/ckeditor/website-links.cfm", async:true, success: _setCMSLinks});
 }
