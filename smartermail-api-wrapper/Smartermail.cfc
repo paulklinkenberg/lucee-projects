@@ -24,10 +24,6 @@
  *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  *    ALWAYS LEAVE THIS COPYRIGHT NOTICE IN PLACE!
- 
- 	Version 1.1
-	By: Paul Klinkenberg, http://www.coldfusiondeveloper.nl/post.cfm/smartermail-api-wrapper-coldfusion
-	Changes in the smartermail API wrapper code, to make it CF7/8 compatible.
  */
 --->
 	<cfset this.serverURL = "" />
@@ -61,12 +57,9 @@
 		<cfset var soapBody = createSoapBody(argumentCollection=arguments) />
 		<cfset var cfhttpReturn_struct = structNew() />
 
-		<cfhttp method="post" url="#this.serverURL#/Services/#arguments.page#.asmx" throwonerror="yes" result="cfhttpReturn_struct" charset="utf-8">
+		<cfhttp method="post" url="#this.serverURL#/Services/#arguments.page#.asmx" throwonerror="yes" result="cfhttpReturn_struct">
 			<cfhttpparam type="header" name="Content-Type" value="application/soap+xml" />
 			<cfhttpparam type="body" value="#soapBody#" />
-			<!--- to prevent getting compressed output back, which cf doesn't understand: --->
-			<cfhttpparam type="Header" name="Accept-Encoding" value="deflate;q=0" />
-	        <cfhttpparam type="Header" name="TE" value="deflate;q=0" />
 		</cfhttp>
 		<cfif arguments.returnXml>
 			<cfreturn xmlParse( _cleanXml(cfhttpReturn_struct.filecontent.toString()) ) />
@@ -129,8 +122,7 @@
 	<cffunction name="_getExtraSoapBody" access="private" returntype="string">
 		<cfargument name="page" type="string" required="yes" hint="svcAliasAdmin,svcDomainAdmin,svcMailListAdmin,svcProductInfo,svcGlobalUpdate,svcDomainAliasAdmin,svcUserAdmin,svcServerAdmin,svcOutlookAddin" />
 		<cfargument name="method" type="string" required="yes" />
-		<cfset var q = "" />
-		
+
 		<cfif not structKeyExists(variables, "methodArguments")>
 			<cffile action="read" file="#expandPath('./wddx/methodArguments.wddx')#" variable="q" />
 			<cfwddx action="wddx2cfml" input="#q#" output="variables.methodArguments" />
@@ -153,15 +145,15 @@
 		<cfset var doIndent = false />
 		<cfset var nextStartTagOnSameLine = false />
 		
-		<cfset arguments.code = rereplace(arguments.code, '[\n\r\t]+', '', 'all') />
-		<cfloop condition="refind('<(.*?>)', arguments.code)">
+		<cfset code = rereplace(code, '[\n\r\t]+', '', 'all') />
+		<cfloop condition="refind('<(.*?>)', code)">
 			<cfset doIndent = false />
-			<cfset findings = refind('<(.*?>)', arguments.code, 1, true) />
-			<cfset tag = mid(arguments.code, findings.pos[2], findings.len[2]) />
+			<cfset findings = refind('<(.*?>)', code, 1, true) />
+			<cfset tag = mid(code, findings.pos[2], findings.len[2]) />
 			<!---end-tag--->
 			<cfif find('/', tag) eq 1>
 				<cfif lastTag neq rereplace(tag, '(/|>)', '', 'all')>
-					<cfset indent = indent-1 />
+					<cfset indent-=1 />
 					<cfset doIndent = true />
 				<cfelse>
 					<cfset nextStartTagOnSameLine = true />
@@ -172,19 +164,19 @@
 			<!--- start tag--->
 			<cfelseif not find('?>', tag)>
 				<cfif not nextStartTagOnSameLine>
-					<cfset indent = indent+1 />
+					<cfset indent+=1 />
 				</cfif>
 				<cfset doIndent = true />
 				<cfset nextStartTagOnSameLine = false />
 			</cfif>
 			<cfif doIndent and indent gt -1>
-				<cfset arguments.code = replace(arguments.code, '<#tag#', '#chr(10)##repeatString('    ', indent)#±#tag#') />
+				<cfset code = replace(code, '<#tag#', '#chr(10)##repeatString('    ', indent)#±#tag#') />
 			<cfelse>
-				<cfset arguments.code = replace(code, '<#tag#', '±#tag#') />
+				<cfset code = replace(code, '<#tag#', '±#tag#') />
 			</cfif>
 			<cfset lastTag = rereplace(tag, '(^/|[\?/]?>)', '', 'all') />
 		</cfloop>
-		<cfset arguments.code = replace(arguments.code, '±', '<', 'all') />
-		<cfreturn arguments.code />
+		<cfset code = replace(code, '±', '<', 'all') />
+		<cfreturn code />
 	</cffunction>
 </cfcomponent>

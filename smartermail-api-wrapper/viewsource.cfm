@@ -107,9 +107,9 @@ Example: <cfset variables.viewablePaths = "./,/javascript/,/css/,../scripts/" />
 <body>
 	<p style="border:1px solid #000;padding:10px;margin: 10px 5px;text-align:center; font:12px Arial;">
 		<cfoutput>This is the source code of <strong>#request.filepath#</strong>.<br /><br /></cfoutput>
-		<!--- Please, leave the next line intact; thee are my credits ;-)  Thanks, Paul. --->
 		<strong>Project page:</strong> <a href="http://www.coldfusiondeveloper.nl/post.cfm/smartermail-api-wrapper-coldfusion"><strong>Smartermail API wrapper in Coldfusion</strong></a><br /><br />
-		<em>The code is colored using the <a href="http://www.coldfusiondeveloper.nl/post.cfm/my-supreme-coldfusion-code-coloring">Coldfusion code coloring component</a> by <a href="http://www.coldfusiondeveloper.nl/">Paul Klinkenberg</a>.</em>
+		<!--- Please, leave the next line intact; thee are my credits ;-)  Thanks, Paul. --->
+		<em>The code is colored using the <a href="http://www.leeftpaulnog.nl/2009/03/my-supreme-coldfusion-code-coloring.html">Coldfusion code coloring component</a> by <a href="http://www.coldfusiondeveloper.nl/">Paul Klinkenberg</a>.</em>
 	</p>
 	<cfoutput>#codeColoring_obj.colorString(dataString=txt, lineNumbers=false)#</cfoutput></body>
 </html>

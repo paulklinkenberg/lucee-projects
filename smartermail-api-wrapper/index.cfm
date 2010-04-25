@@ -92,6 +92,7 @@
 			<h2>About and Help</h2>
 			<ul>
 				<li><a href="index.cfm?action=howto">How-to</a></li>
+				<li><a href="index.cfm?action=field-formats">Help with the form</a></li>
 				<li><a href="index.cfm?action=about">About</a></li>
 				<li><a href="http://www.coldfusiondeveloper.nl/post.cfm/smartermail-api-wrapper-coldfusion">View the blog post</a></li>
 			</ul>
