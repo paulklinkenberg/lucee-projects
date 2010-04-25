@@ -18,7 +18,7 @@
 <cfset request.allowAllFiles = false /><!--- should we allow all files? If true, we do not check the extension. --->
 <cfset request.allowedExtensions = "zip,rar,psd,tif,gz,odf,odt,ods,txt,csv,pdf,doc,docx,xls,xlsx,ppt,pptx" & ",#request.allowedImageExtensions#" />
 <cfset request.uploadCanOverwrite = true /><!--- If a file is uploaded with a name which already exists, should we rename it or overwrite it? --->
-<cfset request.uploadWebRoot = variables.jqueryFileTree_webroot />
+<cfset request.uploadWebRoot = "/uploads/" />
 <cfset request.uploadRootPath = expandPath(request.uploadWebRoot) />
 
 <!--- icons --->

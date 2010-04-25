@@ -414,17 +414,19 @@ var getFolderInfo = function(path){
 				
 				for(key in data){
 					var props = data[key]['Properties'];
-				
-					var scaledWidth = 64;
-					var actualWidth = props['Width'];
-					if(actualWidth > 1 && actualWidth < scaledWidth) scaledWidth = actualWidth;
-				
-					result += '<li><div class="clip"><img src="' + data[key]['Preview'] + '" width="' + scaledWidth + '" alt="' + data[key]['Path'] + '" /></div><p>' + data[key]['Filename'] + '</p>';
-					if(props['Width'] && props['Width'] != '') result += '<span class="meta dimensions">' + props['Width'] + 'x' + props['Height'] + '</span>';
-					if(props['Size'] && props['Size'] != '') result += '<span class="meta size">' + props['Size'] + '</span>';
-					if(props['Date Created'] && props['Date Created'] != '') result += '<span class="meta created">' + props['Date Created'] + '</span>';
-					if(props['Date Modified'] && props['Date Modified'] != '') result += '<span class="meta modified">' + props['Date Modified'] + '</span>';
-					result += '</li>';
+					if (props)
+					{
+						var scaledWidth = 64;
+						var actualWidth = props['Width'];
+						if(actualWidth > 1 && actualWidth < scaledWidth) scaledWidth = actualWidth;
+					
+						result += '<li><div class="clip"><img src="' + data[key]['Preview'] + '" width="' + scaledWidth + '" alt="' + data[key]['Path'] + '" /></div><p>' + data[key]['Filename'] + '</p>';
+						if(props['Width'] && props['Width'] != '') result += '<span class="meta dimensions">' + props['Width'] + 'x' + props['Height'] + '</span>';
+						if(props['Size'] && props['Size'] != '') result += '<span class="meta size">' + props['Size'] + '</span>';
+						if(props['Date Created'] && props['Date Created'] != '') result += '<span class="meta created">' + props['Date Created'] + '</span>';
+						if(props['Date Modified'] && props['Date Modified'] != '') result += '<span class="meta modified">' + props['Date Modified'] + '</span>';
+						result += '</li>';
+					}
 				}
 				
 				result += '</ul>';
@@ -435,29 +437,32 @@ var getFolderInfo = function(path){
 				
 				for(key in data){
 					var path = data[key]['Path'];
-					var props = data[key]['Properties'];					
-					result += '<tr>';
-					result += '<td title="' + path + '">' + data[key]['Filename'] + '</td>';
-
-					if(props['Width'] && props['Width'] != ''){
-						result += ('<td>' + props['Width'] + 'x' + props['Height'] + '</td>');
-					} else {
-						result += '<td></td>';
-					}
+					var props = data[key]['Properties'];
+					if (props)
+					{
+						result += '<tr>';
+						result += '<td title="' + path + '">' + data[key]['Filename'] + '</td>';
+	
+						if(props['Width'] && props['Width'] != ''){
+							result += ('<td>' + props['Width'] + 'x' + props['Height'] + '</td>');
+						} else {
+							result += '<td></td>';
+						}
+						
+						if(props['Size'] && props['Size'] != ''){
+							result += '<td><abbr title="' + props['Size'] + '">' + formatBytes(props['Size']) + '</abbr></td>';
+						} else {
+							result += '<td></td>';
+						}
+						
+						if(props['Date Modified'] && props['Date Modified'] != ''){
+							result += '<td>' + props['Date Modified'] + '</td>';
+						} else {
+							result += '<td></td>';
+						}
 					
-					if(props['Size'] && props['Size'] != ''){
-						result += '<td><abbr title="' + props['Size'] + '">' + formatBytes(props['Size']) + '</abbr></td>';
-					} else {
-						result += '<td></td>';
+						result += '</tr>';
 					}
-					
-					if(props['Date Modified'] && props['Date Modified'] != ''){
-						result += '<td>' + props['Date Modified'] + '</td>';
-					} else {
-						result += '<td></td>';
-					}
-				
-					result += '</tr>';					
 				}
 								
 				result += '</tbody>';
