@@ -220,7 +220,7 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 						<cfif variables.isDir><td>#HTMLEditFormat(Name)#</td></cfif>
 						<td nowrap="nowrap" class="num links">
 							<cfif kind eq "file">
-								<a href="#variables.urlToThisFile#?repositorypath=#FilePath#<cfif variables.isDir>#Path#</cfif>:#Revision#&amp;download=1">download</a>
+								<a href="#variables.urlToThisFile#?repositorypath=#FilePath#<cfif variables.isDir>#f.Path#</cfif>:#Revision#&amp;download=1">download</a>
 							</cfif>
 							<cfif variables.isDir>
 								<a href="#variables.urlToThisFile#?repositorypath=#FilePath##f.path#<cfif Kind EQ 'dir'>/</cfif>"><cfif Kind EQ 'dir'>Open folder<cfelse>log</cfif></a>
