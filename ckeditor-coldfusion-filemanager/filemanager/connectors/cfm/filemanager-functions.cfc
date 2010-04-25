@@ -370,7 +370,7 @@
 		<cfargument name="filename" type="string" required="no" default="" />
 		<cfset var newPath_str = "" />
 		<!--- remove any "../" and "..\" from the given path --->
-		<cfset arguments.path = rereplace(arguments.path, "\.\.+([/\\])", "\1", " all") />
+		<cfset arguments.path = rereplace(arguments.path, "\.\.+([/\\])", "\1", "all") />
 		
 		<cfif findNoCase(request.uploadWebRoot, arguments.path) eq 1>
 			<cfset newPath_str = request.uploadRootPath & variables.separator & replaceNoCase(arguments.path, request.uploadWebRoot, "/") />
