@@ -132,10 +132,12 @@
 				
 				<cfelse>
 					<cfif structKeyExists(args_arr[arrIndex].xmlAttributes, "multiline")>
-						<textarea name="#args_arr[arrIndex].xmlName#" id="#args_arr[arrIndex].xmlName#" cols="30" rows="5"><cfif structKeyExists(form, args_arr[arrIndex].xmlName)>#form[args_arr[arrIndex].xmlName]#</cfif></textarea>
+						<textarea name="#args_arr[arrIndex].xmlName#" id="#args_arr[arrIndex].xmlName#" cols="30" rows="5"><cfif structKeyExists(form, args_arr[arrIndex].xmlName)>#htmleditformat(form[args_arr[arrIndex].xmlName])#</cfif></textarea>
 						<em>One item per line!</em>
+					<cfelseif findNoCase("description", args_arr[arrIndex].xmlName)>
+						<textarea name="#args_arr[arrIndex].xmlName#" id="#args_arr[arrIndex].xmlName#" cols="30" rows="3"><cfif structKeyExists(form, args_arr[arrIndex].xmlName)>#htmleditformat(form[args_arr[arrIndex].xmlName])#</cfif></textarea>
 					<cfelse>
-						<input type="text" name="#args_arr[arrIndex].xmlName#" id="#args_arr[arrIndex].xmlName#" size="30" value="<cfif structKeyExists(form, args_arr[arrIndex].xmlName)>#form[args_arr[arrIndex].xmlName]#</cfif>" />
+						<input type="text" name="#args_arr[arrIndex].xmlName#" id="#args_arr[arrIndex].xmlName#" size="30" value="<cfif structKeyExists(form, args_arr[arrIndex].xmlName)>#htmleditformat(form[args_arr[arrIndex].xmlName])#</cfif>" />
 					</cfif>
 				</cfif>
 				<br />

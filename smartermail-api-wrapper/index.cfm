@@ -26,7 +26,7 @@
 				var $this=$(this);
 				if (!$this.attr('multiple'))
 				{
-					$('<input type="checkbox" name="loopDomainNames" id="loopDomainNames" value="1" /><label for="loopDomainNames" style="display:inline;float:none;width:auto;clear:none;"> use this setting for multiple domains?</label>').insertAfter($this);
+					$('<input type="checkbox" name="loopDomainNames" id="loopDomainNames" value="1" /><label for="loopDomainNames" style="display:inline;float:none;width:auto;clear:none;"> use multiple domains?</label>').insertAfter($this);
 				}
 				$('input#loopDomainNames').click(function(){
 					var $sel = $('select#DomainName');
@@ -37,7 +37,7 @@
 				var $this=$(this);
 				if (!$this.attr('multiple'))
 				{
-					$('<input type="checkbox" name="loopEmailAddresses" id="loopEmailAddresses" value="1" /><label for="loopEmailAddresses" style="display:inline;float:none;width:auto;clear:none;"> use this setting for multiple email addresses?</label>').insertAfter($this);
+					$('<input type="checkbox" name="loopEmailAddresses" id="loopEmailAddresses" value="1" /><label for="loopEmailAddresses" style="display:inline;float:none;width:auto;clear:none;"> use multiple email addresses?</label>').insertAfter($this);
 				}
 				$('input#loopEmailAddresses').click(function(){
 					var $sel = $('select#EmailAddress');
