@@ -92,7 +92,7 @@
 			<cfif findNoCase('<#currentArg# multiline="true">', extraSoapBody)>
 				<cfset insertValue = "<string>" & rereplace(trim(insertValue), '[\r\n]+', '</string><string>', 'all') & "</string>" />
 			</cfif>
-			<cfset extraSoapBody = replaceNoCase(extraSoapBody, "[$#currentArg#$]", insertValue, "all") />
+			<cfset extraSoapBody = replaceNoCase(extraSoapBody, "[$#currentArg#$]", xmlFormat(insertValue), "all") />
 		</cfloop>
 		<cfset extraSoapBody = replaceNoCase(extraSoapBody, ' multiline="true"', '', 'all') />
 		
