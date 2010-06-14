@@ -418,7 +418,7 @@
 		
 		<!--- activate Links in document? --->
 		<cfif arguments.activateLinks>
-			<cfset local.reg = "(ftp://|https?://|www\.)[a-z0-9\!##\$\%&\(\)\*\+,\-\./\:\;=\?@\[\/\]\^_\{\|\}\~]+" />
+			<cfset local.reg = "(ftp://|https?://|www\.)[a-z0-9\$\(\)\-\./\:=@\[\/\]_\|\~]+(\?[a-z0-9\!##\$\%\(\)\*\+,\-\./\:\;=\?@\[\/\]\^_\{\|\}\~&]+)?" />
 			<cfset local.start = 1 />
 			<cfloop condition="refindNoCase(local.reg, local.data, local.start)">
 				<cfset local.found_arr = refindNoCase(local.reg, local.data, local.start, true) />
