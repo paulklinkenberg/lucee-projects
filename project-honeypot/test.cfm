@@ -8,6 +8,11 @@
 	</style>
 </head>
 <body>
+	<p style="border:1px solid #000;padding:10px;margin: 10px 5px;text-align:center; font:12px Arial;">
+		<cfoutput>This test file is part of the Project Honeypot Coldfusion Link generator.<br /><br /></cfoutput>
+		<strong>Project page:</strong> <a href="http://www.coldfusiondeveloper.nl/post.cfm/link-generator-coldfusion-project-honeypot"><strong>Project Honeypot Coldfusion Link generator</strong></a><br /><br />
+	</p>
+
 	<cfinvoke component="LinkGenerator" method="init" returnvariable="variables.oLinkGenerator">
 		<cfinvokeargument name="honeyPotURL" value="http://yoursitegoeshere.com/page.cfm" />
 	</cfinvoke>
