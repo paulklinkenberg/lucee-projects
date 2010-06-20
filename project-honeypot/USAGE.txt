@@ -1,15 +1,15 @@
 You can use this LinkGenerator cfc to create a random piece of html, which contains an invisible link to your Project Honeypot ("PH") page.
 
-1. Create your own honeypot by visiting 
+1. Create your own honeypot by visiting and logging into https://www.projecthoneypot.org/
 2. Download the code given by PH, and upload it somewhere into your website.
 3. Visit the page you just uploaded, let's say http://www.yoursite.com/honeypotpage.cfm, and follow the instructions
 
 4. Upload the LinkGenerator.cfc file to your website
 5. Use the following code to add a link to your website:
 	<cfinvoke component="LinkGenerator" method="init" returnvariable="variables.oLinkGenerator">
-		<cfinvokeargument name="honeyPotURL" value="http://yoursitegoeshere.com/page.cfm" />
+		<cfinvokeargument name="honeyPotURL" value="http://www.yoursite.com/honeypotpage.cfm" />
 	</cfinvoke>
-	<cfoutput>#variables.oLinkGenerator.getURL()#</cfoutput>
+	<cfoutput>#variables.oLinkGenerator.getHTML()#</cfoutput>
 
 If you want to customize what the links will look like, then open the cfc and edit what you like ;-)
 

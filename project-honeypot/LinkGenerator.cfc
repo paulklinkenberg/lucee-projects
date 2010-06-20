@@ -1,7 +1,39 @@
-<cfcomponent output="no" hint="Honeypot random URL generator" displayname="project-honeypot.LinkGenerator">
+<!---
+/*
+ * LinkGenerator.cfc, developed by Paul Klinkenberg
+ * http://www.coldfusiondeveloper.nl/post.cfm/link-generator-coldfusion-project-honeypot
+ *
+ * Date: 2010-06-20 22:23:00 +0100
+ * Revision: 1.0
+ *
+ * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
+ * Licensed under the GPL license.
+ *
+ *    This program is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *    ALWAYS LEAVE THIS COPYRIGHT NOTICE IN PLACE!
+ */
+---><cfcomponent output="no" hint="Honeypot random html link generator" displayname="project-honeypot.LinkGenerator">
 	
 	<cfset variables.aHoneyPotURLs = [] /><!--- example: ['http://site.com/bla.cfm'] , or ['http://site1.com/bla.cfm', 'http://site2.edu/page.cfm']--->
 	
+	<!---
+		The following variables are replaced:
+		$url$ : the honeypot URL
+		$word$ : 1 or 2 randomly chosen words
+		$extratagStart$ and $extratagEnd$: 50% chance of being replaced by a start and end html tag (<tag> and </tag>)
+	--->
 	<cfset variables.aHTMLParts = ['<a href="$url$"><!-- $extratagStart$$word$$extratagEnd$ --></a>'
 		, '<a href="$url$"><img src="$word$.gif" height="1" width="1" border="0"></a>'
 		, '<a href="$url$" style="display: none;">$extratagStart$$word$$extratagEnd$</a>'
@@ -12,6 +44,7 @@
 		, '<a href="$url$"><span style="display: none;">$word$</span></a>'
 		, '<a href="$url$"><div style="height: 0px; width: 0px;overflow:hidden" title="$word$"></div></a>'] />
 	
+	<!--- You can leave these two arrays empty if you don't want them to add extra anchor tags/extra tags --->
 	<cfset variables.aExtraAnchorAttributes = ['title="$word$"', 'rel="$word$"', 'name="$word$"'] />
 	<cfset variables.aExtraTags = ['strong', 'em', 'span'] />
 	
@@ -29,10 +62,10 @@
 	</cffunction>
 	
 	
-	<cffunction name="getURL" returntype="string" output="no" hint="Creates and returns html with an invisible honeypot url">
+	<cffunction name="getHTML" returntype="string" output="no" hint="Creates and returns html with an invisible honeypot url">
 		<cfset var sUrl = _getRandom(variables.aHoneyPotURLs) />
 		<cfset var sHTML = _getRandom(variables.aHTMLParts) />
-		<cfset var nExtraAnchorTexts = randRange(0, arrayLen(variables.aExtraAnchorAttributes)) />
+		<cfset var nExtraAnchorAttributes = randRange(0, arrayLen(variables.aExtraAnchorAttributes)) />
 		<cfset var currentTag = "" />
 		<cfset var nIndex = -1 />
 		<cfset var aExtraAttrDone = [] />
@@ -51,7 +84,7 @@
 			<cfset sHTML = rereplace(sHTML, '(.*)\$extratagEnd\$', '\1#replace(currentTag, "<", "</")#') />
 		</cfloop>
 		<!---add extra attributes to the anchor tag --->
-		<cfloop from="1" to="#nExtraAnchorTexts#" index="nIndex">
+		<cfloop from="1" to="#nExtraAnchorAttributes#" index="nIndex">
 			<cfset currentAttr = _getRandom(variables.aExtraAnchorAttributes) />
 			<cfif not arrayFind(aExtraAttrDone, currentAttr)>
 				<cfset arrayAppend(aExtraAttrDone, currentAttr) />

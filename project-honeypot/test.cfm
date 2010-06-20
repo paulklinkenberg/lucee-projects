@@ -13,7 +13,7 @@
 	</cfinvoke>
 	<cfoutput>
 		<cfloop from="1" to="10" index="i">
-			<cfset sHTML = variables.oLinkGenerator.getURL() />
+			<cfset sHTML = variables.oLinkGenerator.getHTML() />
 			Returned html:
 			<pre class="border">#htmleditformat(sHTML)#</pre>
 			Underneath, the html is added into the page. But since it should be invisible to regular users, you will see nothing...
