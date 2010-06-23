@@ -57,7 +57,7 @@ body {
 	width: 6px;
 	border-left: 1px solid #ccc;
 	border-right: 1px solid #ccc;
-	background: #E2EAF3 url(../scripts/jquery.splitter/vgrabber.gif) no-repeat center;
+	background: #E2EAF3 url(../scripts/jquery_splitter/vgrabber.gif) no-repeat center;
 }
 
 #fileinfo {
