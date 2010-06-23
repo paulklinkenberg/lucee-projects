@@ -218,6 +218,7 @@ var deleteItem = function(data, successFunction)
 			success: function(result){
 				if(result['Code'] == 0){
 					removeNode(result['Path']);
+					removeNode(result['Path'].replace(/([^/\\]+)$/, "thumbs/$1"));
 					successFunction();
 					$.prompt('Delete successful.');
 				} else {
