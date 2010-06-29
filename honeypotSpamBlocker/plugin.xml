@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="nl.coldfusiondeveloper.mango.plugins.HoneypotSpamBlocker" name="HoneypotSpamBlocker" version="1.0" provider-name="Paul Klinkenberg" class="HoneypotSpamBlocker.PluginHandler">
+	<description><![CDATA[ Tries to kick those irritating spamming and harvesting bots away from your blog! Grrr. ]]></description>
+	<requiresVersion match="greaterOrEqual">0.1</requiresVersion>
+	<listens>
+		<!-- any of the following events should be triggered when a page is loaded -->
+		<event name="beforePostTemplate" type="synch" priority="2" />
+		<event name="beforePageTemplate" type="synch" priority="2" />
+		<event name="beforeIndexTemplate" type="synch" priority="2" />
+		<event name="beforeOuputTemplate" type="synch" priority="2" />
+		<event name="beforeGenericTemplate" type="synch" priority="2" />
+		<event name="beforeAuthorTemplate" type="synch" priority="2" />
+		<event name="beforeArchivesTemplate" type="synch" priority="2" />
+		
+		<event name="settingsNav" type="synch" priority="2" />
+		<event name="showHoneypotSpamBlockerSettings" type="synch" priority="2" />
+	</listens>
+</plugin>
