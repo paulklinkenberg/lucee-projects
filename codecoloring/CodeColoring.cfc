@@ -24,6 +24,10 @@
 		March 21, 2010, Paul Klinkenberg, www.coldfusiondeveloper.nl
 		Version 1.2.1
 		- Fixed an unscoped variable in _formatCss function
+		
+		June 13, 2010, Paul Klinkenberg, www.coldfusiondeveloper.nl
+		Version 1.2.2
+		- Changed the regex for url matching, so that some special characters are only matched in the query-string (after a question mark)
 	--->
 	<cfset variables.css_strs = ArrayNew(1) />
 
@@ -418,7 +422,7 @@
 		
 		<!--- activate Links in document? --->
 		<cfif arguments.activateLinks>
-			<cfset local.reg = "(ftp://|https?://|www\.)[a-z0-9\$\(\)\-\./\:=@\[\/\]_\|\~]+(\?[a-z0-9\!##\$\%\(\)\*\+,\-\./\:\;=\?@\[\/\]\^_\{\|\}\~&]+)?" />
+			<cfset local.reg = "(ftp://|https?://|www\.)[a-z0-9\._\-]+(:[0-9]+)?(/[a-z0-9\$\(\)\-\./\:=@\[\/\]_\|\~]+)?(\?[a-z0-9\!##\$\%\(\)\*\+,\-\./\:\;=\?@\[\/\]\^_\{\|\}\~&]+)?" />
 			<cfset local.start = 1 />
 			<cfloop condition="refindNoCase(local.reg, local.data, local.start)">
 				<cfset local.found_arr = refindNoCase(local.reg, local.data, local.start, true) />
