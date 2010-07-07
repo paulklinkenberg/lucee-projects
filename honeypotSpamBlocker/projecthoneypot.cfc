@@ -108,7 +108,7 @@
 						</cfif>
 					</cfcatch>
 				</cftry>
-				<cfset structInsert(variables.stCachedResults, arguments.host, sHostAddress) />
+				<cfset structInsert(variables.stCachedResults, arguments.host, sHostAddress, true) />
 				<cfset variables.stCachedResults.cacheQuantity = variables.stCachedResults.cacheQuantity+1 />
 			</cflock>
 		</cfif>
