@@ -401,7 +401,7 @@
 		<cfelse>
 			<cfset webPath = request.uploadWebRoot & variables.separator & arguments.path & variables.separator & arguments.filename />
 		</cfif>
-		<cfset webpath = replace(webPath, "\", "/", "all") />
+		<cfset webpath = rereplace(webPath, "[/\\]+", "/", "all") />
 		
 		<cfreturn webPath />
 	</cffunction>
