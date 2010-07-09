@@ -372,6 +372,7 @@
 		<!--- remove any "../" and "..\" from the given path --->
 		<cfset arguments.path = rereplace(arguments.path, "\.\.+([/\\])", "\1", "all") />
 		
+		<!--- if the given (web) path starts with the upload webroot--->
 		<cfif findNoCase(request.uploadWebRoot, arguments.path) eq 1>
 			<cfset newPath_str = request.uploadRootPath & variables.separator & replaceNoCase(arguments.path, request.uploadWebRoot, "/") />
 		<cfelse>
@@ -392,9 +393,17 @@
 	<cffunction name="_getWebPath" access="private" returntype="string" output="no">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="filename" type="string" required="no" default="" />
-		<cfset var absPath_str = _getPath(arguments.path, arguments.filename) />
-		<cfset var webPath_str = replace(replace(absPath_str, expandPath('/'), "/"), "\", "/", "all") />
-		<cfreturn webPath_str />
+		<cfset var webPath = "" />
+		<!--- remove any "../" and "..\" from the given path --->
+		<cfset arguments.path = rereplace(arguments.path, "\.\.+([/\\])", "\1", "all") />
+		<cfif findNoCase(request.uploadWebRoot, arguments.path) eq 1>
+			<cfset webPath = arguments.path & variables.separator & arguments.filename />
+		<cfelse>
+			<cfset webPath = request.uploadWebRoot & variables.separator & arguments.path & variables.separator & arguments.filename />
+		</cfif>
+		<cfset webpath = replace(webPath, "\", "/", "all") />
+		
+		<cfreturn webPath />
 	</cffunction>
 	
 	
@@ -406,11 +415,14 @@
 
 	<cffunction name="_getImageInfo" access="private" returntype="struct">
 		<cfargument name="path" required="yes" type="string" />
+		<cfset var cfimagedata_struct = "" />
 		<cfset var cfimage_struct = "" />
 		<cfset var imageData_struct = structNew() />
 		<cfif not structKeyExists(variables.imageInfo_struct, arguments.path)>
 			<cftry>
-				<cfimage action="info" source="#arguments.path#" structname="cfimage_struct" />
+				<!--- use a temp variable name for the cfimage data, so in case the cfimage read goes wrong, the variable we will keep on using will not become unscoped. --->
+				<cfimage action="info" source="#arguments.path#" structname="cfimagedata_struct" />
+				<cfset cfimage_struct = cfimagedata_struct />
 				<cfcatch>
 					<cfset cfimage_struct = structNew() />
 					<cfset cfimage_struct['width'] = 'Error ' />
