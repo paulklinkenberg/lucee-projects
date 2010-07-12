@@ -100,6 +100,43 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 	<cfif f.RecordCount eq 0>
 		<cfabort showerror="No such file or revision">
 	<cfelseif structKeyExists(url, "download")>
+		<!--- A bit off-track, but necessary for my site at least: clear the cfhtmlhead buffer,
+		so it is not prepended into the output.
+		Code details: http://www.coldfusiondeveloper.nl/post.cfm/clearing-the-cfhtmlhead-buffer-in-railo
+		--->
+		<cfscript>
+			function resetCFHtmlHead() {
+				var args = arrayNew(1);
+				var out = getPageContext().getOut();
+				var methods = out.getClass().getDeclaredMethods();
+				var i=0;
+				if (structKeyExists(server, 'railo'))
+				{
+					for (i=1; i lt arrayLen(methods); i=i+1)
+					{
+						if (methods[i].getName() eq '_toString')
+						{
+							args[1]=true;
+							methods[i].setAccessible(true);
+							methods[i].invoke(out, args);
+							return;
+						}
+					}
+				} else // Adobe Coldfusion
+				{
+					// It's necessary to iterate over this until we get to a coldfusion.runtime.NeoJspWriter (for CF 8/9)
+					while (getMetaData(out).getName() is 'coldfusion.runtime.NeoBodyContent')
+					{
+						out = out.getEnclosingWriter();
+					}
+					methods = out.getClass().getDeclaredMethod("initHeaderBuffer",arrayNew(1));
+					methods.setAccessible(true);
+					methods.invoke(out,arrayNew(1));
+				}
+			}
+			resetCFHtmlHead();
+		</cfscript>
+		
 		<cfset FileExt=LCase(ListLast(f.Name,".")) />
 		<cfswitch expression="#FileExt#">
 			<cfcase value="cfc,cfm,cfml,js,pl,plx,php,php4,php5,asp,aspx,sql">
