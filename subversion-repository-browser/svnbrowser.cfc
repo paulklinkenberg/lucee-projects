@@ -11,6 +11,8 @@
 	
 	Version 1.0, March 2010
 		Among other things, I added the option to use svn:// repository urls instead of only http://.
+	Version 1.1, 12 July 2010
+		Added option to view the latest version of a file, by setting 'HEAD' as the revision number.
 	--->
 
 
@@ -114,13 +116,22 @@
 	
 	<cffunction name="FileVersion" output="false" description="Retrieve the specific version of a file" returntype="query">
 		<cfargument name="Resource" type="string" required="true">
-		<cfargument name="Version" type="numeric" required="true">
+		<cfargument name="Version" type="any" required="true" />
 		<cfset var Q=QueryNew("Name,Author,Message,Date,Kind,Path,Revision,Size,URL,Content")>
 		<cfset var props = loadSvnClass("org.tmatesoft.svn.core.SVNProperties") />
 		<cfset var out = CreateObject("java","java.io.ByteArrayOutputStream").init()>
 		<cfset var MimeType="">
 		<cfset var NodeKind="">
 		<cfset var local = structNew() />
+		
+		<cfif arguments.version neq "HEAD" and not isNumeric(arguments.Version)>
+			<cfthrow message="Version must be either numeric or 'HEAD'!" />
+		</cfif>
+		<!--- if version=HEAD, get the latest revision for the file --->
+		<cfif arguments.version eq "HEAD">
+			<cfset arguments.version = -1 />
+		</cfif>
+		
 		<cfset props.init() />
 		<cftry>
 			<cfset NodeKind=this.Repository.checkPath(JavaCast("string",Arguments.Resource),JavaCast("int",Arguments.Version))>

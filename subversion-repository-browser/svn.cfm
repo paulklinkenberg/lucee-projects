@@ -11,6 +11,8 @@
 	for project Subversion repository browser: http://www.coldfusiondeveloper.nl/post.cfm/subversion-repository-browser-in-coldfusion
 	
 	Version 1.0, March 2010
+	Version 1.1, 12 July 2010
+		Added option to view the latest version of a file, by setting 'HEAD' as the revision number.
 --->
 
 <!---
@@ -92,7 +94,7 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 		<cfthrow message="Something went wrong; the diff can't be done!" />
 	</cfif>
 	<cfset variables.action = "diff" />
-<cfelseif IsNumeric(Version)>
+<cfelseif IsNumeric(Version) or Version eq "HEAD">
 	<!--- We only have one version number, so show the file --->
 	<cfset f=sb.FileVersion(FilePath,Version)>
 	<cfif f.RecordCount eq 0>
@@ -226,7 +228,7 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 								<a href="#variables.urlToThisFile#?repositorypath=#FilePath##f.path#<cfif Kind EQ 'dir'>/</cfif>"><cfif Kind EQ 'dir'>Open folder<cfelse>log</cfif></a>
 							</cfif>
 							<cfif listfindnocase("xml,html,htm,css,cfc,cfm,cfml,js,pl,plx,php,php4,php5,asp,aspx,sql,as,mxml", listlast(f.path, '.'))>
-								<a href="#variables.urlToThisFile#?repositorypath=#FilePath#<cfif variables.isDir>#f.Path#</cfif>:#f.Revision#">view</a>
+								<a href="#variables.urlToThisFile#?repositorypath=#FilePath#<cfif variables.isDir>#f.Path#</cfif>:HEAD">view</a>
 							</cfif>
 							#NumberFormat(Revision)#
 						</td>
