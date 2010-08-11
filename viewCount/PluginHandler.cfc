@@ -13,7 +13,7 @@
 		<cfset variables.preferencesManager = arguments.preferences />
 		<cfset variables.manager = arguments.mainManager />
 		
-		<cfset initSettings(maxHours=2, excludeSearchEngines=1, showPublicly=1) />
+		<cfset initSettings(maxHours=2, excludeSearchEngines=1, showPublicly=1, appearance="View count: $viewcount$") />
 
 		<!--- get database related specs and handler --->
 		<cfset variables.objQryAdapter = variables.manager.getQueryInterface() />
@@ -76,7 +76,7 @@
 				<cfset _updateViewCount(postID) />
 				<cfif getSetting('showPublicly') eq 1>
 					<cfset outputData = arguments.event.getOutputData() />
-					<cfset arguments.event.setOutputData(outputData & " | " & getViewCountHTML(postID)) />
+					<cfset arguments.event.setOutputData(outputData & " " & getViewCountHTML(postID)) />
 				</cfif>
 			</cfif>
 		<!--- admin nav event --->
@@ -124,9 +124,13 @@
 					<cfif not isNumeric(data.externaldata.maxHours) or data.externaldata.maxHours lt 0 or int(data.externaldata.maxHours) neq data.externaldata.maxHours>
 						<cfset err_str = '<p class="error">The number of hours is invalid!</p>' />
 					<cfelse>
+						<cfif not findNoCase("$viewcount$", data.externaldata.appearance)>
+							<cfset data.externaldata.appearance = data.externaldata.appearance & " $viewcount$" />
+						</cfif>
 						<cfset setSettings(maxHours=data.externaldata.maxHours
 							, excludeSearchEngines=data.externaldata.excludeSearchEngines
-							, showPublicly=data.externaldata.showPublicly) />
+							, showPublicly=data.externaldata.showPublicly
+							, appearance=data.externaldata.appearance) />
 						<cfset persistSettings() />
 																	
 						<cfset data.message.setstatus("success") />
@@ -176,7 +180,7 @@
 	
 	<cffunction name="getViewCountHTML" access="public" returntype="string" hint="Returns the html indicating the viewCount for a post">
 		<cfargument name="postID" type="string" required="yes" />
-		<cfreturn "View count: " & getViewCount(arguments.postID) />
+		<cfreturn replaceNoCase(getSetting('appearance'), "$viewcount$", getViewCount(arguments.postID), "all") />
 	</cffunction>
 	
 	

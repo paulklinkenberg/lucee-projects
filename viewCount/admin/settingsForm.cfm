@@ -24,6 +24,18 @@
 			<option value="0"<cfif getSetting('showPublicly') eq 0> selected="selected"</cfif>>No</option>
 		</select></span>
 	</p>
+	<p>
+		<label for="appearance">Text to show</label>
+		<span class="hint">By default, the plugin will show "View count: $viewcount$".
+			Here, you can change the text which will be shown.<br />
+			You can use a placeholder for the viewcount number by adding $viewcount$.<br />
+			Examples: "viewed $viewcount$ times", "$viewcount$ views", or "| $viewcount$ keer bekeken".<br />
+			If you leave the $viewcount$ out, then it will be added to the end of the text. And yes, you can add html.
+		</span>
+		<cfoutput><span class="field">
+			<input type="text" name="appearance" id="appearance" size="40" value="#htmleditformat(getSetting('appearance'))#" />
+		</span></cfoutput>
+	</p>
 	
 	<div class="actions">
 		<input type="submit" class="primaryAction" value="Submit"/>
