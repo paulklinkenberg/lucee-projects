@@ -25,8 +25,7 @@
 		<cfset var pathFromWebRoot = "" />
 		
 		<cfif not structKeyExists(variables.translations, request.language)>
-			<cfset pathFromWebRoot = replace(replace(getDirectoryFromPath(GetCurrentTemplatePath()), expandPath('/'), "/"), "\", "/", "all") />
-			<cfinclude template="#pathFromWebRoot#lang/#request.language#.cfm" />
+			<cfinclude template="lang/#request.language#.cfm" />
 			<cfset structInsert(variables.translations, request.language, lang, true) />
 		</cfif>
 		
