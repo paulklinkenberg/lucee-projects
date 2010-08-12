@@ -28,6 +28,11 @@
 		June 13, 2010, Paul Klinkenberg, www.coldfusiondeveloper.nl
 		Version 1.2.2
 		- Changed the regex for url matching, so that some special characters are only matched in the query-string (after a question mark)
+
+		
+		August 12, 2010, Paul Klinkenberg, www.railodeveloper.com
+		Version 1.2.3
+		- Added css classname "colored" into the pre tag which is returned by function colorString.
 	--->
 	<cfset variables.css_strs = ArrayNew(1) />
 
@@ -411,7 +416,7 @@
 			</cfloop>
 			<cfset local.data = local.tempData />
 		<cfelse>
-			<cfset local.data = "<pre>#local.data#</pre>" />
+			<cfset local.data = "<pre class=""colored"">#local.data#</pre>" />
 		</cfif>
 
 		<!--- Revert all pseudo-containers back to their real values to be interpreted literally (revised) --->
