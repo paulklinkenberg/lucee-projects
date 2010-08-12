@@ -148,7 +148,7 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 			</cfcase>
 			<cfdefaultcase>
 				<cfheader name="Content-Disposition" value="attachment;filename=""#f.name#""" />
-				<cfcontent variable="#f.Content[1]#" type="application/octet-stream" reset="yes" />
+				<cfcontent variable="#f.Content[1]#" type="application/#variables.fileExt#" reset="yes" />
 			</cfdefaultcase>
 		</cfswitch>
 		<cfabort />
@@ -214,7 +214,7 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 			<br />
 			<a href="#variables.urlToThisFile#?repositorypath=#filePath#">&laquo; back to the file's overview page</a>
 			&nbsp;
-			<a href="#variables.urlToThisFile#?repositorypath=#filePath#:#version#&amp;download=1">download this file</a>
+			<a href="#variables.urlToThisFile#?repositorypath=#filePath#%3A#version#&amp;download=1">download this file</a>
 		</p>
 		
 		<cfif listFindNoCase("cfc,cfm,cfml,htm,html", listLast(filepath, '.'))>
@@ -250,17 +250,17 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 						<cfif variables.isDir><td>#HTMLEditFormat(Name)#</td></cfif>
 						<td nowrap="nowrap" class="num links">
 							<cfif kind eq "file">
-								<a href="#variables.urlToThisFile#?repositorypath=#FilePath#<cfif variables.isDir>#f.Path#</cfif>:#Revision#&amp;download=1">download</a>
+								<a href="#variables.urlToThisFile#?repositorypath=#FilePath#<cfif variables.isDir>#f.Path#</cfif>%3A#Revision#&amp;download=1">download</a>
 							</cfif>
 							<cfif variables.isDir>
 								<a href="#variables.urlToThisFile#?repositorypath=#FilePath##f.path#<cfif Kind EQ 'dir'>/</cfif>"><cfif Kind EQ 'dir'>Open folder<cfelse>log</cfif></a>
 							</cfif>
 							<cfif listfindnocase("xml,html,htm,css,cfc,cfm,cfml,js,pl,plx,php,php4,php5,asp,aspx,sql,as,mxml", listlast(f.path, '.'))>
-								<a href="#variables.urlToThisFile#?repositorypath=#FilePath#<cfif variables.isDir>#f.Path#</cfif>:HEAD">view</a>
+								<a href="#variables.urlToThisFile#?repositorypath=#FilePath#<cfif variables.isDir>#f.Path#</cfif>%3AHEAD">view</a>
 							</cfif>
 							#NumberFormat(Revision)#
 						</td>
-						<cfif NOT variables.isDir><td align="center"><cfif CanDiff AND (CurrentRow LT RecordCount)><a href="#variables.urlToThisFile#?repositorypath=#Path#:#f.Revision[IncrementValue(CurrentRow)]#:#Revision#f">#DiffGraphic#</a><cfelse> </cfif></td></cfif>
+						<cfif NOT variables.isDir><td align="center"><cfif CanDiff AND (CurrentRow LT RecordCount)><a href="#variables.urlToThisFile#?repositorypath=#Path#%3A#f.Revision[IncrementValue(CurrentRow)]#%3A#Revision#f">#DiffGraphic#</a><cfelse> </cfif></td></cfif>
 				
 						<cfif variables.isDir><td nowrap="nowrap" class="num"><cfif (Kind EQ 'file') AND IsNumeric(Size)>#NumberFormat(Size)#</cfif></td></cfif>
 						<td class="date<cfif IsDate(Date)> #FreshnessRating(Date)#</cfif>" nowrap="nowrap"><cfif IsDate(Date)>#DateFormat(Date,"yyyy-mm-dd")# #TimeFormat(Date,"HH:mm:ss")#<cfelse>#HTMLEditFormat(Date)#</cfif></td>
