@@ -407,7 +407,7 @@
 			</cfloop>
 			<cfset local.data = local.tempData />
 		<cfelse>
-			<cfset local.data = "<pre>#local.data#</pre>" />
+			<cfset local.data = "<pre class=""colored"">#local.data#</pre>" />
 		</cfif>
 
 		<!--- Revert all pseudo-containers back to their real values to be interpreted literally (revised) --->
