@@ -29,13 +29,23 @@
 		Version 1.2.2
 		- Changed the regex for url matching, so that some special characters are only matched in the query-string (after a question mark)
 
-		
 		August 12, 2010, Paul Klinkenberg, www.railodeveloper.com
 		Version 1.2.3
 		- Added css classname "colored" into the pre tag which is returned by function colorString.
+
+		September 18, 2010, Paul Klinkenberg, www.railodeveloper.com
+		Version 1.3
+		- Now saving all colored data to disk, to improve performance. This can be switched off in the cfc.
 	--->
 	<cfset variables.css_strs = ArrayNew(1) />
+	<cfset variables.saveColoredDataToDisk = true />
+	<cfset variables.savedDataPath = GetDirectoryFromPath(GetCurrentTemplatePath()) & "savedColoredData/" />
 
+	<!--- create dir if it does not exist --->
+	<cfif variables.saveColoredDataToDisk and not DirectoryExists(variables.savedDataPath)>
+		<cfdirectory action="create" directory="#variables.savedDataPath#" />
+	</cfif>
+	
 	<!--- Color Code From File --->
 	<cffunction name="colorFile" output="false" returntype="string" access="public">
 		<cfargument name="fileName" type="string" required="true" />
@@ -63,44 +73,70 @@
 		<cfargument name="keepTabs" type="boolean" default="true" hint="Do we need to convert tabs to spaces, or keep em as is?" />
 		<cfargument name="activateLinks" type="boolean" default="true" />
 		<cfset var local = structNew() />
-
-		<!--- max. amount of cached strings --->
-		<cfset local.maxCached_num = 10 />
+		
 		<cfset local.cache_str = "lineNumbers=#lineNumbers#|keepTabs=#keepTabs#|#dataString#|#activateLinks#" />
-		<!--- we'll try to set it to application where possible --->
-		<cfset local.cacheScope_struct = server />
+		<!--- get MD5 of data to color --->
+		<cfset local.dataMD5 = hash(local.cache_str) />
 		
-		<!--- check if an application scope is available --->
-		<cfif isDefined("application") and isStruct(application) and structKeyExists(application, "applicationName")>
-			<cfset local.cacheScope_struct = application />
-		</cfif>
-		<cfparam name="local.cacheScope_struct.cachedColorStrings" default="#arrayNew(1)#" />
-		
-		<!---if url.killCache, then ... kill the cache --->
-		<cfif structKeyExists(url, "killCache")>
-			<cfset local.cacheScope_struct.cachedColorStrings = arrayNew(1) />
-		</cfif>
-		
-		<!---check the cache for the existence of the requested dataString --->
-		<cfloop from="1" to="#arrayLen(local.cacheScope_struct.cachedColorStrings)#" index="local.arrIndex">
-			<cfif local.cacheScope_struct.cachedColorStrings[local.arrIndex].original eq local.cache_str>
-				<cfreturn local.cacheScope_struct.cachedColorStrings[local.arrIndex].colored & "<!-- retrieved from cache -->" />
+		<!--- does it exist on disk? --->
+		<cfif variables.saveColoredDataToDisk>
+			<!---if url.killCache, then ... kill the cache --->
+			<cfif structKeyExists(url, "killCache")>
+				<cfdirectory action="list" directory="#variables.savedDataPath#" name="local.qFiles" filter="*.html" />
+				<cfloop query="local.qFiles">
+					<cffile action="delete" file="#variables.savedDataPath##local.qFiles.name#" />
+				</cfloop>
 			</cfif>
-		</cfloop>
-		
-		<!--- not found eey? Then we'll get it now, and set it in a struct which we will cache. --->
-		<cfset local.cache_struct = structNew() />
-		<cfset local.colored_str = colorString(dataString=arguments.dataString, lineNumbers=arguments.lineNumbers, keepTabs=arguments.keepTabs, useCaching=false, activateLinks=arguments.activateLinks) />
-		<cfset structInsert(local.cache_struct, "colored", local.colored_str) />
-		<cfset structInsert(local.cache_struct, "original", local.cache_str) />
 
-		<!--- add it as the first of the array --->
-		<cfset arrayPrepend(local.cacheScope_struct.cachedColorStrings, local.cache_struct) />
+			<cfif fileExists(variables.savedDataPath & local.dataMD5 & ".html")>
+				<cfreturn fileRead(variables.savedDataPath & local.dataMD5 & ".html") & "<!-- retrieved from disk cache -->" />
+			</cfif>
+		<!--- use application scope caching --->
+		<cfelse>
+			<!--- max. amount of cached strings in application scope --->
+			<cfset local.maxCached_num = 50 />
+			<!--- we'll try to set it to application where possible --->
+			<cfset local.cacheScope_struct = server />
+			
+			<!--- check if an application scope is available --->
+			<cfif isDefined("application") and isStruct(application) and structKeyExists(application, "applicationName")>
+				<cfset local.cacheScope_struct = application />
+			</cfif>
+			<cfparam name="local.cacheScope_struct.cachedColorStrings" default="#arrayNew(1)#" />
+			
+			<!---if url.killCache, then ... kill the cache --->
+			<cfif structKeyExists(url, "killCache")>
+				<cfset local.cacheScope_struct.cachedColorStrings = arrayNew(1) />
+			</cfif>
+			
+			<!---check the cache for the existence of the requested dataString --->
+			<cfloop from="1" to="#arrayLen(local.cacheScope_struct.cachedColorStrings)#" index="local.arrIndex">
+				<cfif local.cacheScope_struct.cachedColorStrings[local.arrIndex].md5 eq local.cache_str>
+					<cfreturn local.cacheScope_struct.cachedColorStrings[local.arrIndex].colored & "<!-- retrieved from cache -->" />
+				</cfif>
+			</cfloop>
+		</cfif>
 		
-		<!--- delete any cached elements which exceed the max-cache-num --->
-		<cfloop condition="local.maxCached_num lt arrayLen(local.cacheScope_struct.cachedColorStrings)">
-			<cfset arrayDeleteAt(local.cacheScope_struct.cachedColorStrings, local.maxCached_num+1) />
-		</cfloop>
+		<!--- not found eey? Then we'll get it now --->
+		<cfset local.colored_str = colorString(dataString=arguments.dataString, lineNumbers=arguments.lineNumbers, keepTabs=arguments.keepTabs, useCaching=false, activateLinks=arguments.activateLinks) />
+
+		<!--- save it to disk? --->
+		<cfif variables.saveColoredDataToDisk>
+			<cffile action="write" file="#variables.savedDataPath##local.dataMD5#.html"
+			output="#local.colored_str#" addnewline="no" />
+		<cfelse>
+			<cfset local.cache_struct = structNew() />
+			<cfset structInsert(local.cache_struct, "colored", local.colored_str) />
+			<cfset structInsert(local.cache_struct, "md5", local.dataMD5) />
+			
+			<!--- add it as the first of the array --->
+			<cfset arrayPrepend(local.cacheScope_struct.cachedColorStrings, local.cache_struct) />
+			
+			<!--- delete any cached elements which exceed the max-cache-num --->
+			<cfloop condition="local.maxCached_num lt arrayLen(local.cacheScope_struct.cachedColorStrings)">
+				<cfset arrayDeleteAt(local.cacheScope_struct.cachedColorStrings, local.maxCached_num+1) />
+			</cfloop>
+		</cfif>
 
 		<cfreturn local.colored_str & "<!-- added to cache -->" />
 	</cffunction>
