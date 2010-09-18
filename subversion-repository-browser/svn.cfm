@@ -220,7 +220,7 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 			<a href="#variables.urlToThisFile#?repositorypath=#filePath#%3A#version#&amp;download=1">download this file</a>
 		</p>
 		
-		<cfif listFindNoCase("cfc,cfm,cfml,htm,html", listLast(filepath, '.'))>
+		<cfif listFindNoCase("cfc,cfm,cfml,html", listLast(filepath, '.')) and len(tostring(f.content[1])) lt 50*1024>
 			<!---create the codecoloring object --->
 			<cfoutput>#CreateObject("component", "CodeColoring").colorString(dataString=tostring(f.content[1]), lineNumbers=false)#</cfoutput>
 		<cfelse>
