@@ -28,6 +28,7 @@
 <!--- We don't want to provide the ability to diff everything, just certain file types --->
 <cfset Diffable="cfc,cfm,cfml,txt,plx,php,php4,php5,asp,aspx,xml,html,htm,sql,css,js">
 <cfset DiffGraphic='<img src="/cfdiff/images/diff.png" width="16" width="16" alt="View the difference between this file and the previous version" border="0" />'>
+<cfset Viewable = diffable />
 
 <!---
 ===============================================================
@@ -102,7 +103,7 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 	<cfelseif structKeyExists(url, "download")>
 		<!--- A bit off-track, but necessary for my site at least: clear the cfhtmlhead buffer,
 		so it is not prepended into the output.
-		Code details: http://www.coldfusiondeveloper.nl/post.cfm/clearing-the-cfhtmlhead-buffer-in-railo
+		Code details: http://www.railodeveloper.com/post.cfm/clearing-the-cfhtmlhead-buffer-in-railo
 		--->
 		<cffunction name="resetCFHtmlHead"  returntype="void" access="public">
 			<cfset var args = arrayNew(1) />
@@ -152,8 +153,10 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 			</cfdefaultcase>
 		</cfswitch>
 		<cfabort />
-	<cfelse>
+	<cfelseif listFindNoCase(variables.Viewable, ListLast(f.Name,"."))>
 		<cfset variables.action = "showfile" />
+	<cfelse>
+		<cfset variables.action = "listing" />
 	</cfif>
 <cfelse>
 	<!--- If all else fails, try to show a history of whatever we're looking at --->
