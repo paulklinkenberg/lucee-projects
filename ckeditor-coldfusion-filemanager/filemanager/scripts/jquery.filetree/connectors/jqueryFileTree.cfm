@@ -6,7 +6,7 @@ By Tjarko Rikkerink (http://carlosgallupa.com/)
 Modified by Paul Klinkenberg for the Filemanager CFM connector
  *
  *	@license	MIT License
- *	@author		Paul Klinkenberg, www.coldfusiondeveloper.nl/post.cfm/cfm-connector-for-ckeditor-corefive-Filemanager
+ *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/cfm-connector-for-ckeditor-corefive-Filemanager
  *  @date		February 28, 2010
  *  @version	1.0
  *	@copyright	Authors
