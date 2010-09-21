@@ -224,7 +224,7 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 			<!---create the codecoloring object --->
 			<cfoutput>#CreateObject("component", "CodeColoring").colorString(dataString=tostring(f.content[1]), lineNumbers=false)#</cfoutput>
 		<cfelse>
-			<pre>#HTMLEditFormat(tostring(f.content[1]))#</pre>
+			<pre class="colored">#HTMLEditFormat(tostring(f.content[1]))#</pre>
 		</cfif>
 	</cfoutput>
 <cfelse>
