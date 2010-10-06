@@ -27,7 +27,7 @@
  */
 --->	
 	
-	<cfset variables.errorMailTo = "paul@ongevraagdadves.nl" />
+	<cfset variables.errorMailTo = "paul@ongevraagdadvies.nl" />
 	<cfset variables.previousVHostDataFilename = "previousVHostData.txt" />
 	<cfset variables.config = getConfig() />
 
