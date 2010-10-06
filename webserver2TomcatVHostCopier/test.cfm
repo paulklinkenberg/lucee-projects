@@ -5,43 +5,65 @@
 	<title>Webserver2Tomconfig file to get it's settings fromcatVHostCopier test page</title>
 	<style type="text/css">
 		body { font-size:12px; font-family:Verdana, Geneva, sans-serif; }
-		pre { background-color:#eee; padding:5px; width:auto; }
+		pre { background-color:#eee; padding:5px; width:auto; max-height:150px; overflow:auto; border:1px solid #000; }
+		h1, h2, h3 { padding: 6px 0px 6px 15px; background-color:#CCC; margin:25px 0px 10px 0px; }
 	</style>
 </head>
 <body>
 	<h1>Test page for the Webserver2TomcatVHostCopier</h1>
-
+	
 	<cfif structKeyExists(form, "configdata")>
-		<h3>Your test results</h3>
-		<cfif fileExists('parserLog.log')>
-			<cfset fileDelete('parserLog.log') />
-			<em>parser log was cleared</em><br />
-		</cfif>
-		<cfset fileWrite('config.conf', form.configdata) />
-		<cfset new Webserver2TomcatVHostCopier().copyWebserverVHosts2Tomcat(testOnly=true) />
-		<br />--&gt; Don't forget to look at the parser log underneath this page!
+		<cftry>
+			<h3>Your parsing results</h3>
+			<!--- delete the old log file --->
+			<cfif fileExists('parserLog.log')>
+				<cfset fileDelete('parserLog.log') />
+				<em>parser log was cleared</em><br />
+			</cfif>
+			<!--- write the new configuration to disk --->
+			<cfset fileWrite('config.conf', form.configdata) />
+			<!--- can we send debug data to the developer? --->
+			<cfset variables.emailErrors = structKeyExists(form, "sendErrorsToPaul") />
+			<!--- call the copier, but only to test the config --->
+			<cfset new Webserver2TomcatVHostCopier().copyWebserverVHosts2Tomcat(testOnly=true, sendCriticalErrors=variables.emailErrors) />
+			
+			<br />--&gt; Don't forget to look at the parser log underneath this page!
+			
+			<!--- error occured? --->
+			<cfcatch>
+				<h3 style="color:red;">An error occured :-(</h3>
+				<cfif structKeyExists(form, "sendErrorsToPaul")>
+					<cfmail to="paul@ongevraagdadvies.nl" from="paul@ongevraagdadvies.nl" subject="Webserver2Tomcat error at #cgi.http_host#" type="html">
+						Date: #now()#<br />
+						<cfdump var="#form#" label="form data" />
+						<cfdump var="#cfcatch#" label="error data" />
+						<cfdump var="#cgi#" label="cgi vars" />
+					</cfmail>
+					<p>A mail about this has been sent to the developer</p>
+				</cfif>
+				<cfdump var="#cfcatch#" abort />
+			</cfcatch>
+		</cftry>
 	</cfif>
 	
-	<h3>Test it</h3>
-	<p>The VHostCopier uses a config file to read the settings from.<br />
-	If you want to test the functionality, then please edit the following config file, and press "TEST".</p>
+	<h3>Test the parsing of your webserver configuration</h3>
+	<p>Please edit the following config file, and then press "TEST". Also see the requirements underneath this page.</p>
 	
 	<form method="post" action="test.cfm">
+		<label for="sendErrorsToPaul"><input id="sendErrorsToPaul" type="checkbox" name="sendErrorsToPaul" value="1" checked="checked" />
+			Send errors to the developer for debugging purposes?
+		</label><br />
 		<textarea cols="60" rows="8" name="configdata"><cfif fileExists('config.conf')><cfoutput>#fileRead('config.conf')#</cfoutput></cfif></textarea>
 		<br /><input type="submit" value="TEST" />
 	</form>
 	
-	<h3>Example config</h3>
-	<pre>
-webservertype=IIS7 (or IIS6 or Apache)
+	<h3>Example configuration</h3>
+	<pre>webservertype=IIS7 (or IIS6 or Apache)
 httpdfile=/private/etc/apache2/httpd.conf
 IIS7File=%systemroot%\System32\inetsrv\config\applicationHost.config
 IIS6File=%systemroot%\System32\inetsrv\Metabase.xml
-tomcatrootpath=/Applications/tomcat/
-tomcatport=8080
-hostmanagerusername=NAME
-hostmanagerpassword=PASSWORD</pre>
-	<em>(which lines are actually used depends on the first line, 'webservertype'):</em>
+tomcatrootpath=/Applications/tomcat/</pre>
+	<em>(which lines are actually used depends on the first line, 'webservertype')</em>
 	
 	<h3>Parser log</h3>
 	<cfif fileExists('parserLog.log')>

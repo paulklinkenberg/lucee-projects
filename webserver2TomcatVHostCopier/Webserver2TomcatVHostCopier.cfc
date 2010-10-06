@@ -1,17 +1,20 @@
 <cfcomponent output="no">
+
 	<cffunction name="copyWebserverVHosts2Tomcat" access="public" returntype="void" output="yes">
 		<cfargument name="testOnly" type="boolean" required="no" default="false" />
-		<cfset var tomcatConfigManager = new TomcatConfigManager() />
+		<cfargument name="sendCriticalErrors" type="boolean" required="no" default="true" />
+
+		<cfset var tomcatConfigManager = new TomcatConfigManager().init(sendCriticalErrors=arguments.sendCriticalErrors) />
 		<cfset var parserConfig = tomcatConfigManager.getConfig() />
-	
+		
 		<!--- apache --->
 		<cfif parserConfig.webservertype eq "apache">
-			<cfset var apacheConfigManager = new ApacheConfigManager() />
+			<cfset var apacheConfigManager = new ApacheConfigManager().init(sendCriticalErrors=arguments.sendCriticalErrors) />
 			<!--- get all Vhosts from Apache--->
 			<cfset var VHosts = apacheConfigManager.getVHostsFromHTTPDFile(file=parserConfig.httpdfile) />
 		<!--- IIS6 --->
 		<cfelseif parserConfig.webservertype eq "IIS6">
-			<cfset var IISConfigManager = new IISConfigManager() />
+			<cfset var IISConfigManager = new IISConfigManager().init(sendCriticalErrors=arguments.sendCriticalErrors) />
 			<!--- for testing, get the config file from a different location --->
 			<cfif structKeyExists(parserConfig, "IIS6File")>
 				<cfset var VHosts = IISConfigManager.getVHostsFromIIS6File(parserConfig.IIS6File) />
@@ -20,7 +23,7 @@
 			</cfif>
 		<!--- IIS7 --->
 		<cfelseif parserConfig.webservertype eq "IIS7">
-			<cfset var IISConfigManager = new IISConfigManager() />
+			<cfset var IISConfigManager = new IISConfigManager().init(sendCriticalErrors=arguments.sendCriticalErrors) />
 			<!--- for testing, get the config file from a different location --->
 			<cfif structKeyExists(parserConfig, "IIS7File")>
 				<cfset var VHosts = IISConfigManager.getVHostsFromIIS7File(parserConfig.IIS7File) />
@@ -66,7 +69,7 @@
 			</cfsavecontent>
 			#temp#
 			<br /><br />
-			<cfset tomcatConfigManager.handleError("Changed hosts: #rereplace(temp, '(<.*?>|[\r\n\t])+', '', 'all')#", "MESSAGE") />
+			<cfset tomcatConfigManager.handleError(rereplace(temp, '(<.*?>|[\r\n\t])+', chr(10), 'all'), "MESSAGE") />
 			
 			<!--- create the xml text with the VHosts for tomcat --->
 			<cfset var VHostsText = tomcatConfigManager.createTomcatVHosts(tomcatVHosts) />
@@ -93,7 +96,7 @@
 			All files have been written<br /><br />
 			
 			<!--- now activate the new and changed host by using the Tomcat host-manager --->
-			<cfset var tomcatHostManager = new TomcatHostManager() />
+			<cfset var tomcatHostManager = new TomcatHostManager().init(sendCriticalErrors=arguments.sendCriticalErrors) />
 			<cfloop collection="#stChangedVHosts#" item="key">
 				<cfif stChangedVHosts[key] eq "new">
 					<cfset tomcatHostManager.addHost(key) />
@@ -124,4 +127,5 @@
 			No changes in the VHosts.
 		</cfif>
 	</cffunction>
+	
 </cfcomponent>
