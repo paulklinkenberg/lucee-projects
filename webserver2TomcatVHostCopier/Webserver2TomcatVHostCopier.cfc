@@ -1,4 +1,31 @@
 <cfcomponent output="no">
+<!---
+/*
+ * Webserver2TomcatVHostCopier.cfc, developed by Paul Klinkenberg
+ * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
+ *
+ * Date: 2010-10-06 16:07:00 +0100
+ * Revision: 0.2
+ *
+ * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
+ * Licensed under the GPL license.
+ *
+ *    This program is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *    ALWAYS LEAVE THIS COPYRIGHT NOTICE IN PLACE!
+ */
+--->	
 
 	<cffunction name="copyWebserverVHosts2Tomcat" access="public" returntype="void" output="yes">
 		<cfargument name="testOnly" type="boolean" required="no" default="false" />

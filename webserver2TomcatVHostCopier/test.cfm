@@ -1,8 +1,34 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!---
+/*
+ * test.cfm, developed by Paul Klinkenberg
+ * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
+ *
+ * Date: 2010-10-06 16:07:00 +0100
+ * Revision: 0.2
+ *
+ * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
+ * Licensed under the GPL license.
+ *
+ *    This program is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *    ALWAYS LEAVE THIS COPYRIGHT NOTICE IN PLACE!
+ */
+---><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Webserver2Tomconfig file to get it's settings fromcatVHostCopier test page</title>
+	<title>Webserver2Tomcat VHost Copier test page</title>
 	<style type="text/css">
 		body { font-size:12px; font-family:Verdana, Geneva, sans-serif; }
 		pre { background-color:#eee; padding:5px; width:auto; max-height:150px; overflow:auto; border:1px solid #000; }
