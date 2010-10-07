@@ -72,7 +72,7 @@
 			<cfset var hostname = "" />
 			<cfloop array="#VHosts#" index="stVHost">
 				<cfloop list="#iif(not len(stVHost.host), de('localhost'), 'stVHost.host')#,#structKeyList(stVHost.aliases)#" index="hostname">
-					<cfif structKeyExists(tomcatVHosts, hostname) and stVHost.path neq tomcatVHosts[hostname]>
+					<cfif structKeyExists(tomcatVHosts, hostname) and rereplace(stVHost.path, '[/\\]$', '') neq rereplace(tomcatVHosts[hostname], '[/\\]$', '')>
 						<cfset arrayAppend(duplicates, "        Same host found twice, with different webroots! Host=#hostname#, path1=#tomcatVHosts[hostname]#, path2=#stVHost.path#") />
 					<cfelse>
 						<cfset structInsert(tomcatVHosts, hostname, stVHost.path, true) />
