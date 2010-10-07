@@ -4,8 +4,8 @@
  * ApacheConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-07 14:01:00 +0100
- * Revision: 0.2.3
+ * Date: 2010-10-07 15:05:00 +0100
+ * Revision: 0.2.5
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -148,11 +148,11 @@
 			<cfset VHostData = {aliases={}} />
 			<cfoutput><pre>#HTMLEditFormat(VHostContainer)#</pre></cfoutput>
 			<cfloop list="#VHostContainer#" delimiters="#chr(10)#" index="line">
-				<cfif find("ServerName ", line) eq 1>
-					<cfset VHostData.host = rereplace(trim(listRest(line, " ")), "['""]", "", "all") />
-				<cfelseif find("ServerAlias ", line) eq 1>
-					<cfset VHostData.aliases[rereplace(trim(listRest(line, " ")), "['""]", "", "all")] = "" />
-				<cfelseif find("DocumentRoot ", line) eq 1>
+				<cfif findNoCase("ServerName ", line) eq 1>
+					<cfset VHostData.host = listFirst(rereplace(trim(listRest(line, " ")), "['""]", "", "all"), ':') />
+				<cfelseif findNoCase("ServerAlias ", line) eq 1>
+					<cfset VHostData.aliases[listFirst(rereplace(trim(listRest(line, " ")), "['""]", "", "all"), ':')] = "" />
+				<cfelseif findNoCase("DocumentRoot ", line) eq 1>
 					<cfset VHostData.path = rereplace(trim(listRest(line, " ")), "['""]", "", "all") />
 					<cfset VHostData.path = getCleanedAbsPath(VHostData.path, serverRoot) />
 				</cfif>
