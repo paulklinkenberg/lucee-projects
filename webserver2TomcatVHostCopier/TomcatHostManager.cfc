@@ -5,7 +5,7 @@
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
  * Date: 2010-10-07 14:01:00 +0100
- * Revision: 0.2.3
+ * Revision: 0.2.7
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -40,7 +40,7 @@
 			<cfhttp url="#addURL#" username="#variables.config.hostmanagerusername#"
 				password="#variables.config.hostmanagerpassword#" timeout="10" throwonerror="yes" />
 			<cfcatch>
-				<cfset handleError(msg="The host could not be added to tomcat by using the hostmanager.#chr(10)#Error msg: #cfcatch.Message# #cfcatch.Detail#.#chr(10)#URL: #addURL##chr(10)#Host-name: #arguments.hostname#", type="WARNING") />
+				<cfset handleError(msg="The host could not be added to tomcat by using the hostmanager.#chr(10)#	Error msg: #cfcatch.Message# #cfcatch.Detail#.#chr(10)#	URL: #addURL##chr(10)#	Host-name: #arguments.hostname#", type="WARNING") />
 			</cfcatch>
 		</cftry>
 	</cffunction>
