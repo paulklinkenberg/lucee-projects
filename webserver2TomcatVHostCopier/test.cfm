@@ -44,7 +44,7 @@
 			<!--- delete the old log file --->
 			<cfif fileExists('parserLog.log')>
 				<cfset fileDelete('parserLog.log') />
-				<em>parser log was cleared</em><br />
+				<em>parser log was cleared</em><br /><br />
 			</cfif>
 			<!--- write the new configuration to disk --->
 			<cfset fileWrite('config.conf', form.configdata) />
