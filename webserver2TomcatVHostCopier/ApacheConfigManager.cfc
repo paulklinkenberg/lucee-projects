@@ -35,6 +35,7 @@
 		<cfset var subIncludeFilePath = "" />
 		<cfset var regexFoundPos = "" />
 		<cfset var mainIncludeFilePath = "" />
+		<cfset var relativeIncludeFilePath = "" />
 		<cfset var includeFileContents = "" />
 		<cfset var loopcounter2 = 0 />
 		<cfset var line = "" />
@@ -43,7 +44,7 @@
 		<cfset var hostAliases = "" />
 		
 		<!--- include all include files --->
-		<cfset var includeLineRegex = '[\r\n]([[:space:]]*Include[[:space:]]+([^##\r\n\t]+))' />
+		<cfset var includeLineRegex = '[\r\n][ \t]*(Include[[:space:]]+[''"]?([^##\r\n\t''"]+))' />
 		<cfset var loopcounter = 0 />
 		<cfloop condition="refind(includeLineRegex, httpdContents)">
 			<cfif ++loopcounter gt 50>
@@ -51,52 +52,68 @@
 			</cfif>
 			
 			<cfset regexFoundPos = refind(includeLineRegex, httpdContents, 1, true) />
-			<cfset mainIncludeFilePath = mid(httpdContents, regexFoundPos.pos[3], regexFoundPos.len[3]) />
+			<cfset relativeIncludeFilePath = mid(httpdContents, regexFoundPos.pos[3], regexFoundPos.len[3]) />
 			<!--- clean the path, and change the include file path to an absolute path --->
-			<cfset mainIncludeFilePath = getCleanedAbsPath(mainIncludeFilePath, arguments.file) />
-		
-			<!--- Since the include directive allows for "Include /dir/*.conf", we'll do a dir listing --->
-			<cfdirectory action="list" directory="#getdirectoryFromPath(mainIncludeFilePath)#" filter="#listLast(mainIncludeFilePath, '/')#" name="qConfFiles" sort="name" />
+			<cfset mainIncludeFilePath = getCleanedAbsPath(relativeIncludeFilePath, arguments.file) />
 			
-			<!--- now read the include file(s) --->
-			<cfset includeFileContents = "" />
-			<cfloop query="qConfFiles">
-				<cfset includeFileContents &= fileRead(qConfFiles.directory & "/" & qConfFiles.name) & chr(10) />
-			</cfloop>
-			<cfif not len(includeFileContents)>
-				<cfset includeFileContents = "## THE FILE #mainIncludeFilePath# DOES NOT EXIST!" />
+			<!--- I just found out, 12 hours after I thought I was ready to release this code to the public,
+			that httpd.conf takes the apache-install-dir as root directory for any incudes.
+			So, if httpd.conf is located at C:/Apache/conf/httpd.conf, then it will have 
+			Include conf/extra/httpd-vhosts.conf, instead of just extra/httpd-vhosts.conf.
+			Since I'm starting to get irritated, I will just go one directory deeper, since that will match most situations. --->
+			<cfif not fileExists(mainIncludeFilePath)>
+				<cfset relativeIncludeFilePath = listRest(relativeIncludeFilePath, '\/') />
+				<cfset mainIncludeFilePath = getCleanedAbsPath(relativeIncludeFilePath, arguments.file) />
 			</cfif>
-			
-			<!--- change relative Include paths in the content to absolute ones --->
-			<cfset loopcounter2 = 0 />
-			<cfloop condition="refind(includeLineRegex, includeFileContents)">
-				<cfif ++loopcounter2 gt 50>
-					<cfset handleError(msg="Infinite loop seems to occur with the following filecontent (main file=#mainIncludeFilePath#):#chr(13)##includeFileContents#", type="CRIT") />
+			<cfif fileExists(mainIncludeFilePath)>
+				<!--- Since the include directive allows for "Include /dir/*.conf", we'll do a dir listing --->
+				<cfdirectory action="list" directory="#getdirectoryFromPath(mainIncludeFilePath)#" filter="#listLast(mainIncludeFilePath, '/\')#" name="qConfFiles" sort="name" />
+				
+				<!--- now read the include file(s) --->
+				<cfset includeFileContents = "" />
+				<cfloop query="qConfFiles">
+					<cfset includeFileContents &= fileRead(qConfFiles.directory & "/" & qConfFiles.name) & chr(10) />
+				</cfloop>
+				<cfif not len(includeFileContents)>
+					<cfset includeFileContents = "## THE FILE #mainIncludeFilePath# DOES NOT EXIST!" />
 				</cfif>
-				<cfset regexFoundPos = refind(includeLineRegex, includeFileContents, 1, true) />
-				<cfset subIncludeFilePath = mid(includeFileContents, regexFoundPos.pos[3], regexFoundPos.len[3]) />
-				<cfset subIncludeFilePath = getCleanedAbsPath(subIncludeFilePath, mainIncludeFilePath) />
-		
-				<cfset includeFileContents = rereplace(includeFileContents, includeLineRegex & "[^\r\n]*", "REMOVETHESEWORDS Include #replace(subIncludeFilePath, '\', '/', 'all')#") />
-			</cfloop>
-			<cfset includeFileContents = replace(includeFileContents, "REMOVETHESEWORDS Include", "Include", "all") />
+				
+				<!--- change relative Include paths in the content to absolute ones --->
+				<cfset loopcounter2 = 0 />
+				<cfloop condition="refind(includeLineRegex, includeFileContents)">
+					<cfif ++loopcounter2 gt 50>
+						<cfset handleError(msg="Infinite loop seems to occur with the following filecontent (main file=#mainIncludeFilePath#):#chr(13)##includeFileContents#", type="CRIT") />
+					</cfif>
+					<cfset regexFoundPos = refind(includeLineRegex, includeFileContents, 1, true) />
+					<cfset subIncludeFilePath = mid(includeFileContents, regexFoundPos.pos[3], regexFoundPos.len[3]) />
+					<cfset subIncludeFilePath = getCleanedAbsPath(subIncludeFilePath, mainIncludeFilePath) />
 			
-			<!--- now insert the retrieved Includes' file contents into hte http contents --->
-			<cfset httpdContents = rereplace(httpdContents, includeLineRegex & "[^\r\n]*", "#chr(10)### THE CONTENTS OF \1 HAS BEEN INCLUDED UNDERNEATH HERE#chr(10)#ADD-SUB-CONTENTS-HERE-8291543056278252165") />
-			<cfset httpdContents = replace(httpdContents, "ADD-SUB-CONTENTS-HERE-8291543056278252165", includeFileContents) />
+					<cfset includeFileContents = rereplace(includeFileContents, includeLineRegex & "[^\r\n]*", "REMOVETHESEWORDS Include #replace(subIncludeFilePath, '\', '/', 'all')#") />
+				</cfloop>
+				<cfset includeFileContents = replace(includeFileContents, "REMOVETHESEWORDS Include", "Include", "all") />
+				
+				<!--- now insert the retrieved Includes' file contents into hte http contents --->
+				<cfset httpdContents = rereplace(httpdContents, includeLineRegex & "[^\r\n]*", "#chr(10)### THE CONTENTS OF \1 HAS BEEN INCLUDED UNDERNEATH HERE#chr(10)#ADD-SUB-CONTENTS-HERE-8291543056278252165") />
+				<cfset httpdContents = replace(httpdContents, "ADD-SUB-CONTENTS-HERE-8291543056278252165", includeFileContents) />
+			<cfelse>
+				<cfset handleError(msg="In the httpd.conf file, the Include path '#mainIncludeFilePath#' does not exist?!", type="CRIT") />
+			</cfif>
 		</cfloop>
+		
+		<!--- temp debugging --->
+		<cfset fileWrite('parsed-httpd.txt', httpdContents) />
 		
 		<!--- now that we have all content, let's clean it --->
 		<cfset httpdContents = cleanApacheConfFile(httpdContents) />
 		<cfoutput><pre>#htmleditformat(httpdContents)#</pre></cfoutput>
 		
 		<!--- If VHosts is not turned on --->
-		<cfif not refind("(^|\n)NameVirtualHost[[:space:]]", httpdContents)>
+		<cfif not refindNoCase("(^|\n)[[:space:]]*NameVirtualHost[[:space:]]", httpdContents)>
 			<!--- not turned on, so only get the default directory for the default (and only) site --->
-			<cfset var defaultWebroot = rereplace(httpdContents, "(.*\n|^)DocumentRoot ([^\n##]+).*", "\1") />
+			<cfset var defaultWebroot = rereplace(httpdContents, "(.*\n|^)[\t ]*DocumentRoot[\t ]+['""]?([^\n##""']+).*", "\2") />
 			<!--- no webroot found! --->
 			<cfif defaultWebroot eq httpdContents>
-				<cfset handleError(msg="The httpd.conf file does not have any webroot setup!", type="CRIT") />
+				<cfset handleError(msg="The httpd.conf file does not have any webroot setup! #httpdContents#", type="CRIT") />
 			</cfif>
 	
 			<cfset arrayAppend(VHosts, createVHostContainer(
