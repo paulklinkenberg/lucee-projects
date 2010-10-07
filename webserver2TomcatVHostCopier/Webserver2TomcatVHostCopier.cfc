@@ -4,8 +4,8 @@
  * Webserver2TomcatVHostCopier.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-07 13:28:00 +0100
- * Revision: 0.2.2
+ * Date: 2010-10-07 14:01:00 +0100
+ * Revision: 0.2.3
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -162,9 +162,19 @@
 					<cfdump var="#cfcatch#" label="error data" />
 				</cfsavecontent>
 				<cfif arguments.sendCriticalErrors>
-					<cfmail to="paul@ongevraagdadvies.nl" from="paul@ongevraagdadvies.nl" subject="Webserver2Tomcat dirwatcher error" type="html">
-						#debugdata#
-					</cfmail>
+					<!--- check how many mails have been sent in the meanwhile --->
+					<cfset var mailsSentCounterFile = "mailsSentCounter.txt" />
+					<cfif fileExists(mailsSentCounterFile)>
+						<cfset var numMailsSent = int(fileRead(mailsSentCounterFile)) />
+					<cfelse>
+						<cfset var numMailsSent = 0 />
+					</cfif>
+					<cfif numMailsSent lt 10>
+						<cfset fileWrite(mailsSentCounterFile, ++numMailsSent) />
+						<cfmail to="paul@ongevraagdadvies.nl" from="paul@ongevraagdadvies.nl" subject="Webserver2Tomcat dirwatcher error" type="html">
+							#debugdata#
+						</cfmail>
+					</cfif>
 				</cfif>
 				<cffile action="write" file="dirwatcher-error.html" output="#debugdata#" />
 				<cfrethrow />
