@@ -3,8 +3,8 @@
  * test.cfm, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-07 14:01:00 +0100
- * Revision: 0.2.3
+ * Date: 2010-10-07 14:22:00 +0100
+ * Revision: 0.2.4
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -37,7 +37,9 @@
 </head>
 <body>
 	<h1>Test page for the Webserver2TomcatVHostCopier</h1>
-	
+	<p><em>If you encounter any errors which are not already sent by email, and also if everything went smoothly, please mail <a href="mailto:paul@ongevraagdadvies.nl">Paul Klinkenberg</a> about it, or add a comment to</em>
+		<a href="http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo" target="_blank" title="Opens in new window">http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo</a>
+	</p>
 	<cfif structKeyExists(form, "configdata")>
 		<cftry>
 			<h3>Your parsing results</h3>
@@ -66,6 +68,8 @@
 						<cfdump var="#cgi#" label="cgi vars" />
 					</cfmail>
 					<p>A mail about this has been sent to the developer</p>
+				<cfelse>
+					<p>NO mail has been sent. But it would be great if you could let me know if something in the code went wrong.</p>
 				</cfif>
 				<cfdump var="#cfcatch#" abort />
 			</cfcatch>
@@ -84,11 +88,9 @@
 	</form>
 	
 	<h3>Example configuration</h3>
-	<pre>webservertype=IIS7 (or IIS6 or Apache)
+	<pre>webservertype=Apache (or IIS6 or IIS7)
 httpdfile=/private/etc/apache2/httpd.conf
-IIS7File=%systemroot%\System32\inetsrv\config\applicationHost.config
-IIS6File=%systemroot%\System32\inetsrv\Metabase.xml
-tomcatrootpath=/Applications/tomcat/</pre>
+Windowsroot=C:\windows\</pre>
 	<em>(which lines are actually used depends on the first line, 'webservertype')</em>
 	
 	<h3>Parser log</h3>
