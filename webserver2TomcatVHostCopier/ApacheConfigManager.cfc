@@ -4,8 +4,8 @@
  * ApacheConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-06 16:07:00 +0100
- * Revision: 0.2
+ * Date: 2010-10-07 13:28:00 +0100
+ * Revision: 0.2.2
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -60,12 +60,15 @@
 			that httpd.conf takes the apache-install-dir as root directory for any incudes.
 			So, if httpd.conf is located at C:/Apache/conf/httpd.conf, then it will have 
 			Include conf/extra/httpd-vhosts.conf, instead of just extra/httpd-vhosts.conf.
-			Since I'm starting to get irritated, I will just go one directory deeper, since that will match most situations. --->
-			<cfif not fileExists(mainIncludeFilePath)>
+			Since I'm starting to get irritated, I will just go one directory deeper, since that will match most situations.
+			Edit: since Includes can also have the format "Include /bla/bla/*.conf", I will check this too. --->
+			<cfif not fileExists(mainIncludeFilePath)
+			and (not findNoCase('*.', mainIncludeFilePath) or not directoryExists(GetDirectoryFromPath(mainIncludeFilePath)))>
 				<cfset relativeIncludeFilePath = listRest(relativeIncludeFilePath, '\/') />
 				<cfset mainIncludeFilePath = getCleanedAbsPath(relativeIncludeFilePath, arguments.file) />
 			</cfif>
-			<cfif fileExists(mainIncludeFilePath)>
+			<cfif fileExists(mainIncludeFilePath)
+			or (findNoCase('*.', mainIncludeFilePath) and directoryExists(GetDirectoryFromPath(mainIncludeFilePath)))>
 				<!--- Since the include directive allows for "Include /dir/*.conf", we'll do a dir listing --->
 				<cfdirectory action="list" directory="#getdirectoryFromPath(mainIncludeFilePath)#" filter="#listLast(mainIncludeFilePath, '/\')#" name="qConfFiles" sort="name" />
 				
