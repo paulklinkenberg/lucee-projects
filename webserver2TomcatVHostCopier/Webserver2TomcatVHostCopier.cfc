@@ -4,8 +4,8 @@
  * Webserver2TomcatVHostCopier.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-07 14:01:00 +0100
- * Revision: 0.2.7
+ * Date: 2010-10-10 21:03:00 +0100
+ * Revision: 0.2.8
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -32,17 +32,17 @@
 		<cfargument name="sendCriticalErrors" type="boolean" required="no" default="true" />
 		<cflock name="copyWebserverVHosts2Tomcat" timeout="1" throwontimeout="no">
 			<cftry>
-				<cfset var tomcatConfigManager = new TomcatConfigManager().init(sendCriticalErrors=arguments.sendCriticalErrors) />
+				<cfset var tomcatConfigManager = createObject("component", "TomcatConfigManager").init(sendCriticalErrors=arguments.sendCriticalErrors) />
 				<cfset var parserConfig = tomcatConfigManager.getConfig() />
 				
 				<!--- apache --->
 				<cfif parserConfig.webservertype eq "apache">
-					<cfset var apacheConfigManager = new ApacheConfigManager().init(sendCriticalErrors=arguments.sendCriticalErrors) />
+					<cfset var apacheConfigManager = createObject("component", "ApacheConfigManager").init(sendCriticalErrors=arguments.sendCriticalErrors) />
 					<!--- get all Vhosts from Apache--->
 					<cfset var VHosts = apacheConfigManager.getVHostsFromHTTPDFile(file=parserConfig.httpdfile) />
 				<!--- IIS6 --->
 				<cfelseif parserConfig.webservertype eq "IIS6">
-					<cfset var IISConfigManager = new IISConfigManager().init(sendCriticalErrors=arguments.sendCriticalErrors) />
+					<cfset var IISConfigManager = createObject("component", "IISConfigManager").init(sendCriticalErrors=arguments.sendCriticalErrors) />
 					<!--- for testing, get the config file from a different location --->
 					<cfif structKeyExists(parserConfig, "IIS6File")>
 						<cfset var VHosts = IISConfigManager.getVHostsFromIIS6File(parserConfig.IIS6File) />
@@ -51,7 +51,7 @@
 					</cfif>
 				<!--- IIS7 --->
 				<cfelseif parserConfig.webservertype eq "IIS7">
-					<cfset var IISConfigManager = new IISConfigManager().init(sendCriticalErrors=arguments.sendCriticalErrors) />
+					<cfset var IISConfigManager = createObject("component", "IISConfigManager").init(sendCriticalErrors=arguments.sendCriticalErrors) />
 					<!--- for testing, get the config file from a different location --->
 					<cfif structKeyExists(parserConfig, "IIS7File")>
 						<cfset var VHosts = IISConfigManager.getVHostsFromIIS7File(parserConfig.IIS7File) />
@@ -69,7 +69,7 @@
 				Also, a check will be done to see if the same hostname is used with multiple webroots. This cannot be dealt with by tomcat. --->
 				<cfset var tomcatVHosts = {} />
 				<cfset var duplicates = [] />
-				<cfset var stHost = "" />
+				<cfset var stVHost = "" />
 				<cfset var hostname = "" />
 				<cfloop array="#VHosts#" index="stVHost">
 					<cfloop list="#iif(not len(stVHost.host), de('localhost'), 'stVHost.host')#,#structKeyList(stVHost.aliases)#" index="hostname">
@@ -88,6 +88,7 @@
 				<!--- check if there are VHost changes --->
 				<cfset var stChangedVHosts = tomcatConfigManager.getChangedHosts(tomcatVHosts) />
 				<cfif not structIsEmpty(stChangedVHosts)>
+					<cfset var temp = "" />
 					<cfsavecontent variable="temp">
 						Changed hosts: 
 						<cfset var host = "" />
@@ -124,7 +125,7 @@
 					All files have been written<br /><br />
 					
 					<!--- now activate the new and changed host by using the Tomcat host-manager --->
-					<cfset var tomcatHostManager = new TomcatHostManager().init(sendCriticalErrors=arguments.sendCriticalErrors) />
+					<cfset var tomcatHostManager = createObject("component", "TomcatHostManager").init(sendCriticalErrors=arguments.sendCriticalErrors) />
 					<cfloop collection="#stChangedVHosts#" item="key">
 						<cfif stChangedVHosts[key] eq "new">
 							<cfset tomcatHostManager.addHost(key) />

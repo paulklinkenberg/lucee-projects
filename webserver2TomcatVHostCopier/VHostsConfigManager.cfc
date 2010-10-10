@@ -4,8 +4,8 @@
  * VHostsConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-07 14:01:00 +0100
- * Revision: 0.2.3
+ * Date: 2010-10-10 21:03:00 +0100
+ * Revision: 0.2.8
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.

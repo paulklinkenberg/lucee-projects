@@ -4,8 +4,8 @@
  * DirectoryListener.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-07 14:01:00 +0100
- * Revision: 0.2.3
+ * Date: 2010-10-10 21:03:00 +0100
+ * Revision: 0.2.8
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -27,7 +27,7 @@
  */
 --->	
 	
-	<cfset variables.webserver2TomcatVHostCopier = new Webserver2TomcatVHostCopier() />
+	<cfset variables.webserver2TomcatVHostCopier = createObject("component", "Webserver2TomcatVHostCopier") />
 	
 	<cffunction name="startWebserver2TomcatVHostCopier" access="public" returntype="void">
     	<cfargument name="data" type="struct" required="yes" />

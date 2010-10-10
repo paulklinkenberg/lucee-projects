@@ -4,8 +4,8 @@
  * TomcatConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-07 14:01:00 +0100
- * Revision: 0.2.3
+ * Date: 2010-10-10 21:03:00 +0100
+ * Revision: 0.2.8
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -118,6 +118,7 @@
 		<cfset tomcatConfigData = rereplace(tomcatConfigData, catalinaEngineRegex, catalinaEngineData) />
 		
 		<!--- re-add the comments --->
+		<cfset var arrIndex = -1 />
 		<cfloop from="1" to="#arrayLen(aComments)#" index="arrIndex">
 			<cfset tomcatConfigData = replace(tomcatConfigData, "$COMMENTHERE$", aComments[arrIndex]) />
 		</cfloop>

@@ -4,8 +4,8 @@
  * IISConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-07 14:01:00 +0100
- * Revision: 0.2.3
+ * Date: 2010-10-10 21:03:00 +0100
+ * Revision: 0.2.8
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -42,7 +42,7 @@
 		<cfset var xmlChild = "" />
 		<cfset var bindingIndex = -1 />
 		<!--- clean the xml file a bit --->
-		<cfset IISFileXML = xmlParse(IISFileContents) />
+		<cfset var IISFileXML = xmlParse(IISFileContents) />
 		<cfset var sitesXML = xmlSearch(IISFileXML, "//system.applicationHost/sites/") />
 		<cfif not arrayLen(sitesXML)>
 			<cfset handleError(msg="No virtual sites are found in IIS7. Do you have any sites setup yet? The xml search path was '//system.applicationHost/sites/'; the config file '#arguments.file#'.", type="WARNING") />
@@ -55,8 +55,8 @@
 				<!--- get root directory --->
 				<cfset var VHostPath = xmlSearch(xmlChild, "./application/virtualDirectory[@path='/']/")[1].xmlAttributes.physicalPath />
 
-				<cfset bindings = xmlSearch(xmlChild, ".//binding/") />
-				<cfset VHostPortAndIPLookup = {} />
+				<cfset var bindings = xmlSearch(xmlChild, ".//binding/") />
+				<cfset var VHostPortAndIPLookup = {} />
 				<!--- create one VHost per same port+ip ('binding' is a combination of IP+port+hostname) --->
 				<cfloop from="1" to="#arrayLen(bindings)#" index="bindingIndex">
 					<cfif listFindNoCase("http,https", bindings[bindingIndex].xmlAttributes.protocol)>
@@ -150,7 +150,7 @@
 				<cfif VHostPath eq IISFileContents>
 					<cfset handleError(msg="Web root for IIS site could not be found. Current VHost: #rereplace(iiswebserverTag, '[\r\n]+', ' ', 'all')##chr(13)#Filecontent:#chr(13)##IISFileContents#", type="CRIT") />
 				</cfif>
-				<cfset VHostPortAndIPLookup = {} />
+				<cfset var VHostPortAndIPLookup = {} />
 				<!--- create one VHost per same port+ip ('binding' is a combination of IP+port+hostname) --->
 				<cfloop list="#iiswebserverTagXML.xmlRoot.XMLattributes.ServerBindings#" index="binding" delimiters=" #chr(9)##chr(10)##chr(13)#">
 					<cfset var bindingElements = listToArray(binding, ":", true) />

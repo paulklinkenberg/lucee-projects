@@ -53,7 +53,7 @@
 			<!--- can we send debug data to the developer? --->
 			<cfset variables.emailErrors = structKeyExists(form, "sendErrorsToPaul") />
 			<!--- call the copier, but only to test the config --->
-			<cfset new Webserver2TomcatVHostCopier().copyWebserverVHosts2Tomcat(testOnly=true, sendCriticalErrors=variables.emailErrors) />
+			<cfset createObject("component", "Webserver2TomcatVHostCopier").copyWebserverVHosts2Tomcat(testOnly=true, sendCriticalErrors=variables.emailErrors) />
 			
 			<br />--&gt; Don't forget to look at the parser log underneath this page!
 			
