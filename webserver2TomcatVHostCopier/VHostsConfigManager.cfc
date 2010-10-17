@@ -52,9 +52,10 @@
 			<!--- compare the 2 structs --->
 			<cfloop collection="#oldData#" item="key">
 				<!--- exists in old and new? remove from new --->
-				<cfif structKeyExists(newData, key) and newData[key] eq oldData[key]>
+				<cfif structKeyExists(newData, key) and newData[key].path eq oldData[key].path
+				and serialize(newData[key].mappings) eq serialize(oldData[key].mappings)>
 					<cfset structDelete(newData, key, false) />
-				<!--- already existed, but different path--->
+				<!--- already existed, but different path or mappings --->
 				<cfelseif structKeyExists(newData, key)>
 					<cfset newData[key] = "changed" />
 				<!--- does not exist in new? --->
@@ -91,18 +92,21 @@
 	</cffunction>
 	
 	
-	<cffunction name="createVHostContainer" access="private">
+	<!--- this fnc does not do anything really logical atm, but is here so we can easily make adjustments when needed in da future.--->
+	<cffunction name="createVHostContainer" access="private" output="no">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="host" type="string" required="no" default="" />
 		<cfargument name="aliases" type="struct" required="no" default="#{}#" />
 		<cfargument name="port" type="string" required="no" default="" />
 		<cfargument name="ip" type="string" required="no" default="" />
+		<cfargument name="mappings" type="struct" required="no" default="#{}#" />
 		<cfreturn {
 			path=arguments.path
 			, host=arguments.host
 			, aliases=arguments.aliases
 			, port=arguments.port
 			, ip=arguments.ip
+			, mappings=arguments.mappings
 		} />
 	</cffunction>
 	

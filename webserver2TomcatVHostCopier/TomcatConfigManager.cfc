@@ -4,8 +4,8 @@
  * TomcatConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-10 21:03:00 +0100
- * Revision: 0.2.8
+ * Date: 2010-10-17 04:16:00 +0100
+ * Revision: 0.3.00
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -30,25 +30,34 @@
 
 	<!--- tomcatDefaultHostName: <Engine name="Catalina" defaultHost="localhost">...</Engine> --->
 	<cfset variables.tomcatDefaultHostName = "localhost" />
-	
-	<!---	<Host name="www.tools.ik" appBase="webapps" unpackWARs="true" autoDeploy="true" xmlValidation="false" xmlNamespaceAware="false">
-		<Context path="" docBase="/developing/tools/" />
-		<!--Alias>[ENTER ALIAS DOMAIN]</Alias-->
-	</Host>
-	--->
 
 
 	<cffunction name="writeContextXMLFile" access="public" returntype="void" output="no"
 	hint="(re)writes the ROOT.xml file and containing directory in the Catalina directory for the given hostname">
 		<cfargument name="host" type="string" required="yes" />
 		<cfargument name="path" type="string" required="yes" />
+		<cfargument name="mappings" type="struct" required="no" default="#{}#" />
 		<cfset var hostConfRoot = getConfig().tomcatrootpath & "conf/Catalina/#arguments.host#" />
-		<cfset var confContents = "<?xml version='1.0' encoding='utf-8'?>"
-			& '<Context docBase="#rereplace(replace(arguments.path, '\', '/', 'all'), '/$', '')#"><WatchedResource>WEB-INF/web.xml</WatchedResource></Context>' />
+		<!--- create the context xml --->
+		<cfset var confContents = "<?xml version='1.0' encoding='utf-8'?>" & chr(10)
+			& '<Context docBase="#rereplace(replace(arguments.path, '\', '/', 'all'), '/+$', '')#">' & chr(10)
+			& '    <WatchedResource>WEB-INF/web.xml</WatchedResource>' & chr(10)
+			& '</Context>' />
+		
 		<cfif not DirectoryExists(hostConfRoot)>
 			<cfdirectory action="create" directory="#hostConfRoot#" />
 		</cfif>
+		<!--- write the main context.xml--->
 		<cffile action="write" file="#hostConfRoot#/ROOT.xml" output="#confContents#" addnewline="no" />
+		
+		<!--- now, for every mapping, we also write an xml file --->
+		<cfset var mapping = "" />
+		<cfloop collection="#arguments.mappings#" item="mapping">
+			<cfset confContents = "<?xml version='1.0' encoding='utf-8'?>" & chr(10)
+				& '<Context docBase="#rereplace(replace(arguments.mappings[mapping], '\', '/', 'all'), '/+$', '')#" />'
+			/>
+			<cffile action="write" file="#hostConfRoot#/#rereplace(rereplace(mapping, '(^/+|/+$)', '', 'all'), '/+', '##', 'all')#.xml" output="#confContents#" addnewline="no" />
+		</cfloop>
 	</cffunction>
 	
 	
@@ -61,13 +70,11 @@
 			<cfdirectory action="list" directory="#hostConfRoot#" name="qFiles" />
 			<cftry>
 				<cfloop query="qFiles">
-					<cfif qFiles.type eq "dir">
-						<cfreturn />
-					<cfelse>
+					<cfif qFiles.type eq "file">
 						<cffile action="delete" file="#hostConfRoot##qFiles.name#" />
 					</cfif>
 				</cfloop>
-				<cfdirectory action="delete" directory="#hostConfRoot#" />
+				<cfdirectory action="delete" directory="#hostConfRoot#" recurse="yes" />
 				<cfcatch>
 					<cfreturn />
 				</cfcatch>
@@ -111,7 +118,7 @@
 		<cfset var catalinaEngineRegex = "<Engine[[:space:]]+[^<>]*name=['""]Catalina['""].*?</Engine>" />
 		<!--- get the part of the config file where the VHosts are stored for Railo --->
 		<cfset var catalinaEngineData = rereplace(tomcatConfigData, ".+(" & catalinaEngineRegex & ").+", "\1") />
-		<cfset catalinaEngineData = rereplace(catalinaEngineData, "<Host[[:space:]]([^>]+/>|.*?</Host>)", "", "all") />
+		<cfset catalinaEngineData = rereplace(catalinaEngineData, "[[:space:]]*<Host[[:space:]]([^>]+/>|.*?</Host>)", "", "all") />
 		<!--- add the new hosts --->
 		<cfset catalinaEngineData = replace(catalinaEngineData, "</Engine>", VHostsText & "</Engine>") />
 		<!--- now change the file contents--->
@@ -129,9 +136,6 @@
 		</cfif>
 		<!--- write the new config file --->
 		<cfset fileWrite(tomcatFile, tomcatConfigData) />
-		
-		<!--- now write the <Context>s into the appropriate files --->
-		
 	</cffunction>
 
 

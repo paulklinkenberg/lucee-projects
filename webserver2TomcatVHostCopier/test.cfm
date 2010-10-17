@@ -3,8 +3,8 @@
  * test.cfm, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-07 14:22:00 +0100
- * Revision: 0.2.4
+ * Date: 2010-10-17 04:16:00 +0100
+ * Revision: 0.3.00
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.

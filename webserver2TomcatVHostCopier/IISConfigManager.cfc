@@ -4,8 +4,8 @@
  * IISConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-10 21:03:00 +0100
- * Revision: 0.2.8
+ * Date: 2010-10-17 04:16:00 +0100
+ * Revision: 0.3.00
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -54,7 +54,15 @@
 			<cfif xmlChild.xmlName eq "site">
 				<!--- get root directory --->
 				<cfset var VHostPath = xmlSearch(xmlChild, "./application/virtualDirectory[@path='/']/")[1].xmlAttributes.physicalPath />
-
+				<!--- get mappings (including the root directory, which is not a mapping...) --->
+				<cfset var mappingsXML = xmlSearch(xmlChild, "./application/virtualDirectory/") />
+				<cfset var mappings = {} />
+				<cfset var mappingIndex = -1 />
+				<cfloop from="1" to="#arrayLen(mappingsXML)#" index="mappingIndex">
+					<cfif mappingsXML[mappingIndex].xmlAttributes.path neq "/">
+						<cfset mappings[mappingsXML[mappingIndex].xmlAttributes.path] = mappingsXML[mappingIndex].xmlAttributes.physicalPath />
+					</cfif>
+				</cfloop>
 				<cfset var bindings = xmlSearch(xmlChild, ".//binding/") />
 				<cfset var VHostPortAndIPLookup = {} />
 				<!--- create one VHost per same port+ip ('binding' is a combination of IP+port+hostname) --->
@@ -75,7 +83,8 @@
 						, host=VHostPortAndIPLookup[key].host
 						, aliases=VHostPortAndIPLookup[key].aliases
 						, port=rereplace(key, '^[^:]*:', '')
-						, ip=rereplace(key, ':.*$', ''))) />
+						, ip=rereplace(key, ':.*$', '')
+						, mappings=mappings)) />
 				</cfloop>
 			</cfif>
 		</cfloop>
@@ -85,7 +94,8 @@
 <sites>
 	<site id="1" name="Default Web Site">
 		<application path="/">
-			<virtualDirectory path="/" physicalPath="%SystemDrive%\inetpub\wwwroot"/>
+			<virtualDirectory path="/" physicalPath="%SystemDrive%\inetpub\wwwroot" />
+			<virtualDirectory path="/aliastest" physicalPath="C:\whatever" />
 		</application>
 		<bindings>
 			<binding bindingInformation="*:80:" protocol="http"/>
@@ -142,7 +152,10 @@
 			<cfset lastfoundpos = stFoundPos.pos[1] + 1 />
 			<cfset iiswebserverTag = mid(IISFileContents, stFoundPos.pos[1], stFoundPos.len[1]) />
 			<cfset var iiswebserverTagXML = xmlParse(rereplace(iiswebserverTag, '>$', '/>')) />
-			<cfif structKeyExists(iiswebserverTagXML.xmlRoot.XMLattributes, "serverBindings")>
+			<!--- in IIS6, there is an administration website listening for any host on port 80999.
+			We need to skip that one, because it isn't a 'real' site.--->
+			<cfif structKeyExists(iiswebserverTagXML.xmlRoot.XMLattributes, "serverBindings")
+			and iiswebserverTagXML.xmlRoot.XMLattributes.serverBindings neq ":8099:">
 				<cfset var VHostIISPathName = iiswebserverTagXML.xmlRoot.XmlAttributes.Location />
 				<!--- get path: is located in <IIsWebVirtualDir	Location ="/LM/W3SVC/1551821403/root"
 				AppRoot="/LM/W3SVC/1551821403/Root" Path="D:\www\awstats.xitesystem.com\data">--->
@@ -150,6 +163,22 @@
 				<cfif VHostPath eq IISFileContents>
 					<cfset handleError(msg="Web root for IIS site could not be found. Current VHost: #rereplace(iiswebserverTag, '[\r\n]+', ' ', 'all')##chr(13)#Filecontent:#chr(13)##IISFileContents#", type="CRIT") />
 				</cfif>
+				<!--- get the mappings --->
+				<!---<IIsWebVirtualDir	Location ="/LM/W3SVC/15500/Root/aliastest/aliasinalias" ...
+				Path="C:\dell\"></IIsWebVirtualDir> --->
+				<cfset var mappingRegex = '<IIsWebVirtualDir[[:space:]][^>]*Location[[:space:]]*=[[:space:]]*"#VHostIISPathName#/Root(/[^"]+)"[^>]*[[:space:]]Path[[:space:]]*=[[:space:]]*"([^"]+)"' />
+				<cfset var lastMappingFoundIndex = 1 />
+				<cfset var mappings = {} />
+				<cfset var loopCounter = 0 />
+				<cfloop condition="refindNoCase(mappingRegex, IISFileContents, lastMappingFoundIndex)">
+					<cfset var mappingFoundPos = refindNoCase(mappingRegex, IISFileContents, lastMappingFoundIndex, true) />
+					<cfset lastMappingFoundIndex = mappingFoundPos.pos[1] + 1 />
+					<cfset mappings[mid(IISFileContents, mappingFoundPos.pos[2], mappingFoundPos.len[2])] = mid(IISFileContents, mappingFoundPos.pos[3], mappingFoundPos.len[3]) />
+					<cfif ++loopCounter gt 50>
+						<cfset handleError(msg="An infinite loop seems to occur in fnc getVHostsFromIIS6File(), where the Mappings are to be retrieved.", type="CRIT") />
+					</cfif>
+				</cfloop>
+				
 				<cfset var VHostPortAndIPLookup = {} />
 				<!--- create one VHost per same port+ip ('binding' is a combination of IP+port+hostname) --->
 				<cfloop list="#iiswebserverTagXML.xmlRoot.XMLattributes.ServerBindings#" index="binding" delimiters=" #chr(9)##chr(10)##chr(13)#">
@@ -167,7 +196,8 @@
 						, host=VHostPortAndIPLookup[key].host
 						, aliases=VHostPortAndIPLookup[key].aliases
 						, port=rereplace(key, '^[^:]*:', '')
-						, ip=rereplace(key, ':.*$', ''))) />
+						, ip=rereplace(key, ':.*$', '')
+						, mappings=mappings)) />
 				</cfloop>
 			</cfif>
 		</cfloop>

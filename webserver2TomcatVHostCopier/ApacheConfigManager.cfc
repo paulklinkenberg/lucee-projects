@@ -4,8 +4,8 @@
  * ApacheConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-10 21:03:00 +0100
- * Revision: 0.2.8
+ * Date: 2010-10-17 04:16:00 +0100
+ * Revision: 0.3.00
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -119,9 +119,7 @@
 				<cfset handleError(msg="The httpd.conf file does not have any webroot setup! #httpdContents#", type="CRIT") />
 			</cfif>
 	
-			<cfset arrayAppend(VHosts, createVHostContainer(
-				path=defaultWebroot, host=""
-				, aliases={}, port="", ip="")) />
+			<cfset arrayAppend(VHosts, createVHostContainer(path=defaultWebroot)) />
 			<cfreturn VHosts />
 		</cfif>
 		
@@ -145,13 +143,23 @@
 			<cfset VHostContainer = rereplace(VHostContainer, "(<VirtualHost[^>]+>)([^\n]+)", "\1#chr(10)#\2") />
 			<cfset VHostContainer = rereplace(VHostContainer, "([^\n]+)(</VirtualHost>)", "\1#chr(10)#\2") />
 			<!--- get settings within the container: servername, documentroot, serveralias --->
-			<cfset VHostData = {aliases={}} />
+			<cfset VHostData = {aliases={}, mappings={}} />
 			<cfoutput><pre>#HTMLEditFormat(VHostContainer)#</pre></cfoutput>
 			<cfloop list="#VHostContainer#" delimiters="#chr(10)#" index="line">
 				<cfif findNoCase("ServerName ", line) eq 1>
 					<cfset VHostData.host = listFirst(rereplace(trim(listRest(line, " ")), "['""]", "", "all"), ':') />
 				<cfelseif findNoCase("ServerAlias ", line) eq 1>
 					<cfset VHostData.aliases[listFirst(rereplace(trim(listRest(line, " ")), "['""]", "", "all"), ':')] = "" />
+				<cfelseif findNoCase("Alias ", line) eq 1>
+					<cfset var mappingAlias = trim(rereplace(listRest(line, " "), "^(['""])(.*?)\1", "\2")) />
+					<cfif mappingAlias eq trim(listRest(line, " "))>
+						<cfset mappingAlias = listFirst(listRest(line, " "), " ") />
+					</cfif>
+					<cfset var mappingPath = trim(rereplace(listRest(line, " "), "(['""])(.*?)(['""]) ?$", "\2")) />
+					<cfif mappingPath eq trim(listRest(line, " "))>
+						<cfset mappingPath = listLast(trim(listRest(line, " ")), " ") />
+					</cfif>
+					<cfset VHostData.mappings[mappingAlias] = mappingPath />
 				<cfelseif findNoCase("DocumentRoot ", line) eq 1>
 					<cfset VHostData.path = rereplace(trim(listRest(line, " ")), "['""]", "", "all") />
 					<cfset VHostData.path = getCleanedAbsPath(VHostData.path, serverRoot) />

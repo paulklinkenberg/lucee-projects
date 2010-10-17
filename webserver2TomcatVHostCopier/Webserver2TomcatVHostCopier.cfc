@@ -4,8 +4,8 @@
  * Webserver2TomcatVHostCopier.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-10 21:03:00 +0100
- * Revision: 0.2.8
+ * Date: 2010-10-17 04:16:00 +0100
+ * Revision: 0.3.00
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -73,10 +73,10 @@
 				<cfset var hostname = "" />
 				<cfloop array="#VHosts#" index="stVHost">
 					<cfloop list="#iif(not len(stVHost.host), de('localhost'), 'stVHost.host')#,#structKeyList(stVHost.aliases)#" index="hostname">
-						<cfif structKeyExists(tomcatVHosts, hostname) and rereplace(stVHost.path, '[/\\]$', '') neq rereplace(tomcatVHosts[hostname], '[/\\]$', '')>
-							<cfset arrayAppend(duplicates, "        Same host found twice, with different webroots! Host=#hostname#, path1=#tomcatVHosts[hostname]#, path2=#stVHost.path#") />
+						<cfif structKeyExists(tomcatVHosts, hostname) and rereplace(stVHost.path, '[/\\]$', '') neq rereplace(tomcatVHosts[hostname].path, '[/\\]$', '')>
+							<cfset arrayAppend(duplicates, "        Same host found twice, with different webroots! Host=#hostname#, path1=#tomcatVHosts[hostname].path#, path2=#stVHost.path#") />
 						<cfelse>
-							<cfset structInsert(tomcatVHosts, hostname, stVHost.path, true) />
+							<cfset structInsert(tomcatVHosts, hostname, {path=stVHost.path, mappings=stVHost.mappings}, true) />
 						</cfif>
 					</cfloop>
 				</cfloop>
@@ -90,15 +90,20 @@
 				<cfif not structIsEmpty(stChangedVHosts)>
 					<cfset var temp = "" />
 					<cfsavecontent variable="temp">
-						Changed hosts: 
+						Changed hosts (and/or mappings): 
 						<cfset var host = "" />
-						<cfloop collection="#stChangedVHosts#"  item="host">
+						<cfloop collection="#stChangedVHosts#" item="host">
 							<br /> - #UCase(stChangedVHosts[host])#: #host#
+							<cfif not structIsEmpty(tomcatVHosts[host].mappings)>
+								(mappings: <cfloop collection="#tomcatVHosts[host].mappings#" item="key">
+									#key#=#tomcatVHosts[host].mappings[key]# &nbsp;
+								</cfloop>)
+							</cfif>
 						</cfloop>
 					</cfsavecontent>
 					#temp#
 					<br /><br />
-					<cfset tomcatConfigManager.handleError(rereplace(temp, '(<.*?>|[\r\n\t])+', chr(10), 'all'), "MESSAGE") />
+					<cfset tomcatConfigManager.handleError(rereplace(temp, '(<.*?>| &nbsp;|[\r\n\t])+', chr(10), 'all'), "MESSAGE") />
 					
 					<!--- create the xml text with the VHosts for tomcat --->
 					<cfset var VHostsText = tomcatConfigManager.createTomcatVHosts(tomcatVHosts) />
@@ -115,7 +120,7 @@
 					<cfset var key = "" />
 					<cfloop collection="#stChangedVHosts#" item="key">
 						<cfif stChangedVHosts[key] eq "new" or stChangedVHosts[key] eq "changed">
-							<cfset tomcatConfigManager.writeContextXMLFile(host=key, path=tomcatVHosts[key]) />
+							<cfset tomcatConfigManager.writeContextXMLFile(host=key, path=tomcatVHosts[key].path, mappings=tomcatVHosts[key].mappings) />
 						</cfif>
 					</cfloop>
 					
@@ -124,7 +129,7 @@
 					
 					All files have been written<br /><br />
 					
-					<!--- now activate the new and changed host by using the Tomcat host-manager --->
+					<!--- now de/activate the new and deleted hosts by using the Tomcat host-manager --->
 					<cfset var tomcatHostManager = createObject("component", "TomcatHostManager").init(sendCriticalErrors=arguments.sendCriticalErrors) />
 					<cfloop collection="#stChangedVHosts#" item="key">
 						<cfif stChangedVHosts[key] eq "new">
@@ -140,7 +145,7 @@
 						</cfif>
 					</cfloop>
 				
-					<!--- delete the outdated VHost context data for tomcat --->
+					<!--- delete the obsolete VHost context data for tomcat --->
 					<cfloop collection="#stChangedVHosts#" item="key">
 						<cfif stChangedVHosts[key] eq "deleted">
 							<cfset tomcatConfigManager.removeContextXMLFile(host=key) />
@@ -159,7 +164,7 @@
 					<cfset var debugdata = "" />
 					<cfsavecontent variable="debugdata">
 						Date: #now()#<br />
-						<cfdump var="#parserConfig#" label="parserConfig" />
+						<!---<cfdump var="#parserConfig#" label="parserConfig" />--->
 						<cfdump var="#arguments#" label="args" />
 						<cfdump var="#cfcatch#" label="error data" />
 					</cfsavecontent>
