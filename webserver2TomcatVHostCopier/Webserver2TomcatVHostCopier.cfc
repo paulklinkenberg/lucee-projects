@@ -4,8 +4,8 @@
  * Webserver2TomcatVHostCopier.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-17 04:16:00 +0100
- * Revision: 0.3.00
+ * Date: 2010-10-30 00:25:00 +0100
+ * Revision: 0.3.01
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -94,7 +94,7 @@
 						<cfset var host = "" />
 						<cfloop collection="#stChangedVHosts#" item="host">
 							<br /> - #UCase(stChangedVHosts[host])#: #host#
-							<cfif not structIsEmpty(tomcatVHosts[host].mappings)>
+							<cfif stChangedVHosts[host] neq "deleted" and not structIsEmpty(tomcatVHosts[host].mappings)>
 								(mappings: <cfloop collection="#tomcatVHosts[host].mappings#" item="key">
 									#key#=#tomcatVHosts[host].mappings[key]# &nbsp;
 								</cfloop>)
