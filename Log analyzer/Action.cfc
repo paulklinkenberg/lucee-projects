@@ -5,8 +5,8 @@
  * Originally written by Gert Franz
  * http://www.railodeveloper.com/post.cfm/railo-admin-log-analyzer
  *
- * Date: 2010-11-03 20:22:00 +0100
- * Revision: 1.0.0
+ * Date: 2010-11-03 23:41:00 +0100
+ * Revision: 1.0.1
  *
  * Copyright (c) 2010 Paul Klinkenberg, railodeveloper.com
  * Licensed under the GPL license.
@@ -43,7 +43,7 @@
 			<cfthrow message="When not in the web admin, the argument 'webID' is required for function getLogPath()!" />
 		</cfif>
 		<cfif structKeyExists(arguments, "file") and len(arguments.file)>
-			<cfset logDir &= listLast(arguments.file, "/\") />
+			<cfset logDir = rereplace(logDir, "\#server.separator.file#$", "") & server.separator.file & listLast(arguments.file, "/\") />
 			<cfif not fileExists(logDir)>
 				<cfthrow message="log directory '#logDir#' does not exist!" />
 			</cfif>
