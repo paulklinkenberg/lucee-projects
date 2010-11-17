@@ -6,9 +6,10 @@
  *
  *	@license	MIT License
  *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/cfm-connector-for-ckeditor-corefive-Filemanager
- *  @date		February 28, 2010
- *  @version	1.0
+ *  @date		November 17, 2010
+ *  @version	2.0
  				1.1 April 25, 2010: Fixed some bugs and added some functionality
+ 				2.0 November 17, 2010: Lots of changes and bugfixes in the javascript code
  *	@copyright	Authors
 --->
 <cfset lang['AUTHORIZATION_REQUIRED']				=	'Je hebt niet de nodige rechten om filemanager te gebruiken.' />

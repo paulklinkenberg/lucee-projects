@@ -14,16 +14,19 @@ body {
 
 #uploader {
 	display: block;
-	text-align: right;
-	height: 30px;
-	max-height: 30px;
-	overflow: hidden;
+	margin:5px;
+	padding: 0;
+	min-height:30px;
 }
-
+#uploader #topbuttons {
+	white-space:nowrap;
+	float:right;
+}
 #uploader h1 {
-	display: block;
-	float: left;
+	display: inline;
 	text-align: left;
+	margin:0;
+	padding:0;
 }
 
 #uploadresponse {
@@ -69,7 +72,7 @@ body {
 }
 
 #preview > img {
-	margin: 25px;
+	margin: 25px auto;
 	max-width: 80%;
 }
 
@@ -80,28 +83,29 @@ body {
 
 #preview dl {
 	display: block;
-	width: 400px;
+	width: 350px;
 	margin: 10px auto;
 	overflow: auto;
 }
 
 #preview dl dt,
 #preview dl dd {
-	display: block;
 	float: left;
-	width: 190px;
-	padding: 4px;
+	padding: 4px 0px;
 	text-align: left;
 	border-bottom: 1px dotted #ccc;
-	overflow: hidden;
+	overflow:hidden;
+	white-space:nowrap;
 }
 
 #preview dt {
 	clear: left;
+	width:140px;
 }
 
 #preview dd {
 	font-weight: bold;
+	width:210px;
 }
 
 #toolbar {

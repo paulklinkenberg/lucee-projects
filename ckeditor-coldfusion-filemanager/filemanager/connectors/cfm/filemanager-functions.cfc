@@ -6,9 +6,10 @@
  *
  *	@license	MIT License
  *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/cfm-connector-for-ckeditor-corefive-Filemanager
- *  @date		February 28, 2010
- *  @version	1.0
+ *  @date		November 17, 2010
+ *  @version	2.0
  				1.1 April 25, 2010: Fixed some bugs and added some functionality
+ 				2.0 November 17, 2010: Lots of changes and bugfixes in the javascript code
  *	@copyright	Authors
 ---><cfcomponent output="no" hint="functions for the cfml filemanager connector">
 	
@@ -118,53 +119,52 @@
 		<cfargument name="getsize" type="boolean" required="no" default="true" />
 		<cfset var dirPath = _getParentPath(arguments.path) />
 		<cfset var filename = listLast(arguments.path, "/") />
-		<cfset var data_struct = _getDirectoryInfo(path=dirPath, getsizes=arguments.getsize, filter=filename) />
+		<cfset var data_arr = _getDirectoryInfo(path=dirPath, getsizes=arguments.getsize, filter=filename) />
 		<cfset var key = "" />
 		
-		<cfif structIsEmpty(data_struct)>
+		<cfif arrayIsEmpty(data_arr)>
 			<cfset returnError(translate('FILE_DOES_NOT_EXIST', arguments.path)) />
 		</cfif>
 		
-		<cfloop collection="#data_struct#" item="key">
-			<cfset _doOutput(data_struct[key]) />
-		</cfloop>
+		<cfset _doOutput(data_arr[1]) />
 	</cffunction>
 	
 	
 	<cffunction name="getFolder" returntype="void" access="public">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="getsizes" type="boolean" required="no" default="true" />
-		<cfset var data_struct = _getDirectoryInfo(argumentcollection=arguments) />
+		<cfset var data_arr = _getDirectoryInfo(argumentcollection=arguments) />
 		
-		<cfset _doOutput(data_struct) />
+		<cfset _doOutput(data_arr) />
 	</cffunction>
 	
 	
-	<cffunction name="_getDirectoryInfo" returntype="struct" access="private">
+	<cffunction name="_getDirectoryInfo" returntype="array" access="private">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="getsizes" type="boolean" required="yes" />
 		<cfargument name="filter" type="string" required="no" default="" />
 		<cfset var dirPath = _getPath(arguments.path) />
 		<cfset var dirlist_qry = "" />
-		<cfset var data_struct = structNew() />
+		<cfset var data_arr = arrayNew(1) />
 		<cfset var currData_struct = "" />
 		<cfset var imageData_struct = "" />
 		<cfset var webDirPath = _getWebPath(path) />
-
+		<cfset var displayWebPath = _getWebPath(path=arguments.path, includeUploadRoot=false) />
+		
 		<cfif not DirectoryExists(dirPath)>
 			<cfset returnError(translate('DIRECTORY_NOT_EXIST', dirPath)) />
 		</cfif>
 		
 		<cftry>
-			<cfdirectory action="list" directory="#dirPath#" name="dirlist_qry" sort="Name" filter="#arguments.filter#" />
+			<cfdirectory action="list" directory="#dirPath#" name="dirlist_qry" sort="type,name" filter="#arguments.filter#" />
 			<cfcatch>
 				<cfset returnError(translate('UNABLE_TO_OPEN_DIRECTORY', arguments.path)) />
 			</cfcatch>
 		</cftry>
 		
-		<cfloop query="dirlist_qry">
+		<cfloop query="dirlist_qry"><cfif find('.', dirlist_qry.name) neq 1>
 			<cfset currData_struct = structNew() />
-			<cfset data_struct[arguments.path & dirlist_qry.name] = currData_struct />
+			<cfset arrayAppend(data_arr, currData_struct) />
 
 			<cfset structInsert(currData_struct, "Filename", dirlist_qry.name) />
 			<cfset structInsert(currData_struct, "Error", "") />
@@ -176,11 +176,13 @@
 				<cfset structInsert(currData_struct.Properties, "Width", "") />
 			<cfif dirlist_qry.type eq "DIR">
 				<cfset structInsert(currData_struct, "Path", webDirPath & dirlist_qry.name & "/") />
+				<cfset structInsert(currData_struct, "VisiblePath", displayWebPath & dirlist_qry.name & "/") />
 				<cfset structInsert(currData_struct, "File Type", "dir") />
 				<cfset structInsert(currData_struct, "Preview", request.directoryIcon) />
 				<cfset structInsert(currData_struct.Properties, "Size", "") />
 			<cfelse>
 				<cfset structInsert(currData_struct, "Path", webDirPath & dirlist_qry.name) />
+				<cfset structInsert(currData_struct, "VisiblePath", displayWebPath & dirlist_qry.name) />
 				<cfset structInsert(currData_struct, "File Type", lCase(listlast(dirlist_qry.name, '.'))) />
 				<cfset structInsert(currData_struct.Properties, "Size", dirlist_qry.size) />
 				<cfif _isImage(dirlist_qry.directory & variables.separator & dirlist_qry.name)>
@@ -194,9 +196,9 @@
 					<cfset structInsert(currData_struct, "Preview", request.defaultIcon) />
 				</cfif>
 			</cfif>
-		</cfloop>
+		</cfif></cfloop>
 		
-		<cfreturn data_struct />
+		<cfreturn data_arr />
 	</cffunction>
 	
 	
@@ -258,7 +260,7 @@
 		<cfset structInsert(returnData_struct, "Code", 0) />
 		<cfset structInsert(returnData_struct, "Old Path", arguments.oldPath) />
 		<cfset structInsert(returnData_struct, "Old Name", fileOrDirName) />
-		<cfset structInsert(returnData_struct, "New Path", "#oldParentPath##arguments.newName#") />
+		<cfset structInsert(returnData_struct, "New Path", "#_getWebPath(path=oldParentPath, includeUploadRoot=false)##arguments.newName##iif(isDir, de('/'), de(''))#") />
 		<cfset structInsert(returnData_struct, "New Name", arguments.newName) />
 		<cfset _doOutput(returnData_struct) />
 	</cffunction>
@@ -388,10 +390,11 @@
 		<cfreturn newPath_str />
 	</cffunction>
 	
-	
+
 	<cffunction name="_getWebPath" access="private" returntype="string" output="no">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="filename" type="string" required="no" default="" />
+		<cfargument name="includeUploadRoot" type="boolean" required="no" default="true" />
 		<cfset var webPath = "" />
 		<!--- remove any "../" and "..\" from the given path --->
 		<cfset arguments.path = rereplace(arguments.path, "\.\.+([/\\])", "\1", "all") />
@@ -401,7 +404,9 @@
 			<cfset webPath = request.uploadWebRoot & variables.separator & arguments.path & variables.separator & arguments.filename />
 		</cfif>
 		<cfset webpath = rereplace(webPath, "[/\\]+", "/", "all") />
-		
+		<cfif not arguments.includeUploadRoot>
+			<cfset webPath = replaceNoCase(webPath, request.uploadWebRoot, "/") />
+		</cfif>
 		<cfreturn webPath />
 	</cffunction>
 	

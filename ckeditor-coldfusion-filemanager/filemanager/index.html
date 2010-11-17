@@ -12,15 +12,19 @@
 		<![endif]-->		
 	</head>
 	<body>
-		<form id="uploader" method="post">
+		<!-- this div is not shown: -->
+		<div id="uploadresponse"></div>
+		<form id="uploader" method="post" style="position:relative">
+			<div id="topbuttons">
+				<input id="mode" name="mode" type="hidden" value="add" />
+				<input id="currentpath" name="currentpath" type="hidden" />
+				<input id="newfile" name="newfile" type="file" size="20" />
+				<button id="upload" name="upload" type="submit" value="Upload">Upload</button>
+				<button id="newfolder" name="newfolder" type="button" value="New Folder">New Folder</button>
+				<button id="grid" class="ON" type="button" title="Switch to grid view.">&nbsp;</button><!--
+				--><button id="list" type="button" title="Switch to list view.">&nbsp;</button>
+			</div>
 			<h1></h1>
-			<div id="uploadresponse"></div>
-			<input id="mode" name="mode" type="hidden" value="add" />
-			<input id="currentpath" name="currentpath" type="hidden" />
-			<input id="newfile" name="newfile" type="file" />
-			<button id="upload" name="upload" type="submit" value="Upload">Upload</button>
-			<button id="newfolder" name="newfolder" type="button" value="New Folder">New Folder</button>
-			<button id="grid" class="ON" type="button" title="Switch to grid view.">&nbsp;</button><button id="list" type="button" title="Switch to list view.">&nbsp;</button>
 		</form>
 		<div id="splitter">
 			<div id="filetree"></div>
@@ -30,6 +34,11 @@
 		<ul id="itemOptions" class="contextMenu">
 			<li class="select"><a href="#select">Select</a></li>
 			<li class="download"><a href="#download">Download</a></li>
+			<li class="rename"><a href="#rename">Rename</a></li>
+			<li class="delete separator"><a href="#delete">Delete</a></li>
+		</ul>
+		<ul id="dirItemOptions" class="contextMenu">
+			<li class="select"><a href="#select">Select</a></li>
 			<li class="rename"><a href="#rename">Rename</a></li>
 			<li class="delete separator"><a href="#delete">Delete</a></li>
 		</ul>

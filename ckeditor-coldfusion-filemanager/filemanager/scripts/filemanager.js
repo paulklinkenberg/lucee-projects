@@ -2,6 +2,8 @@
   Setup, Layout, and Status Functions
 ---------------------------------------------------------*/
 
+var clickFileAfterLoad;
+
 // Sets paths to connectors based on language selection.
 var treeConnector = 'scripts/jquery.filetree/connectors/jqueryFileTree.' + lang;
 var fileConnector = 'connectors/' + lang + '/filemanager.' + lang;
@@ -23,9 +25,13 @@ var setDimensions = function(){
 // Sets the folder status, upload, and new folder functions 
 // to the path specified. Called on initial page load and 
 // whenever a new directory is selected.
-var setUploader = function(path){
+var setUploader = function(path)
+{
 	$('#currentpath').val(path);
-	$('#uploader h1').text('Current Folder: ' + path);
+	// shorten the path, if it's longer then 450 pixels. Taking 9px per letter, that's 450/9 = 50 characters
+	// The title 'Current folder: ' is 15 characters, so we've got 35 characters left.
+	var tmp = path.replace(/^(.{14}).+(.{19})$/, "$1<span style='color:Gray'>...</span>$2");
+	$('#uploader h1').html('Current Folder: ' + tmp);
 
 	$('#newfolder').unbind().click(function(){
 		// var foldername = prompt('Enter the name of the new folder:', 'My Folder');
@@ -40,7 +46,8 @@ var setUploader = function(path){
 				foldername = fname;
 
 				$.getJSON(fileConnector + '?mode=addfolder&path=' + $('#currentpath').val() + '&name=' + foldername, function(result){
-					if(result['Code'] == 0){
+					if(result['Code'] == 0)
+					{
 						addFolder(result['Parent'], result['Name']);
 						getFolderInfo(result['Parent']);
 					} else {
@@ -79,7 +86,8 @@ var bindToolbar = function(data){
 	});
 	
 	$('#fileinfo').find('button#download').click(function(){
-		window.location = fileConnector + '?mode=download&path=' + data['Path'];
+		if (data["File Type"] != 'dir')
+			window.location = fileConnector + '?mode=download&path=' + data['Path'];
 	});
 }
 
@@ -156,7 +164,7 @@ var renameItem = function(data){
 		
 		if(rname != ''){
 			var givenName = rname;	
-			var oldPath = data['Path'];	
+			var oldPath = data['VisiblePath'];	
 			var connectString = fileConnector + '?mode=rename&old=' + data['Path'] + '&new=' + givenName;
 		
 			$.ajax({
@@ -170,16 +178,21 @@ var renameItem = function(data){
 						var newName = result['New Name'];
 	
 						updateNode(oldPath, newPath, newName);
-						
-						if($('#fileinfo').data('view') == 'grid'){
-							$('#fileinfo img[alt="' + oldPath + '"]').next('p').text(newName);
-							$('#fileinfo img[alt="' + oldPath + '"]').attr('alt', newPath);
-						} else {
+						if ($('#fileinfo #preview h1').length)
+						{
+							getFileInfo(newPath);
+						} else if($('#fileinfo').data('view') == 'grid')
+						{
+							var $img = $('#fileinfo img[alt="' + oldPath + '"]');
+							$img.parents('li').find('p:first').text(newName);
+							$img.attr('alt', newPath);
+						} else
+						{
 							$('#fileinfo td[title="' + oldPath + '"]').text(newName);
 							$('#fileinfo td[title="' + oldPath + '"]').attr('title', newPath);
 						}
-										
-						$.prompt('Rename successful.');
+						
+						//$.prompt('Rename successful.');
 					} else {
 						$.prompt(result['Error']);
 					}
@@ -244,18 +257,24 @@ var deleteItem = function(data, successFunction)
 
 // Adds a new node as the first item beneath the specified
 // parent node. Called after a successful file upload.
-var addNode = function(path, name){
-	var ext = name.substr(name.lastIndexOf('.') + 1);
+var addNode = function(path, name)
+{
+	// if this var is set, then the given path is clicked() on if it appears in the next fileTree load
+	clickFileAfterLoad = path + name;
 	var thisNode = $('#filetree').find('a[rel="' + path + '"]');
-	var parentNode = thisNode.parent();
-	var newNode = '<li class="file ext_' + ext + '"><a rel="' + path + name + '/" href="#">' + name + '/</a></li>';
-	
-	if(!parentNode.find('ul').size()) parentNode.append('<ul></ul>');		
-	parentNode.find('ul').prepend(newNode);
-	thisNode.click().click();
-
-	getFolderInfo(path);
-	
+	if (thisNode.length)
+	{
+		if (thisNode.parent().hasClass('expanded'))
+			thisNode.click().click()
+		else
+			thisNode.click();
+	} else
+	{
+		reloadFiletree();
+		$('#fileinfo').html('');
+		// $('#filetree').find('a[rel="' + path + name + '"]').click();
+	}
+		
 	// new Paul Klinkenberg, 28/02/2010: empty the upload field on succesfull upload
 	$('#newfile').val('');
 	
@@ -264,11 +283,25 @@ var addNode = function(path, name){
 
 // Updates the specified node with a new name. Called after
 // a successful rename operation.
-var updateNode = function(oldPath, newPath, newName){
+var updateNode = function(oldPath, newPath, newName)
+{
 	var thisNode = $('#filetree').find('a[rel="' + oldPath + '"]');
-	var parentNode = thisNode.parent().parent().prev('a');
+	var thisLiNode = thisNode.parent();
 	thisNode.attr('rel', newPath).text(newName);
-	parentNode.click().click();
+	if (thisLiNode.hasClass('directory'))
+	{
+		if (thisLiNode.hasClass('expanded'))
+			thisNode.click().click()
+		else
+			thisNode.click();
+	} else
+	{
+		var parentNode = thisLiNode.parent('li').find('a:first');
+		if (parentNode.parent().hasClass('expanded'))
+			parentNode.click().click()
+		else
+			parentNode.click();
+	}
 }
 
 // Removes the specified node. Called after a successful 
@@ -297,16 +330,19 @@ var removeNode = function(path){
 // specified parent node. Called after a new folder is
 // successfully created.
 var addFolder = function(parent, name){
-	var newNode = '<li class="directory collapsed"><a rel="' + parent + name + '/" href="#">' + name + '/</a><ul class="jqueryFileTree" style="display: block;"></ul></li>';
 	var parentNode = $('#filetree').find('a[rel="' + parent + '"]');
 
-	if(parent != fileRoot){
-		parentNode.next('ul').prepend(newNode).prev('a').click().click();
+	if(parentNode.length)
+	{
+		if (parentNode.parent().hasClass('expanded'))
+			parentNode.click().click()
+		else
+			parentNode.click();
 	} else {
-		$('#filetree > ul').append(newNode);
+		reloadFiletree();
+		$('#fileinfo').html('');
 	}
-	
-	$.prompt('New folder added successfully.');
+//	$.prompt('New folder added successfully.');
 }
 
 
@@ -329,6 +365,11 @@ var getDetailView = function(path){
 
 // Binds contextual menus to items in list and grid views.
 var setMenus = function(action, path){
+	if (action=='select' && path.match(/\/$/))
+	{
+		$('#filetree').find('a[rel="' + path + '"]').click();
+		return;
+	}
 	$.getJSON(fileConnector + '?mode=getinfo&path=' + path, function(data){
 		switch(action){
 			case 'select':
@@ -336,7 +377,8 @@ var setMenus = function(action, path){
 				break;
 			
 			case 'download':
-				window.location = fileConnector + '?mode=download&path=' + data['Path'];
+				if (data["File Type"] != 'dir')
+					window.location = fileConnector + '?mode=download&path=' + data['Path'];
 				break;
 				
 			case 'rename':
@@ -355,36 +397,47 @@ var setMenus = function(action, path){
 // detail views. Binds the toolbar for that detail view to
 // enable specific actions. Called whenever an item is
 // clicked in the file tree or list views.
-var getFileInfo = function(file){
+var getFileInfo = function(file)
+{
 	// Update location for status, upload, & new folder functions.
 	var currentpath = file.substr(0, file.lastIndexOf('/') + 1);
 	setUploader(currentpath);
-
-	// Include the template.
-	var template = '<div id="preview"><img /><h1></h1><dl></dl></div>';
-	template += '<form id="toolbar">';
-	template += '<button id="select" name="select" type="button" value="Select">Select</button>';
-	template += '<button id="download" name="download" type="button" value="Download">Download</button>';
-	template += '<button id="rename" name="rename" type="button" value="Rename">Rename</button>';
-	template += '<button id="delete" name="delete" type="button" value="Delete">Delete</button>';
-	template += '</form>';
-	
-	$('#fileinfo').html(template);
 	
 	// Retrieve the data & populate the template.
 	$.getJSON(fileConnector + '?mode=getinfo&path=' + file, function(data){
 		if(data['Code'] == 0){
-			$('#fileinfo').find('h1').text(data['Filename']);
-			$('#fileinfo').find('img').attr('src',data['Preview']);
-			
 			var properties = '';
+			var imgsize = '';
+			var pr = data['Properties'];
+			if(pr['Width'] && pr['Width'] != '')
+			{
+				// resize preview image if too large
+				if (pr['Width'] > pr['Height'])
+				{
+					if (pr['Width'] > 350)
+						imgsize = ' style="width:350px"';
+				} else
+				{
+					if (pr['Height'] > 350)
+						imgsize = ' style="height:350px"';
+				}
+				properties += '<dt>Dimensions</dt><dd>' + pr['Width'] + 'x' + pr['Height'] + '</dd>';
+			}
+			if(pr['Date Created'] && pr['Date Created'] != '') properties += '<dt>Created</dt><dd>' + pr['Date Created'] + '</dd>';
+			if(pr['Date Modified'] && pr['Date Modified'] != '') properties += '<dt>Modified</dt><dd>' + pr['Date Modified'] + '</dd>';
+			if(pr['Size'] && pr['Size'] != '') properties += '<dt>Size</dt><dd>' + formatBytes(pr['Size']) + '</dd>';
 			
-			if(data['Properties']['Width'] && data['Properties']['Width'] != '') properties += '<dt>Dimensions</dt><dd>' + data['Properties']['Width'] + 'x' + data['Properties']['Height'] + '</dd>';
-			if(data['Properties']['Date Created'] && data['Properties']['Date Created'] != '') properties += '<dt>Created</dt><dd>' + data['Properties']['Date Created'] + '</dd>';
-			if(data['Properties']['Date Modified'] && data['Properties']['Date Modified'] != '') properties += '<dt>Modified</dt><dd>' + data['Properties']['Date Modified'] + '</dd>';
-			if(data['Properties']['Size'] && data['Properties']['Size'] != '') properties += '<dt>Size</dt><dd>' + formatBytes(data['Properties']['Size']) + '</dd>';
+			// Include the template.
+			var template = '<div id="preview"><img src="'+data['Preview']+'"'+imgsize+' />' +
+				'<h1>'+data['Filename']+'</h1><dl>'+properties+'</dl></div>' +
+				'<form id="toolbar">' +
+				  '<button id="select" name="select" type="button" value="Select">Select</button>' +
+				  '<button id="download" name="download" type="button" value="Download">Download</button>' +
+				  '<button id="rename" name="rename" type="button" value="Rename">Rename</button>' +
+				  '<button id="delete" name="delete" type="button" value="Delete">Delete</button>' +
+				'</form>';
 			
-			$('#fileinfo').find('dl').html(properties);
+			$('#fileinfo').html(template);
 			
 			// Bind toolbar functions.
 			bindToolbar(data);
@@ -409,66 +462,82 @@ var getFolderInfo = function(path){
 	$.getJSON(fileConnector + '?path=' + path + '&mode=getfolder&showThumbs=' + showThumbs, function(data){		
 		var result = '';
 	
-		if(data){		
-			if($('#fileinfo').data('view') == 'grid'){
-				result += '<ul id="contents" class="grid">';
-				
-				for(key in data){
-					var props = data[key]['Properties'];
-					if (props)
-					{
-						var scaledWidth = 64;
-						var actualWidth = props['Width'];
-						if(actualWidth > 1 && actualWidth < scaledWidth) scaledWidth = actualWidth;
+		if(data){
+			if(data['Code'] && data['Code'] != 0)
+			{
+				result = "<div style='text-align:center;color:red;'>An error occured:<br \/>" + data['Error'] + "<\/div>";
+				// $.prompt(data['Error']);
+			} else
+			{
+				var key = '';
+				if($('#fileinfo').data('view') == 'grid'){
+					result += '<ul id="contents" class="grid">';
 					
-						result += '<li><div class="clip"><img src="' + data[key]['Preview'] + '" width="' + scaledWidth + '" alt="' + data[key]['Path'] + '" /></div><p>' + data[key]['Filename'] + '</p>';
-						if(props['Width'] && props['Width'] != '') result += '<span class="meta dimensions">' + props['Width'] + 'x' + props['Height'] + '</span>';
-						if(props['Size'] && props['Size'] != '') result += '<span class="meta size">' + props['Size'] + '</span>';
-						if(props['Date Created'] && props['Date Created'] != '') result += '<span class="meta created">' + props['Date Created'] + '</span>';
-						if(props['Date Modified'] && props['Date Modified'] != '') result += '<span class="meta modified">' + props['Date Modified'] + '</span>';
-						result += '</li>';
+					for(key in data){
+						var props = data[key]['Properties'];
+						if (props)
+						{
+							var scaledWidth = 64;
+							var actualWidth = props['Width'];
+							if(actualWidth > 1 && actualWidth < scaledWidth) scaledWidth = actualWidth;
+						
+							result += '<li class="' + (data[key]["File Type"] == 'dir' ? 'directory':'file') + '">'+
+							 '<div class="clip"><img src="' + data[key]['Preview'] + '" width="' + scaledWidth + '" alt="' + data[key]['VisiblePath'] + '" /></div><p>' + data[key]['Filename'] + '</p>';
+							if(props['Width'] && props['Width'] != '') result += '<span class="meta dimensions">' + props['Width'] + 'x' + props['Height'] + '</span>';
+							if(props['Size'] && props['Size'] != '') result += '<span class="meta size">' + props['Size'] + '</span>';
+							if(props['Date Created'] && props['Date Created'] != '') result += '<span class="meta created">' + props['Date Created'] + '</span>';
+							if(props['Date Modified'] && props['Date Modified'] != '') result += '<span class="meta modified">' + props['Date Modified'] + '</span>';
+							result += '</li>';
+						}
 					}
-				}
-				
-				result += '</ul>';
-			} else {
-				result += '<table id="contents" class="list">';
-				result += '<thead><tr><th class="headerSortDown"><span>Name</span></th><th><span>Dimensions</span></th><th><span>Size</span></th><th><span>Modified</span></th></tr></thead>';
-				result += '<tbody>';
-				
-				for(key in data){
-					var path = data[key]['Path'];
-					var props = data[key]['Properties'];
-					if (props)
+					result += '</ul>';
+					if (key=='')
 					{
-						result += '<tr>';
-						result += '<td title="' + path + '">' + data[key]['Filename'] + '</td>';
-	
-						if(props['Width'] && props['Width'] != ''){
-							result += ('<td>' + props['Width'] + 'x' + props['Height'] + '</td>');
-						} else {
-							result += '<td></td>';
-						}
-						
-						if(props['Size'] && props['Size'] != ''){
-							result += '<td><abbr title="' + props['Size'] + '">' + formatBytes(props['Size']) + '</abbr></td>';
-						} else {
-							result += '<td></td>';
-						}
-						
-						if(props['Date Modified'] && props['Date Modified'] != ''){
-							result += '<td>' + props['Date Modified'] + '</td>';
-						} else {
-							result += '<td></td>';
-						}
-					
-						result += '</tr>';
+						result = '<div style="margin-top:40px;text-align:center;"><em>No files found</em></div>';
 					}
+				} else {
+					result += '<table id="contents" class="list">';
+					result += '<thead><tr><th class="headerSortDown"><span>Name</span></th><th><span>Dimensions</span></th><th><span>Size</span></th><th><span>Modified</span></th></tr></thead>';
+					result += '<tbody>';
+					
+					for(key in data){
+						var path = data[key]['VisiblePath'];
+						var props = data[key]['Properties'];
+						if (props)
+						{
+							result += '<tr class="' + (data[key]["File Type"] == 'dir' ? 'directory':'file') + '">';
+							result += '<td title="' + path + '">' + data[key]['Filename'] + '</td>';
+		
+							if(props['Width'] && props['Width'] != ''){
+								result += ('<td>' + props['Width'] + 'x' + props['Height'] + '</td>');
+							} else {
+								result += '<td></td>';
+							}
+							
+							if(props['Size'] && props['Size'] != ''){
+								result += '<td><abbr title="' + props['Size'] + '">' + formatBytes(props['Size']) + '</abbr></td>';
+							} else {
+								result += '<td></td>';
+							}
+							
+							if(props['Date Modified'] && props['Date Modified'] != ''){
+								result += '<td>' + props['Date Modified'] + '</td>';
+							} else {
+								result += '<td></td>';
+							}
+						
+							result += '</tr>';
+						}
+					}
+					if (key=='')
+					{
+						result += '<tr><td colspan="4" style="text-align:center"><em>No files found</em></td></tr>';
+					}
+					
+					result += '</tbody>';
+					result += '</table>';
 				}
-								
-				result += '</tbody>';
-				result += '</table>';
-			}			
+			}
 		} else {
 			result += '<h1>Could not retrieve folder contents.</h1>';
 		}
@@ -482,10 +551,27 @@ var getFolderInfo = function(path){
 			$('#fileinfo').find('#contents li').click(function(){
 				var path = $(this).find('img').attr('alt');
 				getDetailView(path);
-			}).contextMenu({ menu: 'itemOptions' }, function(action, el, pos){
-				var path = $(el).find('img').attr('alt');
-				setMenus(action, path);
+			}).each(function(){
+				var $this = $(this);
+				$this.contextMenu(
+					{ menu: ($this.hasClass('directory') ? 'dirItemOptions':'itemOptions') }
+					, function(action, el, pos){
+						var path = $(el).find('img').attr('alt');
+						setMenus(action, path);
+					}
+				)
 			});
+			// show new/renamed file?
+			if (clickFileAfterLoad)
+			{
+				var tmp = $('#fileinfo img[alt="'+clickFileAfterLoad+'"]');
+				if (tmp.length)
+				{
+					//tmp.parent('li').css('backgroundColor', 'red');
+					tmp.get(0).scrollIntoView();
+					clickFileAfterLoad=null;
+				};
+			}
 		} else {
 			$('#fileinfo').find('td:first-child').each(function(){
 				var path = $(this).attr('title');
@@ -496,9 +582,15 @@ var getFolderInfo = function(path){
 			$('#fileinfo tbody tr').click(function(){
 				var path = $('td:first-child', this).attr('title');
 				getDetailView(path);		
-			}).contextMenu({ menu: 'itemOptions' }, function(action, el, pos){
-				var path = $('td:first-child', el).attr('title');
-				setMenus(action, path);
+			}).each(function(){
+				var $this = $(this);
+				$this.contextMenu(
+					{ menu: ($this.hasClass('directory') ? 'dirItemOptions':'itemOptions') }
+					, function(action, el, pos){
+						var path = $('td:first-child', el).attr('title');
+						setMenus(action, path);
+					}
+				)
 			});
 			
 			$('#fileinfo').find('table').tablesorter({
@@ -510,12 +602,37 @@ var getFolderInfo = function(path){
 					}
 				}
 			});
+			// show new/renamed file?
+			if (clickFileAfterLoad)
+			{
+				var tmp = $('#fileinfo td[title="'+clickFileAfterLoad+'"]');
+				if (tmp.length)
+				{
+					tmp.parent('tr').css('backgroundColor', 'red');
+					tmp.get(0).scrollIntoView();
+					clickFileAfterLoad=null;
+				};
+			}
 		}
 	});
 }
 
 
-
+function setFileTreeEvents()
+{
+	$('#filetree').find('li a:not(.context)')
+	.addClass('context')
+	.each(function(){
+		var $this = $(this);
+		$this.contextMenu(
+			{ menu: ($this.parent().hasClass('directory') ? 'dirItemOptions':'itemOptions') }
+			, function(action, el, pos){
+				var path = $(el).attr('rel');
+				setMenus(action, path);
+			}
+		)
+	});
+}
 
 
 /*---------------------------------------------------------
@@ -567,33 +684,44 @@ $(function(){
 		success: function(result){
 			var data = eval('(' + $('#uploadresponse').find('textarea').text() + ')');
 
-			if(data['Code'] == 0){
-				addNode(data['Path'], data['Name']);
-			} else {
+			if(data['Code'] == 0)
+			{
+				addNode(data['Path'], data['Name'], "file");
+			} else
+			{
 				$.prompt(data['Error']);
 			}
 		}
 	});
 
 	// Creates file tree.
-    $('#filetree').fileTree({
-		root: fileRoot,
-		script: treeConnector,
-		multiFolder: false,
-		folderCallback: function(path){ getFolderInfo(path); },
-		after: function(data){
-			$('#filetree').find('li a').contextMenu(
-				{ menu: 'itemOptions' }, 
-				function(action, el, pos){
-					var path = $(el).attr('rel');
-					setMenus(action, path);
-				}
-			);
-		}
-	}, function(file){
-		getFileInfo(file);
-	});
-	
+	startFileTree();
+
 	// show files of the current dir as a grid
 	$('#grid').click();
 });
+
+function startFileTree()
+{
+	$('#filetree').fileTree(
+		{
+			root: fileRoot,
+			script: treeConnector,
+			multiFolder: false,
+			folderCallback: function(path){ getFolderInfo(path); },
+			after: setFileTreeEvents,
+			expandSpeed: 300,
+			collapseSpeed: 200
+		}, function(file){
+			getFileInfo(file);
+		}
+	);
+}
+
+function reloadFiletree()
+{
+	// erase the file tree
+	$("#filetree").attr('class', '').html('');
+	// reload the file tree now
+	startFileTree();
+}

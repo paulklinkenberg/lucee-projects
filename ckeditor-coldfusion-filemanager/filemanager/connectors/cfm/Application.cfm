@@ -6,16 +6,22 @@
  *
  *	@license	MIT License
  *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/cfm-connector-for-ckeditor-corefive-Filemanager
- *  @date		February 28, 2010
- *  @version	1.0
+ *  @date		November 17, 2010
+ *  @version	2.0
  				1.1 April 25, 2010: Fixed some bugs and added some functionality
+ 				2.0 November 17, 2010: Lots of changes and bugfixes in the javascript code
  *	@copyright	Authors
 --->
-<cfapplication name="filemanager_#cgi.http_host#" applicationtimeout="#createTimeSpan(1,0,0,0)#" sessionmanagement="no" clientmanagement="no" />
+<cfapplication name="app_#hash(getCurrentTemplatePath())#" applicationtimeout="#createTimeSpan(1,0,0,0)#" sessionmanagement="no" clientmanagement="no" />
 
 <!--- initialize the filemanager object if not yet existent --->
 <cfif not structKeyExists(application, "filemanager_obj") or structKeyExists(url, "init")>
 	<cfset application.filemanager_obj = createObject('component', 'filemanager-functions') />
+	<cfif structKeyExists(url, "init")>
+		<h1>Filemanager cache has been flushed!</h1>
+		<em>Aborting your request now...</em>
+		<cfabort />
+	</cfif>
 </cfif>
 
 <!--- include the config data --->
