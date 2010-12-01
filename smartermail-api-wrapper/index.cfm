@@ -1,3 +1,30 @@
+<!---
+/*
+ * index.cfm, developed by Paul Klinkenberg
+ * http://www.railodeveloper.com/post.cfm/smartermail-api-wrapper-coldfusion
+ *
+ * Date: 2010-12-01 20:19:00 +0100
+ * Revision: 1.2
+ *
+ * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
+ * Licensed under the GPL license.
+ *
+ *    This program is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *    ALWAYS LEAVE THIS COPYRIGHT NOTICE IN PLACE!
+ */
+--->
 <cfparam name="url.fuseaction" default="" />
 <cfparam name="url.id" default="" />
 
@@ -53,7 +80,7 @@
 			<a href="http://www.smartertools.com/SmarterMail/"><img src="images/smartermail-icon.png" width="81" height="56" alt="Smartermail icon" style="float:left;margin:10px 0 0 15px;" /></a>
 			<a href="http://www.ongevraagdadvies.nl/" title="Code created by Paul Klinkenberg, Ongevraagd Advies"><img src="images/logo-Ongevraagd-Advies.png" style="float:right;margin:10px 15px 0 0;" alt="Logo Ongevraagd Advies" /></a>
 			<h1>UI for the Coldfusion Smartermail<sup><small>&reg;</small></sup> API wrapper</h1>
-			<a href="http://www.coldfusiondeveloper.nl/post.cfm/smartermail-api-wrapper-coldfusion">See the project's blog post at www.coldfusiondeveloper.nl/post.cfm/smartermail-api-wrapper-coldfusion</a>
+			<a href="http://www.railodeveloper.com/post.cfm/smartermail-api-wrapper-coldfusion">See the project's blog post at www.railodeveloper.com/post.cfm/smartermail-api-wrapper-coldfusion</a>
 		</div>
 		
 		<div id="content">
@@ -62,6 +89,7 @@
 				<!--- when logged-in, set the login values in the session scope. --->
 				<cfif structKeyExists(form, "serverURL")>
 					<cfset structClear(session) />
+					<cfparam name="form.debugMode" default="0" />
 					<cfloop list="#form.fieldnames#" index="key">
 						<cfset structInsert(session, key, form[key], true) />
 					</cfloop>
@@ -94,7 +122,7 @@
 				<li><a href="index.cfm?action=howto">How-to</a></li>
 				<li><a href="index.cfm?action=field-formats">Help with the form</a></li>
 				<li><a href="index.cfm?action=about">About</a></li>
-				<li><a href="http://www.coldfusiondeveloper.nl/post.cfm/smartermail-api-wrapper-coldfusion">View the blog post</a></li>
+				<li><a href="http://www.railodeveloper.com/post.cfm/smartermail-api-wrapper-coldfusion">View the blog post</a></li>
 			</ul>
 			<h2>Web service methods</h2>
 			<cfinclude template="includes/createnav.cfm" />

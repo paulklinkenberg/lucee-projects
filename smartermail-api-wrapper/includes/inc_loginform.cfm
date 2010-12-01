@@ -9,5 +9,8 @@
 	<label for="password">Password</label>
 	<input type="password" name="password" id="password" size="20" />
 	<br />
+	<label for="debugMode">&nbsp;</label>
+	<input type="checkbox" name="debugMode" id="debugMode" value="1" /> <em style="white-space:nowrap">Show extra debug data</em>
+	<br />
 	<input type="submit" value="Login" /><br />
 </form>

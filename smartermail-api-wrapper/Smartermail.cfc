@@ -2,12 +2,12 @@
 <!---
 /*
  * Smartermail.cfc, developed by Paul Klinkenberg
- * http://www.coldfusiondeveloper.nl/post.cfm/smartermail-api-wrapper-coldfusion
+ * http://www.railodeveloper.com/post.cfm/smartermail-api-wrapper-coldfusion
  *
- * Date: 2009-12-27 23:47:00 +0100
- * Revision: 1.1
+ * Date: 2010-12-01 20:19:00 +0100
+ * Revision: 1.2
  *
- * Copyright (c) 2009 Paul Klinkenberg, Ongevraagd Advies
+ * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
  *
  *    This program is free software: you can redistribute it and/or modify
@@ -29,12 +29,16 @@
 	<cfset this.serverURL = "" />
 	<cfset this.wsPassword = "" />
 	<cfset this.wsUsername = "" />
+	<cfset this.debugMode = false />
+	<cfset this.debugDataScopeName = "" />
 	
 	
-	<cffunction name="init" returntype="any" access="public" hint="Sets the webservice variables and returns this object">
+	<cffunction name="init" returntype="any" access="public" hint="Sets the webservice variables and returns this object" output="no">
 		<cfargument name="serverURL" type="string" required="yes" hint="http://www.yoursite.com" />
 		<cfargument name="wsUsername" type="string" required="yes" />
 		<cfargument name="wsPassword" type="string" required="yes" />
+		<cfargument name="debugMode" type="boolean" required="no" default="false" hint="When debugging, all requests and responses are logged to the given scope (key='SMDebugData')" />
+		<cfargument name="debugDataScopeName" type="string" required="no" default="this" hint="this/request/application/server" />
 		<cfset var key = "" />
 		<!--- CF7 has a stupid fault: when looping through the arguments collection, even undefined arguments are looped over.
 		So we need to check if the key actually exists ;-/ --->
@@ -49,7 +53,27 @@
 	</cffunction>
 		
 	
-	<cffunction name="callWs" returntype="any" access="public" hint="Calls the webservice method, and returns the http-struct or xml">
+	<cffunction name="getDebugData" access="public" returntype="array" output="no">
+		<cfset var theScope = evaluate(this.debugDataScopeName) />
+		<cfset var theKey = "SMDebugData" />
+		<cfset var returnData = arrayNew(1) />
+		<cfset var theData = structNew() />
+		<cfif not this.debugMode>
+			<cfset theData.date = now() />
+			<cfset theData.title = "debugging disabled" />
+			<cfset theData.data = "Debugging is currently disabled. You should set the argument 'debugMode' to TRUE in the init function." />
+			<cfset arrayAppend(returnData, theData) />
+			<cfreturn returnData />
+		</cfif>
+		<cfif not structKeyExists(theScope, theKey)>
+			<cfreturn returnData />
+		<cfelse>
+			<cfreturn theScope[theKey] />
+		</cfif>
+	</cffunction>
+	
+	
+	<cffunction name="callWs" returntype="any" access="public" hint="Calls the webservice method, and returns the http-struct or xml" output="no">
 		<cfargument name="page" type="string" required="yes" hint="svcAliasAdmin,svcDomainAdmin,svcMailListAdmin,svcProductInfo,svcGlobalUpdate,svcDomainAliasAdmin,svcUserAdmin,svcServerAdmin,svcOutlookAddin" />
 		<cfargument name="method" type="string" required="yes" />
 		<cfargument name="args" type="struct" required="no" default="#structNew()#" hint="Struct with all attributes (must be the right CasE!!!)" />
@@ -61,6 +85,13 @@
 			<cfhttpparam type="header" name="Content-Type" value="application/soap+xml" />
 			<cfhttpparam type="body" value="#soapBody#" />
 		</cfhttp>
+		
+		<!--- debug? log! --->
+		<cfif this.debugMode>
+			<cfset _logDebugData("Request data", soapBody) />
+			<cfset _logDebugData("Response data", cfhttpReturn_struct.filecontent.toString()) />
+		</cfif>
+		
 		<cfif arguments.returnXml>
 			<cfreturn xmlParse( _cleanXml(cfhttpReturn_struct.filecontent.toString()) ) />
 		<cfelse>
@@ -106,12 +137,12 @@
 		</#arguments.method#>
 	</soap12:Body>
 </soap12:Envelope></cfoutput></cfsavecontent>
-		
+				
 		<cfreturn indentXML(soapBody) />
 	</cffunction>
 	
 
-	<cffunction name="_cleanXml" returntype="string" access="private" hint="Removes namespace refererences from given xml">
+	<cffunction name="_cleanXml" returntype="string" access="private" hint="Removes namespace refererences from given xml" output="no">
 		<cfargument name="xml_str" type="string" required="yes"/>
 		<cfset var cleanedXml = rereplaceNoCase(xml_str, ' +xmlns(:[^=]+)?=[^ ><]+', '', 'all') />
 		<cfset cleanedXml = rereplaceNoCase(cleanedXml, '(</?)[a-z0-9]+:([a-z0-9]+)', '\1\2', 'all') />
@@ -119,7 +150,7 @@
 	</cffunction>
 	
 	
-	<cffunction name="_getExtraSoapBody" access="private" returntype="string">
+	<cffunction name="_getExtraSoapBody" access="private" returntype="string" output="no">
 		<cfargument name="page" type="string" required="yes" hint="svcAliasAdmin,svcDomainAdmin,svcMailListAdmin,svcProductInfo,svcGlobalUpdate,svcDomainAliasAdmin,svcUserAdmin,svcServerAdmin,svcOutlookAddin" />
 		<cfargument name="method" type="string" required="yes" />
 
@@ -136,7 +167,7 @@
 	</cffunction>
 	
 	
-	<cffunction name="indentXML" returntype="string">
+	<cffunction name="indentXML" returntype="string" output="no" access="public">
 		<cfargument name="code" type="string" />
 		<cfset var indent = -1 />
 		<cfset var findings = "" />
@@ -179,4 +210,26 @@
 		<cfset code = replace(code, '±', '<', 'all') />
 		<cfreturn code />
 	</cffunction>
+	
+	
+	<cffunction name="_logDebugData" access="private" returntype="void" output="no">
+		<cfargument name="title" type="string" required="yes" />
+		<cfargument name="data" type="any" required="yes" />
+		<cfset var theScope = evaluate(this.debugDataScopeName) />
+		<cfset var theKey = "SMDebugData" />
+		<cfset var theData = structNew() />
+		<cfset theData.date = now() />
+		<cfset theData.title = arguments.title />
+		<cfset theData.data = arguments.data />
+		<cfif not structKeyExists(theScope, theKey)>
+			<cfset theScope[theKey] = arrayNew(1) />
+		</cfif>
+		<cfset arrayAppend(theScope[theKey], theData) />
+		<!--- max 100 debug items --->
+		<cfloop condition="arrayLen(theScope[theKey]) gt 100">
+			<cfset arrayDeleteAt(theScope[theKey], 1) />
+		</cfloop>
+	</cffunction>
+	
+	
 </cfcomponent>

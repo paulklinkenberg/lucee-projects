@@ -1,8 +1,36 @@
+<!---
+/*
+ * smartermailapi.cfm, developed by Paul Klinkenberg
+ * http://www.railodeveloper.com/post.cfm/smartermail-api-wrapper-coldfusion
+ *
+ * Date: 2010-12-01 20:19:00 +0100
+ * Revision: 1.2
+ *
+ * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
+ * Licensed under the GPL license.
+ *
+ *    This program is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    This program is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU General Public License for more details.
+ *
+ *    You should have received a copy of the GNU General Public License
+ *    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *    ALWAYS LEAVE THIS COPYRIGHT NOTICE IN PLACE!
+ */
+--->
+
 <!--- if not yet lofgged in, create the smartermail-object without login credentials --->
 <cfif not structKeyExists(session, "username")>
 	<cfset variables.smartermail_obj = createObject("component", "Smartermail") />
 <cfelse>
-	<cfset variables.smartermail_obj = createObject("component", "Smartermail").init(serverURL=session.serverURL, wsUsername=session.username, wsPassword=session.password) />
+	<cfset variables.smartermail_obj = createObject("component", "Smartermail").init(serverURL=session.serverURL, wsUsername=session.username, wsPassword=session.password, debugMode=session.debugMode, debugDataScopeName="request") />
 	
 	<cfif not structKeyExists(session, "domainsList_str")>
 		<!--- get all domains (this is also the check to see if the login credentials are right) --->
@@ -20,6 +48,10 @@
 			<p class="error">Your login details seem to be incorrect! Please try again.</p>
 			<cfset structClear(session) />
 			<cfinclude template="includes/inc_loginform.cfm" />
+			<cfoutput>
+				<br /><br />
+				<pre><strong>XML returned from the webservice:</strong><div>#htmleditformat(domains_xml)#</div></pre>
+			</cfoutput>
 		<cfelse>
 			<h3>Welcome, you are now logged in.</h3>
 			<p>Please choose one of the options at the left-hand side.</p>
@@ -57,7 +89,7 @@
 					<cfif findNoCase("<ResultCode>-1</ResultCode>", xml_str)>
 						<p class="error">The web-service says an error has occured! <em>(resultCode should be 0)</em></p>
 					</cfif>
-					<pre><strong>XML returned from the webservice:</strong>#htmleditformat(xml_str)#</pre>
+					<pre><strong>XML returned from the webservice:</strong><div>#htmleditformat(xml_str)#</div></pre>
 				</cfloop>
 			<cfelseif structKeyExists(form, 'loopEmailAddresses')>
 				<cfset emailList = form.EmailAddress />
@@ -69,7 +101,7 @@
 					<cfif findNoCase("<ResultCode>-1</ResultCode>", xml_str)>
 						<p class="error">The web-service says an error has occured! <em>(resultCode should be 0)</em></p>
 					</cfif>
-					<pre><strong>XML returned from the webservice:</strong>#htmleditformat(xml_str)#</pre>
+					<pre><strong>XML returned from the webservice:</strong><div>#htmleditformat(xml_str)#</div></pre>
 				</cfloop>
 			<cfelse>
 				<h3>Calling the webservice...</h3>
@@ -81,7 +113,7 @@
 				<cfif findNoCase("<ResultCode>-1</ResultCode>", xml_str)>
 					<p class="error">The web-service says an error has occured! <em>(resultCode should be 0)</em></p>
 				</cfif>
-				<pre><strong>XML returned from the webservice:</strong>#htmleditformat(xml_str)#</pre>
+				<pre><strong>XML returned from the webservice:</strong><div>#htmleditformat(xml_str)#</div></pre>
 			</cfif>
 			<hr />
 		</cfif>
@@ -153,6 +185,20 @@
 				</cfcatch>
 			</cftry>
 		</div>
+		<!---
 		<pre><strong>Example SOAP packet:</strong>#htmleditformat(variables.smartermail_obj.createSoapBody(page=url.page, method=url.method, args=form, defaultArgValue="your-value"))#</pre>
+		--->
+	</cfoutput>
+</cfif>
+
+<cfif (structKeyExists(session, "debugMode") and session.debugMode)
+or structKeyExists(form, "debugMode") and form.debugMode eq 1>
+	<hr style="margin-top:50px;" />
+	<p><strong>Debug information</strong></p>
+	<cfset debugData = variables.smartermail_obj.getDebugData() />
+	<cfoutput>
+		<cfloop array="#debugData#" index="arr">
+			<pre><strong>#arr.title# (#dateformat(arr.date, 'mmm. d, ')# #timeformat(arr.date, 'HH:mm:ss')#)</strong><div>#htmleditformat(variables.smartermail_obj.indentXML(arr.data))#</div></pre>
+		</cfloop>
 	</cfoutput>
 </cfif>
