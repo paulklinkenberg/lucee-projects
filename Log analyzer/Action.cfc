@@ -5,8 +5,8 @@
  * Originally written by Gert Franz
  * http://www.railodeveloper.com/post.cfm/railo-admin-log-analyzer
  *
- * Date: 2010-11-03 23:41:00 +0100
- * Revision: 1.0.1
+ * Date: 2010-11-09 08:58:00 +0100
+ * Revision: 2.0.0
  *
  * Copyright (c) 2010 Paul Klinkenberg, railodeveloper.com
  * Licensed under the GPL license.
@@ -31,16 +31,33 @@
 		<cfargument name="lang" type="struct">
 		<cfargument name="app" type="struct">
 	</cffunction>
-
-	<cffunction name="getLogPath" hint="This function returns the full log file path, and does some security checking">
+	
+	
+	<cffunction name="getWebContexts" returntype="query" access="public" output="no">
+		<cfargument name="fromCache" type="boolean" default="true" />
+		<cfset var qWebContexts = "" />
+		
+		<cfif not structKeyExists(variables, "qWebContexts") or not arguments.fromCache>
+			<!--- get all web contexts --->
+			<cfadmin
+				action="getContextes"
+				type="server"
+				password="qwerty"
+				returnVariable="qWebContexts" />
+			<cfset variables.qWebContexts = qWebContexts />
+		</cfif>
+		<cfreturn variables.qWebContexts />
+	</cffunction>
+	
+	
+	<cffunction name="getLogPath" returntype="string" output="no" hint="This function returns the full log file path, and does some security checking">
 		<cfargument name="file" type="string" required="false" hint="When given, we check and return the full path to this file. Otherwise, we just return the log files directory" />
-		<cfargument name="webID" type="string" required="false" hint="When in server-admin, we must know for which website we are viewing the logs" />
 		<cfif request.admintype eq "web">
 			<cfset var logDir = expandPath("{railo-web}/logs/") />
-		<cfelseif structKeyExists(arguments, "webID") and len(arguments.webID)>
-			<cfset var logDir = "" />
+		<cfelseif session.logAnalyzer.webID eq "serverContext">
+			<cfset var logDir = expandPath("{railo-server}/logs/") />
 		<cfelse>
-			<cfthrow message="When not in the web admin, the argument 'webID' is required for function getLogPath()!" />
+			<cfset var logDir = getLogPathByWebID(session.logAnalyzer.webID) />
 		</cfif>
 		<cfif structKeyExists(arguments, "file") and len(arguments.file)>
 			<cfset logDir = rereplace(logDir, "\#server.separator.file#$", "") & server.separator.file & listLast(arguments.file, "/\") />
@@ -50,6 +67,43 @@
 		</cfif>
 		<cfreturn logDir />
 	</cffunction>
+
+
+	<cffunction name="getLogPathByWebID" returntype="string" output="no" hint="I return the path to the log directory for a given web context">
+		<cfargument name="webID" type="string" required="true" />
+		<cfif request.admintype eq "web">
+			<cfthrow message="Function getLogPathByWebID() may only be used in the server admin!" />
+		</cfif>
+		<cfset var cacheKey = "webContextLogPaths" />
+		<cfif not structKeyExists(variables, cacheKey)>
+			<cfset var webContexts = getWebContexts() />
+			<cfset var tmp = {} />
+			<cfloop query="webContexts">
+				<cfset tmp[webContexts.id] = rereplace(webContexts.config_file, "[^/\\]+$", "") & "logs" & server.separator.file />
+			</cfloop>
+			<cfset variables[cacheKey] = tmp />
+		</cfif>
+		<cfreturn variables[cacheKey][arguments.webID] />
+	</cffunction>
+
+
+	<cffunction name="getWebRootPathByWebID" returntype="string" output="no" hint="I return the path to the webroot for a given web context">
+		<cfargument name="webID" type="string" required="true" />
+		<cfif request.admintype eq "web">
+			<cfthrow message="Function getWebRootPathByWebID() may only be used in the server admin!" />
+		</cfif>
+		<cfset var cacheKey = "webrootPaths" />
+		<cfif not structKeyExists(variables, cacheKey)>
+			<cfset var webContexts = getWebContexts() />
+			<cfset var tmp = {} />
+			<cfloop query="webContexts">
+				<cfset tmp[webContexts.id] = webContexts.path />
+			</cfloop>
+			<cfset variables[cacheKey] = tmp />
+		</cfif>
+		<cfreturn variables[cacheKey][arguments.webID] />
+	</cffunction>
+
 
 	<cffunction name="getTextTimeSpan" output="no" hint="creates a text string indicating the timespan between NOW and given datetime">
 		<cfargument name="date" type="date" required="yes" />
@@ -70,13 +124,22 @@
 		<cfargument name="lang" type="struct">
 		<cfargument name="app" type="struct">
 		<cfargument name="req" type="struct">
-		<cfset arguments.req.logfiles = getLogs()>
+		
+		<cfparam name="session.loganalyzer.webID" default="" />
+		<!--- web context chosen? --->
+		<cfif request.admintype eq "server" and structKeyExists(form, "webID") and len(form.webID)>
+			<cfset session.logAnalyzer.webID = form.webID />
+		</cfif>
+		
+		<cfif request.admintype neq "server" or len(session.loganalyzer.webID)>
+			<cfset arguments.req.logfiles = getLogs() />
+		</cfif>
 	</cffunction>
 	
 	<cffunction name="getLogs" output="Yes" returntype="query">
 		<cfset var qGetLogs = ""/>
 		<cfset var tempFilePath = getLogPath() />
-		<cfdirectory action="list" listinfo="Name,datelastmodified,size" directory="#tempFilePath#" name="qGetLogs" sort="name asc" />
+		<cfdirectory action="list" listinfo="Name,datelastmodified,size" directory="#tempFilePath#" filter="*.log|*.bak" name="qGetLogs" sort="name asc" />
 		<cfreturn qGetLogs />
 	</cffunction>	
 	
@@ -86,16 +149,21 @@
 		<cfargument name="req" type="struct">
 		<cfset var i        = 0>
 		<cfset var j        = 0>
-		<cfset var bCheck   = true>
 		<cfset var stErrors = StructNew()>
 		<cfset var sLine    = "">
 		<cfset var aDump    = ArrayNew(1)>
-		<cfset var iFound   = 0>
 		<cfset var sTmp     = "">
-		<cfset var sHash    = "">
-		<cfset var aLine    = arrayNew(1)>
 		<cfset var st       = arrayNew(1)>
-		<cfset var tempdate = "" />
+		
+		<!--- when viewing logs in the server admin, then a webID must be defined --->
+		<cfif request.admintype eq "server">
+			<cfparam name="session.loganalyzer.webID" default="" />
+			<cfif not len(session.loganalyzer.webID)>
+				<cfset var gotoUrl = rereplace(action('overview'), "^[[:space:]]+", "") />
+				<cflocation url="#gotoUrl#" addtoken="no" />
+			</cfif>
+		</cfif>
+		
 		<cfparam name="url.logfile" default="" />
 		<cfparam name="form.logfile" default="#url.logfile#" />
 		<cfset form.logfile = getLogPath(file=form.logfile) />
@@ -105,10 +173,9 @@
 		
 		<cfloop file="#form.logfile#" index="sLine">
 			<!--- If line starts with a quote, then it is either an error line, or the end of a dump--->
-			<cfif left(trim(sLine), 1) eq '"'>
-				<cfset aTmp = ListToArray(sLine, ",", true)>
+			<cfif left(sLine, 1) eq '"'>
 				<!--- if not a new error --->
-				<cfif arrayLen(aTmp) neq 6>
+				<cfif not refind('^"[A-Z-]+","', sLine)>
 					<cfif isDefined("aDump") and ArrayLen(aDump) gt 1>
 						<cfif isStruct(aDump[6])>
 				 			<cfset aDump[6].detail &= Chr(13) & Chr(10) & sLine>
@@ -124,42 +191,19 @@
 					</cfif>
 				<!--- new error --->
 				<cfelse>
+					<cfset aTmp = ListToArray(rereplace(rereplace(trim(sLine), '(^"|"$)', '', 'all'), '",("|$)', chr(10), "all"), chr(10), true) />
 					<!--- was there a previous error --->
 					<cfif ArrayLen(aDump) eq 6>
-						<cftry>
-							<!--- 	at test_cfm$cf.call(/developing/tools/test.cfm:1):1 --->
-							<cfset aLine = REFind("\(([^\(\)]+\.cfm):([0-9]+)\)", aDump[6].detail, 1, true) />
-							<cfif aLine.pos[1] gt 0>
-								<cfset aDump[6].fileName = Mid(aDump[6].detail, aLine.pos[2], aLine.len[2])>
-								<cfset aDump[6].lineNo   = Mid(aDump[6].detail, aLine.pos[3], aLine.len[3])>
-							</cfif>
-							<cfset sHash = Hash(aDump[6].error)>
-							<cfif structKeyExists(stErrors, sHash)>
-								<cfset stErrors[sHash].iCount++ />
-								<cfset tempdate = parsedatetime(replace(aDump[3] & " " & aDump[4], '"', '', "ALL")) />
-								<cfset ArrayAppend(stErrors[sHash].datetime, tempdate) />
-								<cfset stErrors[sHash].lastdate = tempdate />
-							<cfelse>
-								<cfset tempdate = parsedatetime(replace(aDump[3] & " " & aDump[4], '"', '', "ALL")) />
-								<cfset stErrors[sHash] = {
-									"message":replace(aDump[6].error, '"', "", "ALL"),
-									"detail":replace(aDump[6].detail, '"', "", "ALL"),
-									"file":aDump[6].fileName,
-									"line":aDump[6].lineNo,
-									"type":replace(aDump[1], '"', "", "ALL"),
-									"thread":replace(aDump[2], '"', "", "ALL"),
-									"datetime":[tempdate],
-									"iCount":1
-									, "firstdate": tempdate
-									, "lastdate": tempdate
-								} />
-							</cfif>
-							<cfcatch></cfcatch>
-						</cftry>
+						<cfset __addError(aDump, stErrors) />
 					</cfif>
 					<!--- create new error container --->
 					<cfset aDump = aTmp>
 					<cfset sTmp = aDump[6]>
+					<!--- in some cases, there is no message text on the first line of the error output.
+					This seems to have to do with customly thrown errors, where message="". --->
+					<cfif sTmp eq "">
+						<cfset sTmp = "no error msg #structCount(stErrors)#" />
+					</cfif>
 					<cfset aDump[6]          = structNew()>
 					<cfset aDump[6].error    = sTmp>
 		 			<cfset aDump[6].detail   = sLine>
@@ -184,6 +228,10 @@
 				</cfif>
 			</cfif>
 		</cfloop>
+		<!--- add the last error --->
+		<cfif ArrayLen(aDump) eq 6>
+			<cfset __addError(aDump, stErrors) />
+		</cfif>
 		<!--- orderby can change--->
 		<cfif url.sort eq "msg">
 			<cfset st = structSort(stErrors, "textnocase", url.dir, "message")>
@@ -194,6 +242,40 @@
 		</cfif>
 		<cfset req.result.sortOrder = st>
 		<cfset req.result.stErrors  = stErrors>
+	</cffunction>
+	
+	<cffunction name="__addError" access="public" returntype="void" output="no">
+		<cfargument name="aDump" type="array" />
+		<cfargument name="stErrors" type="struct" />
+		<cftry>
+			<!--- 	at test_cfm$cf.call(/developing/tools/test.cfm:1):1 --->
+			<cfset var aLine = REFind("\(([^\(\)]+\.cfm):([0-9]+)\)", aDump[6].detail, 1, true) />
+			<cfif aLine.pos[1] gt 0>
+				<cfset aDump[6].fileName = Mid(aDump[6].detail, aLine.pos[2], aLine.len[2])>
+				<cfset aDump[6].lineNo   = Mid(aDump[6].detail, aLine.pos[3], aLine.len[3])>
+			</cfif>
+			<cfset var sHash = Hash(aDump[6].error)>
+			<cfset var tempdate = parsedatetime(aDump[3] & " " & aDump[4]) />
+			<cfif structKeyExists(stErrors, sHash)>
+				<cfset stErrors[sHash].iCount++ />
+				<cfset ArrayAppend(stErrors[sHash].datetime, tempdate) />
+				<cfset stErrors[sHash].lastdate = tempdate />
+			<cfelse>
+				<cfset stErrors[sHash] = {
+					"message":aDump[6].error,
+					"detail":aDump[6].detail,
+					"file":aDump[6].fileName,
+					"line":aDump[6].lineNo,
+					"type":aDump[1],
+					"thread":aDump[2],
+					"datetime":[tempdate],
+					"iCount":1
+					, "firstdate": tempdate
+					, "lastdate": tempdate
+				} />
+			</cfif>
+			<cfcatch></cfcatch>
+		</cftry>
 	</cffunction>
 	
 </cfcomponent>

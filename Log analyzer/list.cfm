@@ -4,8 +4,8 @@
  * Originally written by Gert Franz
  * http://www.railodeveloper.com/post.cfm/railo-admin-log-analyzer
  *
- * Date: 2010-11-03 23:41:00 +0100
- * Revision: 1.0.1
+ * Date: 2010-11-09 08:58:00 +0100
+ * Revision: 2.0.0
  *
  * Copyright (c) 2010 Paul Klinkenberg, railodeveloper.com
  * Licensed under the GPL license.
@@ -27,17 +27,28 @@
  */
 ---><cfparam name="url.startrow" default="1" type="integer" />
 <cfparam name="url.pagesperrow" default="10" type="integer" />
+<!--- to fix any problems with urlencoding etc. for logfile paths, we just use the filename of 'form.logfile'.
+The rest of the path is always recalculated anyway. --->
+<cfset form.logfile = listLast(form.logfile, "/\") />
 
 <cfset maxrows = ArrayLen(req.result.sortOrder) />
 <cfset iFrom = url.startrow />
 <cfset iTo = Min(url.startrow+url.pagesperrow-1, maxrows) />
 
 <cfset var detailUrl = rereplace(action('detail'), "^[[:space:]]+", "") />
-<cfset var thisUrl = rereplace(action('list'), "^[[:space:]]+", "") & "&amp;logfile=#form.logfile#" />
+<cfset var thisUrl = rereplace(action('list'), "^[[:space:]]+", "") & "&amp;logfile=#urlEncodedFormat(form.logfile)#" />
+
+<cfif request.admintype eq "server">
+	<cfif session.loganalyzer.webID eq "serverContext">
+		<cfoutput><h3>Server context log files</h3></cfoutput>
+	<cfelse>
+		<cfoutput><h3>Web context <em>#getWebRootPathByWebID(session.loganalyzer.webID)#</em></h3></cfoutput>
+	</cfif>
+</cfif>
 
 <cfoutput>
-<h3>#listlast(form.logfile, '/\')#<cfif maxrows gt 0> - #arguments.lang.message# #iFrom# #arguments.lang.to# #iTo# (#maxrows# results<cfif maxrows gt 10>,
-	<select name="pagesperrow" onchange="self.location.href='#thisUrl#&pagesperrow='+this.value">
+<h3>#form.logfile#<cfif maxrows gt 0> - #arguments.lang.message# #iFrom# #arguments.lang.to# #iTo# (#maxrows# results<cfif maxrows gt 10>,
+	<select name="pagesperrow" onchange="self.location.href='#jsStringFormat(thisUrl)#&pagesperrow='+this.value">
 		<cfset var skiprest=false />
 		<cfloop list="10,20,30,50,100" index="i"><cfif not skiprest><option value="#i#"<cfif i eq url.pagesperrow> selected="selected"</cfif>>#i#</option></cfif>
 			<cfif i gt maxrows><cfset skiprest = true /></cfif>
@@ -69,7 +80,7 @@
 		<tr>
 			<td style="width:1px;text-align:right;">#i#&nbsp;</td>
 			<td class="tblContent" valign="top">
-				&nbsp;#req.result.stErrors[el].message#
+				&nbsp;#htmlEditFormat(rereplace(req.result.stErrors[el].message, "([^[:space:]]{50}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all"))#
 			</td>
 			<td class="tblContent" valign="top"><cfset dates = req.result.stErrors[el].datetime />
 				<abbr title="#dateFormat(dates[arrayLen(dates)], arguments.lang.dateformat)# #timeFormat(dates[arrayLen(dates)], arguments.lang.timeformat)#">#getTextTimeSpan(dates[arrayLen(dates)], arguments.lang)#</abbr>
@@ -79,7 +90,7 @@
 			</td>
 			<td class="tblContent"><form action="#detailUrl#" method="post" name="el" style="margin:0;">
 				<input type="hidden" name="logfile" value="#form.logfile#">
-				<input type="hidden" name="data" value="#serialize(req.result.stErrors[el])#">
+				<input type="hidden" name="data" value="#htmleditformat(serialize(req.result.stErrors[el]))#">
 				<input type="submit" value="#arguments.lang.Details#" class="button" />
 			</form></td>		
 		</tr>	
