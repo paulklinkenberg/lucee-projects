@@ -90,7 +90,7 @@
 				<cfif structKeyExists(form, "serverURL")>
 					<cfset structClear(session) />
 					<cfparam name="form.debugMode" default="0" />
-					<cfloop list="#form.fieldnames#" index="key">
+					<cfloop collection="#form#" item="key">
 						<cfset structInsert(session, key, form[key], true) />
 					</cfloop>
 					<cfset variables.checkWSLogin = true />
