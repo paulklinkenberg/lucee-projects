@@ -133,7 +133,7 @@
 			</cfif>
 			<cfloop from="1" to="#arrayLen(args_arr)#" index="arrIndex">
 				<label for="#args_arr[arrIndex].xmlName#">#args_arr[arrIndex].xmlName#</label>
-				<cfif args_arr[arrIndex].xmlName eq 'domainName'>
+				<cfif args_arr[arrIndex].xmlName eq 'domainName' and listLen(session.domainsList_str)>
 					<select name="#args_arr[arrIndex].xmlName#" id="#args_arr[arrIndex].xmlName#"<cfif structKeyExists(args_arr[arrIndex].xmlAttributes, "multiline") or structKeyExists(form, 'loopDomainNames')> multiple="true" size="10"</cfif>>
 						<cfif structKeyExists(session, "username")>
 							<cfloop list="#session.domainsList_str#" index="dom">
@@ -143,7 +143,7 @@
 							<option value="">your domains will appear here</option>
 						</cfif>
 					</select>
-				<cfelseif args_arr[arrIndex].xmlName eq 'EmailAddress'>
+				<cfelseif args_arr[arrIndex].xmlName eq 'EmailAddress' and listLen(session.domainsList_str)>
 					<select name="#args_arr[arrIndex].xmlName#" id="#args_arr[arrIndex].xmlName#"<cfif structKeyExists(args_arr[arrIndex].xmlAttributes, "multiline") or structKeyExists(form, 'loopEmailAddresses')> multiple="true" size="10"</cfif>>
 						<cfif structKeyExists(session, "username")>
 							<cfloop list="#session.domainsList_str#" index="dom">
