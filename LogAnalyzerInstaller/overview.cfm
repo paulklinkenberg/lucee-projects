@@ -4,8 +4,8 @@
  * Originally written by Gert Franz
  * http://www.railodeveloper.com/post.cfm/railo-admin-log-analyzer
  *
- * Date: 2010-11-09 08:58:00 +0100
- * Revision: 2.0.0
+ * Date: 2010-12-02 20:12:00 +0100
+ * Revision: 2.2.0
  *
  * Copyright (c) 2010 Paul Klinkenberg, railodeveloper.com
  * Licensed under the GPL license.
@@ -27,6 +27,7 @@
  */
 --->
 <!--- get the installed locations log --->
+<cfset var sep = server.separator.file />
 <cfset var installedLocations = {} />
 <cfset var line = "" />
 <cfif fileExists(arguments.req.installedlocationsFile)>
@@ -94,7 +95,10 @@
 				<td class="tblHead" style="vertical-align:top">Website path</td>
 			</tr>
 			<!--- make it possible to install the plugin in the server admin --->
-			<cfset var installPath = expandPath("{railo-server}") & "context#sep#admin#sep#plugin#sep#Log analyzer#sep#" />
+			<cfset var installPath = "" />
+			<cfadmin type="server" action="getPluginDirectory" password="#session.passwordserver#"
+				returnVariable="installPath" />
+			<cfset installPath = rereplace(installPath, '[/\\]$', '') & "#sep#Log analyzer#sep#" />
 			<tr>
 				<td class="tblContent"><input type="checkbox" name="installDirs" class="chk" value="#htmlEditFormat(installPath)#" /></td>
 				<td class="tblContent"><cfif structKeyExists(installedLocations, installpath)><strong>YES</strong><cfelse><em>no</em></cfif></td>
@@ -116,4 +120,3 @@
 		<input type="submit" class="button" value="Install/update" />
 	</form>
 </cfoutput>
-
