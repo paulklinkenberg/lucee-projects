@@ -3,8 +3,8 @@
  * download.cfm, written by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/railo-admin-log-analyzer
  *
- * Date: 2010-11-09 08:58:00 +0100
- * Revision: 2.0.0
+ * Date: 2010-12-02 15:27:00 +0100
+ * Revision: 2.1.1
  *
  * Copyright (c) 2010 Paul Klinkenberg, railodeveloper.com
  * Licensed under the GPL license.
