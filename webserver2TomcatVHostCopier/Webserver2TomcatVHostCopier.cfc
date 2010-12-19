@@ -4,8 +4,8 @@
  * Webserver2TomcatVHostCopier.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-10-30 00:25:00 +0100
- * Revision: 0.3.01
+ * Date: 2010-12-19 18:36:00 +0100
+ * Revision: 0.3.02
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -34,6 +34,7 @@
 			<cftry>
 				<cfset var tomcatConfigManager = createObject("component", "TomcatConfigManager").init(sendCriticalErrors=arguments.sendCriticalErrors) />
 				<cfset var parserConfig = tomcatConfigManager.getConfig() />
+				<cfset var sep = server.separator.file />
 				
 				<!--- apache --->
 				<cfif parserConfig.webservertype eq "apache">
@@ -72,17 +73,39 @@
 				<cfset var stVHost = "" />
 				<cfset var hostname = "" />
 				<cfloop array="#VHosts#" index="stVHost">
-					<cfloop list="#iif(not len(stVHost.host), de('localhost'), 'stVHost.host')#,#structKeyList(stVHost.aliases)#" index="hostname">
+					<cfloop list="#iif(not len(stVHost.host), de('__allhostnames__'), 'stVHost.host')#,#structKeyList(stVHost.aliases)#" index="hostname">
 						<cfif structKeyExists(tomcatVHosts, hostname) and rereplace(stVHost.path, '[/\\]$', '') neq rereplace(tomcatVHosts[hostname].path, '[/\\]$', '')>
-							<cfset arrayAppend(duplicates, "        Same host found twice, with different webroots! Host=#hostname#, path1=#tomcatVHosts[hostname].path#, path2=#stVHost.path#") />
+							<cfif hostname eq "__allhostnames__">
+								<cfset arrayAppend(duplicates, "        More then one website found which listens to all hostnames, with different webroots! Since tomcat does not distuingish between listener ip addresses, we can not handle this exception! Path1=#tomcatVHosts[hostname].path#, path2=#stVHost.path#") />
+							<cfelse>
+								<cfset arrayAppend(duplicates, "        Same host found twice, with different webroots! Host=#hostname#, path1=#tomcatVHosts[hostname].path#, path2=#stVHost.path#") />
+							</cfif>
 						<cfelse>
 							<cfset structInsert(tomcatVHosts, hostname, {path=stVHost.path, mappings=stVHost.mappings}, true) />
 						</cfif>
 					</cfloop>
 				</cfloop>
+				
+				<!--- if we found a host named 'localhost', and a '__allhostnames__', then we have a problem. --->
+				<cfif structKeyExists(tomcatVHosts, "__allhostnames__")>
+					<cfif structKeyExists(tomcatVHosts, "localhost")>
+						<cfset arrayAppend(duplicates, "        Both a host 'localhost' and a website 'listening to all hostnames' was found. Since tomcat is configured to use 'localhost' as the default webhost, we have a problematic situation, which this tool can't fix. localhost=#tomcatVHosts['localhost'].path#, __allhostnames__=#tomcatVHosts['__allhostnames__'].path#") />
+						<cfset structDelete(tomcatVHosts, "localhost") />
+					</cfif>
+					<cfset tomcatVHosts['localhost'] = tomcatVHosts['__allhostnames__'] />
+					<cfset structDelete(tomcatVHosts, '__allhostnames__') />
+				</cfif>
+				
+				<!--- do we have a localhost entry?
+				If not, we default it to the tomcat root at {tomcat-install}/webapps/ROOT/ --->
+				<cfif not structKeyExists(tomcatVHosts, "localhost")>
+					<cfset var tomcatWebrootPath = rereplace(parserConfig.tomcatrootpath, '[\\/]$', '') & "#sep#webapps#sep#ROOT#sep#" />
+					<cfset structInsert(tomcatVHosts, "localhost", {path=tomcatWebrootPath, mappings={}}, true) />
+				</cfif>
+				
 				<!---did we find duplicates? Log it.--->
 				<cfif arrayLen(duplicates)>
-					<cfset tomcatConfigManager.handleError("One or more duplicate hosts with different webroots where found in #parserConfig.webservertype#. This tool can not handle this.#chr(10)##arrayToList(duplicates, chr(10))#", "WARNING") />
+					<cfset tomcatConfigManager.handleError("One or more duplicate hosts with different webroots were found in #parserConfig.webservertype#. This tool can not handle this.#chr(10)##arrayToList(duplicates, chr(10))#", "WARNING") />
 				</cfif>
 			
 				<!--- check if there are VHost changes --->
