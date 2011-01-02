@@ -73,7 +73,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<cfargument name="type" type="string" required="true" default=""/>
 		<cfargument name="class" type="string" required="true" default=""/>
 		<cfargument name="throwOnError" type="boolean" required="true" default="false"/>
-
+		<cfargument name="returnRawResponse" type="boolean" required="no" default="false" hint="Returns the DNS response java object instead of the custom Message.cfc object" />
 		<cfset var result = structNew()/>
 		<cfset var query = "null"/>
 		<cfset var record = "null"/>
@@ -94,6 +94,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 			<cfset record = getRecord().newRecord(getName().fromString(_name), getType().value(arguments.type), getDClass().value(arguments.class))/>
 			<cfset query = getMessage().newQuery(record)/>
 			<cfset response = getResolver().send(query)/>
+			<cfif arguments.returnRawResponse>
+				<cfreturn response />
+			</cfif>
 			<cfset result.message.setMessage(response)/>
 			<cfset result.message.setXMLDoc(createMessageXML(response))/>
 			<cfset result.success = true/>
@@ -132,11 +135,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 		<!--- TODO: use the dnsjava address instead --->
 		<cftry>
-			<cfset sections = doQuery(name="#arguments.address#", type="PTR", class="IN", throwOnError="true")/>
-			<cfset records = sections[2]/>
+			<cfset sections = doQuery(name="#arguments.address#", type="PTR", class="IN", throwOnError="true", returnRawResponse=true)/>
+			<cfset records = sections.getSectionArray(javaCast("int", 1)) />
 			<cfset result = ""/>
 			<cfloop from="1" to="#arrayLen(records)#" index="i">
-				<cfset result = listAppend(result, records[i].getTarget())/>
+				<cfset result = listAppend(result, rereplace(records[i].getTarget(), "\.$", ""))/>
 			</cfloop>
 			<cfcatch>
 				<!-- Bummer -->
@@ -155,11 +158,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 		<!--- TODO: use the dnsjava address instead --->
 		<cftry>
-			<cfset sections = doQuery(name="#arguments.name#", type="A", class="IN", throwOnError="true")/>
-			<cfset records = sections[2]/>
+			<cfset sections = doQuery(name="#arguments.name#", type="A", class="IN", throwOnError="true", returnRawResponse=true)/>
+			<cfset records = sections.getSectionArray(javaCast("int", 1)) />
 			<cfset result = ""/>
 			<cfloop from="1" to="#arrayLen(records)#" index="i">
-				<cfset result = listAppend(result, records[i].getAddress().getHostAddress())/>
+				<cfset result = listAppend(result, rereplace(records[i].getAddress().getHostAddress(), "\.$", ""))/>
 			</cfloop>
 			<cfcatch>
 				<!-- Bummer -->
@@ -205,7 +208,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 					<cfset record.xmlAttributes["type"] = type/>
 					<cfset record.xmlAttributes["class"] = class/>
 					<cfset record.xmlAttributes["name"] = ra[j].getName()/>
-					<cfif ra[j].getAdditionalName() neq "">
+					<!--- Sometimes(?) this returns a Null value, which can't be compared as string (on Railo at least) --->
+					<cfif isSimpleValue(ra[j].getAdditionalName()) and ra[j].getAdditionalName() neq "">
 						<cfset record.xmlAttributes["additionalName"] = ra[j].getAdditionalName()/>
 					</cfif>
 					<cfif i gt 1>
@@ -303,6 +307,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 	</cffunction>
 
 
+	<cffunction name="getDNSTypeName" returntype="string" access="public" output="false">
+		<cfargument name="nr" type="numeric" required="yes" hint="dns record type" />
+		<cfreturn variables.type.string(arguments.nr) />
+	</cffunction>
+	
+	<cffunction name="getDNSClassName" returntype="string" access="public" output="false">
+		<cfargument name="nr" type="numeric" required="yes" hint="dns class type" />
+		<cfreturn variables.dClass.string(arguments.nr) />
+	</cffunction>
+	
 	<!--- Private Methods --->
 	<cffunction name="getType" returntype="any" access="private" output="false">
 		<cfreturn variables.type/>
