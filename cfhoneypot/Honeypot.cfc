@@ -69,7 +69,7 @@ Optional attributes:
 />
 
 */--->
-<cfcomponent name="Honeypot">
+<cfcomponent name="Honeypot" output="no">
 
 	<!--- Meta data --->
 	<cfset this.metadata.attributetype="fixed" />
