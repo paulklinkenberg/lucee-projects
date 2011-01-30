@@ -40,6 +40,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		<cfset var remainder = arguments.input/>
 		<cfset var parts = structNew()/>
 		<cfset var names = structNew()/>
+		<cfset var part = "" />
 
 		<cfset parts.week = 0/>
 		<cfset names.week = listToArray("week,w")/>
