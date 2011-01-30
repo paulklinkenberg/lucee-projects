@@ -69,6 +69,8 @@
 		<cfset var currentTag = "" />
 		<cfset var nIndex = -1 />
 		<cfset var aExtraAttrDone = [] />
+		<cfset var currentAttr = "" />
+		
 		<cfif sURL eq "">
 			<cfreturn "<!-- Project honeypot LinkGenerator: you must invoke LinkGenerator.cfc by using LinkGenerator.init(yourURL), or manually add honeypot links into the cfc itself. -->" />
 		</cfif>
