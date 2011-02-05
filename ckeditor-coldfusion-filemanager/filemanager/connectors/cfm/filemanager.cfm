@@ -35,18 +35,18 @@
 			</cfcase>
 			<cfcase value="addfolder">
 				<cfif structKeyExists(url, "path") and structKeyExists(url, "name")>
-					<cfset application.filemanager_obj.addFolder(path=path, dirname=name) />
+					<cfset application.filemanager_obj.addFolder(path=url.path, dirname=url.name) />
 				</cfif>	
 			</cfcase>
 			<cfcase value="rename">
 				<cfif structKeyExists(url, "old") and structKeyExists(url, "new")>
-					<cfset application.filemanager_obj.rename(oldPath=old, newName=new) />
+					<cfset application.filemanager_obj.rename(oldPath=url.old, newName=url.new) />
 				</cfif>
 			</cfcase>
 			<cfcase value="getfolder,getinfo,delete,download">
 				<cfif structKeyExists(url, "path")>
 					<cfinvoke component="#application.filemanager_obj#" method="#url.mode#">
-						<cfinvokeargument name="path" value="#path#" />
+						<cfinvokeargument name="path" value="#url.path#" />
 						<cfloop list="getsize,getsizes" index="key">
 							<cfif structKeyExists(url, key)>
 								<cfinvokeargument name="#key#" value="#iif(listfindNoCase('1,true,yes', url[key]), 1, 0)#" />

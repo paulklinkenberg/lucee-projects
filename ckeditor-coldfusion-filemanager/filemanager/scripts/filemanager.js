@@ -5,7 +5,7 @@
 var clickFileAfterLoad;
 
 // Sets paths to connectors based on language selection.
-var treeConnector = 'scripts/jquery.filetree/connectors/jqueryFileTree.' + lang;
+var treeConnector = 'scripts/jquery_filetree/connectors/jqueryFileTree.' + lang;
 var fileConnector = 'connectors/' + lang + '/filemanager.' + lang;
 
 // Options for alert, prompt, and confirm dialogues.

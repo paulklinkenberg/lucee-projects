@@ -1,6 +1,6 @@
 <!--- SECURITY INSTRUCTIONS
 
-The script at ./scripts/jquery.filetree/connectors/jqueryFiletree.cfm
+The script at ./scripts/jquery_filetree/connectors/jqueryFiletree.cfm
 
 can potentially list all the files within your webroot. This is a pretty big security issue.
 So you have to tell this script which starting directory within your webroot to use.
