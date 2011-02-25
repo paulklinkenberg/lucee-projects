@@ -4,10 +4,10 @@
  * Webserver2TomcatVHostCopier.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2010-12-19 18:36:00 +0100
- * Revision: 0.3.02
+ * Date: 2011-02-22 22:44:00 +0100
+ * Revision: 0.3.03
  *
- * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
+ * Copyright (c) 2011 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
  *
  *    This program is free software: you can redistribute it and/or modify
@@ -34,7 +34,8 @@
 			<cftry>
 				<cfset var tomcatConfigManager = createObject("component", "TomcatConfigManager").init(sendCriticalErrors=arguments.sendCriticalErrors) />
 				<cfset var parserConfig = tomcatConfigManager.getConfig() />
-				<cfset var sep = server.separator.file />
+				<!---  server.separator.file is not available when file is used as a gateway listener :-( --->
+				<cfset var sep = find("\", getBaseTemplatePath()) ? "\":"/" />
 				
 				<!--- apache --->
 				<cfif parserConfig.webservertype eq "apache">
