@@ -82,6 +82,10 @@
 		<cfset var cfhttpReturn_struct = structNew() />
 
 		<cfhttp method="post" url="#this.serverURL#/Services/#arguments.page#.asmx" throwonerror="yes" result="cfhttpReturn_struct">
+			<!--- ACF (7? &8?) has a bug with faulty compression headers, which can be fixed by adding these headers: --->
+			<cfhttpparam type="header" name="Accept-Encoding" value="deflate;q=0" />
+			<cfhttpparam type="header" name="TE" value="deflate;q=0" />
+			
 			<cfhttpparam type="header" name="Content-Type" value="application/soap+xml" />
 			<cfhttpparam type="body" value="#soapBody#" />
 		</cfhttp>
@@ -153,7 +157,7 @@
 	<cffunction name="_getExtraSoapBody" access="private" returntype="string" output="no">
 		<cfargument name="page" type="string" required="yes" hint="svcAliasAdmin,svcDomainAdmin,svcMailListAdmin,svcProductInfo,svcGlobalUpdate,svcDomainAliasAdmin,svcUserAdmin,svcServerAdmin,svcOutlookAddin" />
 		<cfargument name="method" type="string" required="yes" />
-
+		<cfset var q = "" />
 		<cfif not structKeyExists(variables, "methodArguments")>
 			<cffile action="read" file="#expandPath('./wddx/methodArguments.wddx')#" variable="q" />
 			<cfwddx action="wddx2cfml" input="#q#" output="variables.methodArguments" />
@@ -176,7 +180,7 @@
 		<cfset var doIndent = false />
 		<cfset var nextStartTagOnSameLine = false />
 		
-		<cfset code = rereplace(code, '[\n\r\t]+', '', 'all') />
+		<cfset arguments.code = rereplace(arguments.code, '[\n\r\t]+', '', 'all') />
 		<cfloop condition="refind('<(.*?>)', code)">
 			<cfset doIndent = false />
 			<cfset findings = refind('<(.*?>)', code, 1, true) />
