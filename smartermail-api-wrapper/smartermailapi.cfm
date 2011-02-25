@@ -36,6 +36,14 @@
 		<!--- get all domains (this is also the check to see if the login credentials are right) --->
 		<cftry>
 			<cfset domains_xml = variables.smartermail_obj.callWs(page='svcDomainAdmin', method='GetAllDomains') />
+			<!--- -20=No permissions. Maybe we do have a domain admin here... --->
+			<cfif findNoCase('<ResultCode>-20</ResultCode>', domains_xml)>
+				<cfset temp = variables.smartermail_obj.callWs(page='svcDomainAdmin', method='GetDomainInfo') />
+				<!---  if we got a succesfull response, then create a bogus xml so we'll use the user's domain name in the rest of the pages. --->
+				<cfif find("<ResultCode>0</ResultCode>", temp)>
+					<cfset domains_xml = "<GetAllDomainsResult><ResultCode>0</ResultCode><DomainNames><string>#listLast(session.username, '@')#</string></DomainNames></GetAllDomainsResult>" />
+				</cfif>
+			</cfif>
 			<cfcatch>
 				<cfset domains_xml = "<ResultCode>-1</ResultCode>" />
 				<p class="error">Error occured in smartermail.cfc:<br />
@@ -44,7 +52,7 @@
 				<cfdump var="#cfcatch#" />
 			</cfcatch>
 		</cftry>
-		<cfif findNoCase('<ResultCode>-1</ResultCode>', domains_xml)>
+		<cfif not findNoCase('<ResultCode>0</ResultCode>', domains_xml)>
 			<p class="error">Your login details seem to be incorrect! Please try again.</p>
 			<cfset structClear(session) />
 			<cfinclude template="includes/inc_loginform.cfm" />
