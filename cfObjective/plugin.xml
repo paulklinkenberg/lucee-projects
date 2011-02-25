@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="com.railodeveloper.mango.plugins.cfObjective" name="cf.Objective() 2011 badges" version="1.0.0" provider-name="Railodeveloper.com" class="cfObjective.Handler">
+	<description>
+		<![CDATA[ 
+			<p>
+			cfObjective badges adds a "cf.Objective()" badge of you choice to your blog.
+			</p>
+			<p>
+				Published by <a href="http://www.railodeveloper.com/" target="_blank">Paul Klinkenberg, railodeveloper.com</a>.
+				I gratefully used the "SOTR2011 badges" code developed by: <a href="http://www.lagaffe.be" target="_blank">Guust Nieuwenhuis</a>
+			</p>
+		 ]]>
+	</description>
+	<listens>
+		<event name="getPods" type="synch" priority="5" />
+		<!-- <event name="beforeHtmlHeadEnd" type="synch" priority="5" />
+		<event name="beforePostContentEnd" type="synch" priority="5" /> -->
+	</listens>
+	<listensAdmin>
+		<event name="settingsNav" type="synch" priority="5" />
+		<event name="showcfObjectiveSettings" type="synch" priority="5" />
+		<event name="getPodsList" type="synch" priority="1" />
+	</listensAdmin>
+	<assets>
+		<asset dir="assets/badges" dest="images" />
+	</assets>
+</plugin>
