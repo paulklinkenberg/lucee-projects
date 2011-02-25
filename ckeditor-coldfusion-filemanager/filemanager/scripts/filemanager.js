@@ -231,7 +231,7 @@ var deleteItem = function(data, successFunction)
 			success: function(result){
 				if(result['Code'] == 0){
 					removeNode(result['Path']);
-					removeNode(result['Path'].replace(/([^/\\]+)$/, "thumbs/$1"));
+					removeNode(result['Path'].replace(/([^/\\]+)$/, "thumbs/$1")); // "
 					successFunction();
 					$.prompt('Delete successful.');
 				} else {
@@ -371,23 +371,29 @@ var setMenus = function(action, path){
 		return;
 	}
 	$.getJSON(fileConnector + '?mode=getinfo&path=' + path, function(data){
-		switch(action){
-			case 'select':
-				selectItem(data);
-				break;
-			
-			case 'download':
-				if (data["File Type"] != 'dir')
-					window.location = fileConnector + '?mode=download&path=' + data['Path'];
-				break;
+		if (data['Code'] == 0)
+		{
+			switch(action){
+				case 'select':
+					selectItem(data);
+					break;
 				
-			case 'rename':
-				var newName = renameItem(data);
-				break;
-				
-			case 'delete':
-				deleteItem(data, function(){ void(0) });
-				break;
+				case 'download':
+					if (data["File Type"] != 'dir')
+						window.location = fileConnector + '?mode=download&path=' + data['Path'];
+					break;
+					
+				case 'rename':
+					var newName = renameItem(data);
+					break;
+					
+				case 'delete':
+					deleteItem(data, function(){ void(0) });
+					break;
+			}
+		} else
+		{
+			$.prompt(data['Error']);
 		}
 	});
 }
