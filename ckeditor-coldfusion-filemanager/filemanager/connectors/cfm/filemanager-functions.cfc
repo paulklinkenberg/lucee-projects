@@ -10,6 +10,7 @@
  *  @version	2.0
  				1.1 April 25, 2010: Fixed some bugs and added some functionality
  				2.0 November 17, 2010: Lots of changes and bugfixes in the javascript code
+ 				2.0.1 February 26, 2011: Added debug text to the json output, if an error occured.
  *	@copyright	Authors
 ---><cfcomponent output="no" hint="functions for the cfml filemanager connector">
 	
@@ -42,9 +43,13 @@
 	<cffunction name="returnError" returntype="void" access="public">
 		<cfargument name="str" required="yes" type="string" />
 		<cfargument name="textarea" type="boolean" required="no" default="false" />
+		<cfargument name="debugText" required="no" type="string" />
 		<cfset var returnData_struct = structNew() />
 		<cfset structInsert(returnData_struct, "Error", arguments.str) />
 		<cfset structInsert(returnData_struct, "Code", -1) />
+		<cfif structKeyExists(arguments, "debugText")>
+			<cfset structInsert(returnData_struct, "DebugData", arguments.debugText) />
+		</cfif>
 		<cfset _doOutput(jsonData=returnData_struct, textarea=arguments.textarea) />
 	</cffunction>
 	
@@ -88,7 +93,7 @@
 			<cftry>
 				<cfdirectory action="delete" directory="#absPath#" />
 				<cfcatch>
-					<cfset returnError(translate('DIRECTORY_NOT_DELETED', arguments.path)) />
+					<cfset returnError(translate('DIRECTORY_NOT_DELETED', arguments.path), false, cfcatch.message & " - " & cfcatch.detail) />
 				</cfcatch>
 			</cftry>
 		<cfelse>
@@ -100,7 +105,7 @@
 			<cftry>
 				<cffile action="delete" file="#absPath#" />
 				<cfcatch>
-					<cfset returnError(translate('FILE_NOT_DELETED', arguments.path)) />
+					<cfset returnError(translate('FILE_NOT_DELETED', arguments.path, cfcatch.message & " - " & cfcatch.detail)) />
 				</cfcatch>
 			</cftry>
 			<cfset _clearImageInfoCache(arguments.path) />
@@ -158,7 +163,7 @@
 		<cftry>
 			<cfdirectory action="list" directory="#dirPath#" name="dirlist_qry" sort="type,name" filter="#arguments.filter#" />
 			<cfcatch>
-				<cfset returnError(translate('UNABLE_TO_OPEN_DIRECTORY', arguments.path)) />
+				<cfset returnError(translate('UNABLE_TO_OPEN_DIRECTORY', arguments.path, cfcatch.message & " - " & cfcatch.detail)) />
 			</cfcatch>
 		</cftry>
 		
@@ -225,7 +230,7 @@
 				<cftry>
 					<cfdirectory action="rename" directory="#oldDirPath#" newdirectory="#arguments.newName#" />
 					<cfcatch>
-						<cfset returnError(translate('ERROR_RENAMING_DIRECTORY', arguments.oldPath, arguments.newName)) />
+						<cfset returnError(translate('ERROR_RENAMING_DIRECTORY', arguments.oldPath, arguments.newName), false, cfcatch.message & " - " & cfcatch.detail) />
 					</cfcatch>
 				</cftry>
 			</cfif>
@@ -247,7 +252,7 @@
 					<cffile action="rename" source="#oldDirPath#" destination="#parentDirPath##arguments.newName#" />
 					<cfcatch>
 					<cfrethrow />
-						<cfset returnError(translate('ERROR_RENAMING_FILE', arguments.oldPath, arguments.newName)) />
+						<cfset returnError(translate('ERROR_RENAMING_FILE', arguments.oldPath, arguments.newName), false, cfcatch.message & " - " & cfcatch.detail) />
 					</cfcatch>
 				</cftry>
 				<cfset _clearImageInfoCache(arguments.oldPath) />
@@ -281,7 +286,7 @@
 		<cftry>
 			<cfdirectory action="create" directory="#newDirPath#" recurse="no" />
 			<cfcatch>
-				<cfset returnError(translate('UNABLE_TO_CREATE_DIRECTORY', arguments.dirname)) />
+				<cfset returnError(translate('UNABLE_TO_CREATE_DIRECTORY', arguments.dirname), false, cfcatch.message & " - " & cfcatch.detail) />
 			</cfcatch>
 		</cftry>
 		
@@ -304,12 +309,13 @@
 		<cfset var loopCounter_num = 0 />
 		<cfset var returnData_struct = structNew() />
 		<cfset var imageData = "" />
+		<cfset var cfcatch = "" />
 
 		<!--- upload the file --->
 		<cftry>
 			<cffile action="upload" destination="#getTempDirectory()#" filefield="#formfieldname#" nameconflict="makeunique" result="file_struct" />
 			<cfcatch>
-				<cfset returnError(str=translate('INVALID_FILE_UPLOAD'), textarea=arguments.textarea) />
+				<cfset returnError(str=translate('INVALID_FILE_UPLOAD'), textarea=arguments.textarea, debugText=cfcatch.message & " - " & cfcatch.detail) />
 			</cfcatch>
 		</cftry>
 		<!--- check for max file size --->
