@@ -40,7 +40,7 @@
 			<cfif findNoCase('<ResultCode>-20</ResultCode>', domains_xml)>
 				<cfset args = structNew() />
 				<cfset structInsert(args, "domainName", listLast(session.username, '@')) />
-				<cfset temp = variables.smartermail_obj.callWs(page='svcDomainAdmin', method='GetDomainInfo', args) />
+				<cfset temp = variables.smartermail_obj.callWs(page='svcDomainAdmin', method='GetDomainInfo', args=args) />
 				<!---  if we got a succesfull response, then create a bogus xml so we'll use the user's domain name in the rest of the pages. --->
 				<cfif find("<ResultCode>0</ResultCode>", temp)>
 					<cfset domains_xml = "<GetAllDomainsResult><ResultCode>0</ResultCode><DomainNames><string>#listLast(session.username, '@')#</string></DomainNames></GetAllDomainsResult>" />
