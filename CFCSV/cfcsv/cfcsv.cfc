@@ -311,18 +311,19 @@
 		<cfargument name="delimiter" type="string" required="false" default="," hint="I am the field delimiter (line delimiter is assumed to be new line / carriage return)." />
 		<cfargument name="textqualifier" type="string" required="false" default="""" hint="I am the text/string qualifier" />
 		<cfargument name="includeColumnNames" type="boolean" default="true" hint="Create a first line with the column names?" />
-		<cfset var local = {csvData="", columnNames=getQueryColumnList(arguments.q)} />
-		
+		<cfset var local = {} />
+		<cfset local.csvData="" />
+		<cfset local.columnNames=getQueryColumnList(arguments.q) />
 		<cfsavecontent variable="local.csvData"><!---
 			---><cfif arguments.includeColumnNames><!--- 
 				---><cfset local.delim = "" /><!---
 				 ---><cfloop list="#local.columnNames#" index="local.colName"><!--- 
-					--->#local.delim##qualifyWhenNeeded(local.colName, arguments.textqualifier, arguments.delimiter)#<!---
+					---><cfoutput>#local.delim##qualifyWhenNeeded(local.colName, arguments.textqualifier, arguments.delimiter)#</cfoutput><!---
 					---><cfset local.delim = arguments.delimiter /><!---
 				---></cfloop><!--- 
 			---></cfif><!--- 
 			
-			---><cfoutput query="arguments.q">#server.separator.file#<!---
+			---><cfoutput query="arguments.q">#server.separator.line#<!---
 				---><cfset local.delim = "" /><!---
 				---><cfloop list="#local.columnNames#" index="local.colName">#local.delim##qualifyWhenNeeded(arguments.q[local.colName][arguments.q.currentrow], arguments.textqualifier, arguments.delimiter)#<!---
 					---><cfset local.delim = arguments.delimiter /><!---
@@ -334,7 +335,7 @@
 	</cffunction>
 	
 	
-	<cffunction name="qualifyWhenNeeded" access="private" returntype="string">
+	<cffunction name="qualifyWhenNeeded" access="private" returntype="string" output="no">
 		<cfargument name="str" type="string" required="yes" />
 		<cfargument name="qualifier" type="string" required="no" default="""" />
 		<cfargument name="listdelimiter" type="string" required="no" default="," />

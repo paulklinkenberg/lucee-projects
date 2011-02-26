@@ -4,7 +4,8 @@
 	
 	This software is licensed under the BSD license. See http://www.opensource.org/licenses/bsd-license.php
 	Project page: http://www.railodeveloper.com/post.cfm/railo-custom-tag-cfcsv
-	Version: 1.0
+	Version: 1.0, 3 february 2011
+	
 	Copyright (c) 2011, Paul Klinkenberg (paul@ongevraagdadvies.nl)
 	All rights reserved.
 	
@@ -100,7 +101,7 @@
 			</cfif>
 			<cfif attributeExists("file")>
 				<cfif not fileExists(getAttribute("file"))>
-					<cfset var pathFromCaller = expandPath(getDirectoryFromPath(getParentTemplatePath()) & getAttribute("file")) />
+					<cfset var pathFromCaller = getDirectoryFromPath(getParentTemplatePath()) & getAttribute("file") />
 					<cfif fileExists(pathFromCaller)>
 						<cfset setAttribute("file", pathFromCaller) />
 					<cfelse>
@@ -128,7 +129,6 @@
 				</cfif>
 				<cfinvokeargument name="returnType" value="#outputFormat#" />
 			</cfinvoke>
-			<cfset _insertValueIntoCaller(arguments.caller, returnedData, false) />
 		<cfelseif action eq "create">
 			<cfset returnedData = CSVObj.queryToCSV(
 				q=getAttribute('query')
@@ -137,12 +137,13 @@
 				, includeColumnNames=getAttribute('includeColumnNames')
 			) />
 		</cfif>
+		<cfset _insertValueIntoCaller(arguments.caller, returnedData, false) />
 		
 		<cfreturn true />
 	</cffunction>
 
 
-	<cffunction name="onEndTag" output="yes" returntype="boolean">
+	<cffunction name="onEndTag" output="no" returntype="boolean">
 		<cfargument name="attributes" type="struct">
 		<cfargument name="caller" type="struct">				
   		<cfargument name="generatedContent" type="string">
@@ -156,7 +157,7 @@
 	
 
 
-	<cffunction name="_insertValueIntoCaller" access="private" returntype="void">
+	<cffunction name="_insertValueIntoCaller" access="private" returntype="void" output="no">
 		<cfargument name="caller" type="struct" required="yes" />
 		<cfargument name="value" type="any" required="yes" hint="The value to insert into the caller page" />
 		<cfargument name="optionalToSTDOUT" type="boolean" required="no" default="false" hint="If no 'variable' attr. is given, should we output the value to STDOUT or to a variable with the name of this tag" />
@@ -187,12 +188,17 @@
 		<cfreturn structKeyExists(variables.attributes, arguments.key) />
 	</cffunction>
 	
-	<cffunction name="getParentTemplatePath" returntype="string" access="private">
+	<cffunction name="getParentTemplatePath" returntype="string" access="private" output="no">
 		<cfset var cfcatch = "" />
+		<cfset var i = -1 />
 		<cftry>
 			<cfthrow message="anything" />
 			<cfcatch>
-				<cfreturn cfcatch.tagContext[2].template />
+				<cfloop from="2" to="#arrayLen(cfcatch.tagContext)#" index="i">
+					<cfif cfcatch.tagContext[i].template neq cfcatch.tagContext[1].template>
+						<cfreturn cfcatch.tagContext[i].template />
+					</cfif>
+				</cfloop>
 			</cfcatch>
 		</cftry>
 	</cffunction>
