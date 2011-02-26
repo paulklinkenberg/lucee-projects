@@ -3,10 +3,10 @@
  * smartermailapi.cfm, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/smartermail-api-wrapper-coldfusion
  *
- * Date: 2010-12-01 20:19:00 +0100
- * Revision: 1.2
+ * Date: 2011-02-26 01:13:00 +0100
+ * Revision: 1.3.0
  *
- * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
+ * Copyright (c) 2011 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
  *
  *    This program is free software: you can redistribute it and/or modify
