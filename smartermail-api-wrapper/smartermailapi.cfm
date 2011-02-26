@@ -38,7 +38,9 @@
 			<cfset domains_xml = variables.smartermail_obj.callWs(page='svcDomainAdmin', method='GetAllDomains') />
 			<!--- -20=No permissions. Maybe we do have a domain admin here... --->
 			<cfif findNoCase('<ResultCode>-20</ResultCode>', domains_xml)>
-				<cfset temp = variables.smartermail_obj.callWs(page='svcDomainAdmin', method='GetDomainInfo', domainName=listLast(session.username, '@')) />
+				<cfset args = structNew() />
+				<cfset structInsert(args, "domainName", listLast(session.username, '@')) />
+				<cfset temp = variables.smartermail_obj.callWs(page='svcDomainAdmin', method='GetDomainInfo', args) />
 				<!---  if we got a succesfull response, then create a bogus xml so we'll use the user's domain name in the rest of the pages. --->
 				<cfif find("<ResultCode>0</ResultCode>", temp)>
 					<cfset domains_xml = "<GetAllDomainsResult><ResultCode>0</ResultCode><DomainNames><string>#listLast(session.username, '@')#</string></DomainNames></GetAllDomainsResult>" />
