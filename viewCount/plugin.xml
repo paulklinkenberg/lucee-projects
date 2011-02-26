@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="nl.coldfusiondeveloper.mango.plugins.viewCount" name="viewCount" version="1.4" provider-name="Paul Klinkenberg" class="viewCount.PluginHandler">
+<plugin id="nl.coldfusiondeveloper.mango.plugins.viewCount" name="viewCount" version="1.5" provider-name="Paul Klinkenberg" class="viewCount.PluginHandler">
 	<description><![CDATA[ Shows the number of times a blog post has been viewed.<br />Code created by Paul Klinkenberg, <a href="http://www.railodeveloper.com/" target="_blank">www.railodeveloper.com</a> ]]></description>
-	<requiresVersion match="greaterOrEqual">0.1</requiresVersion>
+	<requiresVersion match="greaterOrEqual">1.5</requiresVersion>
 	<listens>
 		<event name="beforePostContentEnd" type="synch" priority="5" />
 		<event name="showViewCount" type="synch" priority="5" />

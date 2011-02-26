@@ -90,32 +90,33 @@
 			<cfset arguments.event.addLink(link) />
 		<!--- show the viewCounts in the admin posts overview --->
 		<cfelseif listFindNoCase("postsNav,customPostsNav", eventName)>
-			<!--- get all viewcounts --->
-			<cfset viewCounts_qry = getViewCounts() />
-			
-			<!--- create javascript to inject the counts into the existing table --->
-			<cfsavecontent variable="javascript_str"><cfoutput>
-				<script type="text/javascript">
-					$(function(){
-						var counts = {0:0<cfloop query="viewCounts_qry">, '#id#':#viewCount#</cfloop>};
-						var $postsTRs = $('##content tr');
-						$postsTRs.each(function()
-						{
-							var $a = $('a:first', this);
-							if ($a.length)
+			<cfif cgi.SCRIPT_NAME eq "/admin/posts.cfm">
+				<!--- get all viewcounts --->
+				<cfset viewCounts_qry = getViewCounts() />
+				
+				<!--- create javascript to inject the counts into the existing table --->
+				<cfsavecontent variable="javascript_str"><cfoutput>
+					<script type="text/javascript">
+						$(function(){
+							var counts = {0:0<cfloop query="viewCounts_qry">, '#id#':#viewCount#</cfloop>};
+							var $postsTRs = $('##content tr');
+							$postsTRs.each(function()
 							{
-								var id = $a.get(0).href.replace(/^.*?[\?;&]id=([0-9A-F-]+).*$/i, "$1");
-								var td = "<td style=\"text-align:right\">" + counts[id] + "</td>";
-							} else
-								var td = "<th>Views</th>";
-							$(this).append($(td).addClass($a.parent().attr('class')));
+								var $a = $('a:first', this);
+								if ($a.length)
+								{
+									var id = $a.get(0).href.replace(/^.*?[\?;&]id=([0-9A-F-]+).*$/i, "$1");
+									var td = "<td style=\"text-align:right\">" + counts[id] + "</td>";
+								} else
+									var td = "<th>Views</th>";
+								$(this).append($(td).addClass($a.parent().attr('class')));
+							});
 						});
-					});
-				</script>
-			</cfoutput></cfsavecontent>
-			<!--- add javascript to the page --->
-			<cfhtmlhead text="#javascript_str#" />
-			
+					</script>
+				</cfoutput></cfsavecontent>
+				<!--- add javascript to the page --->
+				<cfhtmlhead text="#javascript_str#" />
+			</cfif>
 		<!--- admin event --->
 		<cfelseif eventName eq "showViewCountSettings">
 			<cfif variables.manager.isCurrentUserLoggedIn()>
