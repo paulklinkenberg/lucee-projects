@@ -54,7 +54,7 @@
 		<cfset var eventName = arguments.event.getName() />
 		<cfset var currentEmail = "" />
 		<cfset var settingsPageUrl = "#cgi.SCRIPT_NAME#?event=showHoneypotSpamBlockerSettings&amp;owner=HoneypotSpamBlocker&amp;selected=showHoneypotSpamBlockerSettings" />
-		
+		<cfset var currentNr = -1 />
 
 		<cfif refindNoCase("^before.*template", eventName)>
 			<cfif structKeyExists(form, "testHoneypotSpamBlocker") and structKeyExists(form, "testIP")>

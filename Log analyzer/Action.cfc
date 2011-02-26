@@ -146,7 +146,7 @@
 	<cffunction name="list" output="no" hint="analyze the logfile">
 		<cfargument name="lang" type="struct">
 		<cfargument name="app" type="struct">
-		<cfargument name="req" type="struct">
+		<cfargument name="req" type="struct" required="yes" />
 		<cfset var i        = 0>
 		<cfset var j        = 0>
 		<cfset var stErrors = StructNew()>
@@ -154,6 +154,7 @@
 		<cfset var aDump    = ArrayNew(1)>
 		<cfset var sTmp     = "">
 		<cfset var st       = arrayNew(1)>
+		<cfset var aTmp		= "" />
 		
 		<!--- when viewing logs in the server admin, then a webID must be defined --->
 		<cfif request.admintype eq "server">
