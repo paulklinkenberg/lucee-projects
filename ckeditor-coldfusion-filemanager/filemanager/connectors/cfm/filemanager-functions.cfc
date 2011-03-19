@@ -5,12 +5,11 @@
  *	use for ckeditor filemanager plug-in by Core Five - http://labs.corefive.com/Projects/FileManager/
  *
  *	@license	MIT License
- *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/cfm-connector-for-ckeditor-corefive-Filemanager
- *  @date		November 17, 2010
- *  @version	2.0
+ *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/ckeditor-3-with-coldfusion-filemanager-version-2-0-for-free
+ *  @date		March 19, 2011
+ *  @version	2.1: Added support for network share storage; merged setting files into one Application.cfm; revised some internal functions (path checking etc.); fixed a bug with non-displayed error output when using Quick Upload (i.e. when uploading wrong file type, no error msg was returned) 
+ 				2.0 November 17, 2010: see change list at http://www.railodeveloper.com/post.cfm/ckeditor-3-with-coldfusion-filemanager-version-2-0-for-free
  				1.1 April 25, 2010: Fixed some bugs and added some functionality
- 				2.0 November 17, 2010: Lots of changes and bugfixes in the javascript code
- 				2.0.1 February 26, 2011: Added debug text to the json output, if an error occured.
  *	@copyright	Authors
 ---><cfcomponent output="no" hint="functions for the cfml filemanager connector">
 	
@@ -45,6 +44,11 @@
 		<cfargument name="textarea" type="boolean" required="no" default="false" />
 		<cfargument name="debugText" required="no" type="string" />
 		<cfset var returnData_struct = structNew() />
+
+		<cfif structKeyExists(url, "CKEditorFuncNum")>
+			<cfset _doCKEditorFunctionCall(UCase(arguments.str)) />
+		</cfif>
+		
 		<cfset structInsert(returnData_struct, "Error", arguments.str) />
 		<cfset structInsert(returnData_struct, "Code", -1) />
 		<cfif structKeyExists(arguments, "debugText")>
@@ -75,7 +79,7 @@
 		<cfset var isDir = _isDirectory(absPath) />
 		<cfset var dirlist_qry = "" />
 		<cfset var jsondata_struct = "" />
-		<cfset var shortenedWebPath = replaceNoCase(arguments.path, request.uploadWebRoot, "/") />
+		<cfset var shortenedWebPath = _getWebPath(path=absPath, includeUploadRoot=false) />
 		
 		<cfif isDir>
 			<!--- check if dir exists --->
@@ -122,8 +126,8 @@
 	<cffunction name="getInfo" returntype="void" access="public">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="getsize" type="boolean" required="no" default="true" />
-		<cfset var dirPath = _getParentPath(arguments.path) />
-		<cfset var filename = listLast(arguments.path, "/") />
+		<cfset var dirPath = _getParentPath(_getPath(arguments.path)) />
+		<cfset var filename = listLast(arguments.path, "/\") />
 		<cfset var data_arr = _getDirectoryInfo(path=dirPath, getsizes=arguments.getsize, filter=filename) />
 		<cfset var key = "" />
 		
@@ -138,7 +142,8 @@
 	<cffunction name="getFolder" returntype="void" access="public">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="getsizes" type="boolean" required="no" default="true" />
-		<cfset var data_arr = _getDirectoryInfo(argumentcollection=arguments) />
+		<cfset var dirPath = _getPath(arguments.path) />
+		<cfset var data_arr = _getDirectoryInfo(dirPath, arguments.getsizes) />
 		
 		<cfset _doOutput(data_arr) />
 	</cffunction>
@@ -148,13 +153,13 @@
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="getsizes" type="boolean" required="yes" />
 		<cfargument name="filter" type="string" required="no" default="" />
-		<cfset var dirPath = _getPath(arguments.path) />
 		<cfset var dirlist_qry = "" />
 		<cfset var data_arr = arrayNew(1) />
 		<cfset var currData_struct = "" />
 		<cfset var imageData_struct = "" />
-		<cfset var webDirPath = _getWebPath(path) />
-		<cfset var displayWebPath = _getWebPath(path=arguments.path, includeUploadRoot=false) />
+		<cfset var dirPath = _getPath(arguments.path) />
+		<cfset var webDirPath = _getWebPath(dirPath) />
+		<cfset var displayWebPath = _getWebPath(path=dirPath, includeUploadRoot=false) />
 		
 		<cfif not DirectoryExists(dirPath)>
 			<cfset returnError(translate('DIRECTORY_NOT_EXIST', dirPath)) />
@@ -190,7 +195,7 @@
 				<cfset structInsert(currData_struct, "VisiblePath", displayWebPath & dirlist_qry.name) />
 				<cfset structInsert(currData_struct, "File Type", lCase(listlast(dirlist_qry.name, '.'))) />
 				<cfset structInsert(currData_struct.Properties, "Size", dirlist_qry.size) />
-				<cfif _isImage(dirlist_qry.directory & variables.separator & dirlist_qry.name)>
+				<cfif _isImage(dirlist_qry.name)>
 					<cfset structInsert(currData_struct, "Preview", webDirPath & dirlist_qry.name) />
 					<cfif arguments.getsizes>
 						<cfset imageData_struct = _getImageInfo(dirlist_qry.directory & variables.separator & dirlist_qry.name) />
@@ -255,7 +260,7 @@
 						<cfset returnError(translate('ERROR_RENAMING_FILE', arguments.oldPath, arguments.newName), false, cfcatch.message & " - " & cfcatch.detail) />
 					</cfcatch>
 				</cftry>
-				<cfset _clearImageInfoCache(arguments.oldPath) />
+				<cfset _clearImageInfoCache(oldDirPath) />
 			</cfif>
 		</cfif>
 
@@ -309,7 +314,7 @@
 		<cfset var loopCounter_num = 0 />
 		<cfset var returnData_struct = structNew() />
 		<cfset var imageData = "" />
-		<cfset var cfcatch = "" />
+		<cfset var newFilePath = "" />
 
 		<!--- upload the file --->
 		<cftry>
@@ -333,25 +338,26 @@
 			</cfif>
 		</cfif>
 		<cfset newFileName = rereplace(file_struct.serverfileName, "[^a-zA-Z0-9-_]+", "-", "all") & ".#file_struct.serverFileExt#" />
+		<cfset newFilePath = _getPath(arguments.path, newFileName) />
 		<!--- if overwriting an existing file --->
-		<cfif fileExists(_getPath(arguments.path, newFileName))>
+		<cfif fileExists(newFilePath)>
 			<cfif request.uploadCanOverwrite>
-				<cffile action="delete" file="#_getPath(arguments.path, newFileName)#" />
-				<cfset _clearImageInfoCache(arguments.path & newFileName) />
+				<cffile action="delete" file="#newFilePath#" />
+				<cfset _clearImageInfoCache(newFilePath) />
 			<cfelse>
-				<cfloop condition="fileExists(_getPath(arguments.path, newFileName))">
-					<cfset loopCounter_num=loopCounter_num+1 />
+				<cfloop condition="fileExists(newFilePath)">
+					<cfset loopCounter_num = loopCounter_num+1 />
 					<cfset newFileName = rereplace(newFileName, "(#loopCounter_num-1#)?\.", "#loopCounter_num#.") />
+					<cfset newFilePath = _getPath(arguments.path, newFileName) />
 				</cfloop>
 			</cfif>
-		</cfif>
 		<!--- create the destination directory if it does not exist yet --->
-		<cfif not DirectoryExists(_getPath(arguments.path))>
-			<cfdirectory action="create" directory="#_getPath(arguments.path)#" recurse="yes" />
+		<cfelseif not directoryExists(getDirectoryFromPath(newFilePath))>
+			<cfdirectory action="create" directory="#getDirectoryFromPath(newFilePath)#" recurse="yes" />
 		</cfif>
 		<!--- move the file from Temp to the actual dir. --->
 		<cffile action="move" source="#file_struct.serverDirectory##variables.separator##file_struct.serverFile#"
-		destination="#_getPath(arguments.path, newFileName)#" />
+		destination="#newFilePath#" />
 		
 		<!--- response to client --->
 		<cfif arguments.textarea>
@@ -363,15 +369,20 @@
 			<cfset _doOutput(jsondata=returnData_struct, textarea=true) />
 		<!--- hacker-the-hack: a quick fix for the Quick-upload function within CKEDITOR. --->
 		<cfelse>
-			<cfcontent type="text/html" reset="yes" />
-			<cfoutput><script type="text/javascript">
-				window.parent.CKEDITOR.tools.callFunction(#url.CKEditorFuncNum#, '#jsStringFormat(_getWebPath(arguments.path, newFilename))#');
-			</script></cfoutput>
-			<cfabort />
+			<cfset _doCKEditorFunctionCall(_getWebPath(newFilePath)) />
 		</cfif>
 	</cffunction>
 	
 	
+	<cffunction name="_doCKEditorFunctionCall" returntype="void" access="private">
+		<cfcontent type="text/html" reset="yes" />
+		<cfoutput><script type="text/javascript">
+			window.parent.CKEDITOR.tools.callFunction(#url.CKEditorFuncNum#, '#jsStringFormat(arguments[1])#');
+		</script></cfoutput>
+		<cfabort />
+	</cffunction>
+
+
 	<cffunction name="_getPath" access="private" returntype="string">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="filename" type="string" required="no" default="" />
@@ -381,34 +392,38 @@
 		
 		<!--- if the given (web) path starts with the upload webroot--->
 		<cfif findNoCase(request.uploadWebRoot, arguments.path) eq 1>
-			<cfset newPath_str = request.uploadRootPath & variables.separator & replaceNoCase(arguments.path, request.uploadWebRoot, "/") />
+			<!--- make sure we set the slashes into the right direction --->
+			<cfset newPath_str = request.uploadRootPath & rereplace(replaceNoCase(arguments.path, request.uploadWebRoot, ""), "[/\\]+", variables.separator, "all") />
+		<cfelseif findNoCase(request.uploadRootPath, arguments.path) eq 1>
+			<cfset newPath_str = rereplace(arguments.path, "[/\\]+", variables.separator, "all") />
 		<cfelse>
-			<cfset newPath_str = request.uploadRootPath & variables.separator & arguments.path />
+			<cfset newPath_str = rereplace(request.uploadRootPath, '[\\/]$', '') & rereplace(variables.separator & arguments.path, "[/\\]+", variables.separator, "all") />
 		</cfif>
 		
-		<cfif len(filename)>
-			<cfset newPath_str = newPath_str & variables.separator & arguments.filename />
-		<!--- if not a specific file given, check if the given path ends with a slash or a name with a dot in it --->
-		<cfelseif not refind("[/\\][^/\\\.]+$", newPath_str)>
+		<cfif len(arguments.filename)>
+			<cfif right(newPath_str, 1) neq variables.separator>
+				<cfset newPath_str = newPath_str & variables.separator />
+			</cfif>
+			<cfset newPath_str = newPath_str & arguments.filename />
+		<!--- if not a specific file given, check if there is a directory name at the end of the path --->
+		<cfelseif refind("[/\\][^/\\\.]+$", newPath_str)>
 			<cfset newPath_str = newPath_str & variables.separator />
 		</cfif>
-		<cfset newPath_str = rereplace(newPath_str, '[/\\]+', variables.separator, "all") />
 		<cfreturn newPath_str />
 	</cffunction>
 	
 
-	<cffunction name="_getWebPath" access="private" returntype="string" output="no">
+	<cffunction name="_getWebPath" access="private" returntype="string" output="no" hint="Expects a path validated by _getPath()">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="filename" type="string" required="no" default="" />
 		<cfargument name="includeUploadRoot" type="boolean" required="no" default="true" />
 		<cfset var webPath = "" />
-		<!--- remove any "../" and "..\" from the given path --->
-		<cfset arguments.path = rereplace(arguments.path, "\.\.+([/\\])", "\1", "all") />
-		<cfif findNoCase(request.uploadWebRoot, arguments.path) eq 1>
+		<cfif len(arguments.fileName)>
 			<cfset webPath = arguments.path & variables.separator & arguments.filename />
 		<cfelse>
-			<cfset webPath = request.uploadWebRoot & variables.separator & arguments.path & variables.separator & arguments.filename />
+			<cfset webPath = arguments.path />
 		</cfif>
+		<cfset webPath = replaceNoCase(webPath, request.uploadRootPath, "#request.uploadWebRoot#/") />
 		<cfset webpath = rereplace(webPath, "[/\\]+", "/", "all") />
 		<cfif not arguments.includeUploadRoot>
 			<cfset webPath = replaceNoCase(webPath, request.uploadWebRoot, "/") />
@@ -440,7 +455,7 @@
 				</cfcatch>
 			</cftry>
 			<!--- workaround for railobug #611: https://jira.jboss.org/jira/browse/RAILO-611 --->
-			<cfif structKeyExists(server, "Railo")>
+			<cfif structKeyExists(server, "Railo") and server.railo.version lt "3.2.0.002">
 				<cfset cfimage_struct = duplicate(cfimage_struct) />
 			</cfif>
 			<cfset structInsert(imageData_struct, "Width", cfimage_struct.width) />
@@ -463,12 +478,7 @@
 
 	<cffunction name="_isDirectory" access="private" returntype="boolean">
 		<cfargument name="absPath" type="string" required="yes" />
-		<cfset var parentPath = _getParentPath(arguments.absPath) />
-		<cfset var fileOrDirName = listlast(arguments.absPath, variables.separator) />
-		<cfset var dirList_qry = "" />
-		<!--- check if it is a directory --->
-		<cfdirectory action="list" name="dirList_qry" directory="#parentPath#" filter="#fileOrDirName#" />
-		<cfreturn (dirlist_qry.recordcount and dirList_qry.type eq "DIR") />
+		<cfreturn directoryExists(arguments.absPath) />
 	</cffunction>
 
 
