@@ -1,16 +1,16 @@
 <!---
  *	Filemanager CFM connector
  *
- *	filemanager.config.cfm
+ *	Application.cfm
  *	use for ckeditor filemanager plug-in by Core Five - http://labs.corefive.com/Projects/FileManager/
  *
  *	@license	MIT License
  *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/ckeditor-3-with-coldfusion-filemanager-version-2-0-for-free
  *  @date		March 19, 2011
  *  @version	2.1: Added support for network share storage; merged setting files into one Application.cfm; revised some internal functions (path checking etc.); fixed a bug with non-displayed error output when using Quick Upload (i.e. when uploading wrong file type, no error msg was returned) 
+ 				2.0.1 February 26, 2011: Added debug text to the json output, if an error occured.
  				2.0 November 17, 2010: see change list at http://www.railodeveloper.com/post.cfm/ckeditor-3-with-coldfusion-filemanager-version-2-0-for-free
  				1.1 April 25, 2010: Fixed some bugs and added some functionality
- 				2.0 November 17, 2010: Lots of changes and bugfixes in the javascript code
  *	@copyright	Authors
 --->
 <cfapplication name="app_#hash(getCurrentTemplatePath())#" applicationtimeout="#createTimeSpan(1,0,0,0)#" sessionmanagement="no" clientmanagement="no" />
@@ -38,7 +38,9 @@ You can reload it by calling yoursite.com/ckeditor/filemanager/connectors/cfm/fi
 <!--- If a file is uploaded with a name which already exists, should we rename it or overwrite it? --->
 <cfset request.uploadCanOverwrite = true />
 <!--- this path must start with a "/", so it is always calculated from your website's root. --->
+<!--- the web path to the root upload directory --->
 <cfset request.uploadWebRoot = "/uploads/" />
+<!--- the absolute path to the root upload directory --->
 <cfset request.uploadRootPath = expandPath(request.uploadWebRoot) />
 
 <!--- icons --->

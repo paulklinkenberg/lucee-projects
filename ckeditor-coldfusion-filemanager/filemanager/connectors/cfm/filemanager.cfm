@@ -5,11 +5,12 @@
  *	use for ckeditor filemanager plug-in by Core Five - http://labs.corefive.com/Projects/FileManager/
  *
  *	@license	MIT License
- *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/cfm-connector-for-ckeditor-corefive-Filemanager
- *  @date		November 17, 2010
- *  @version	2.0
+ *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/ckeditor-3-with-coldfusion-filemanager-version-2-0-for-free
+ *  @date		March 19, 2011
+ *  @version	2.1: Added support for network share storage; merged setting files into one Application.cfm; revised some internal functions (path checking etc.); fixed a bug with non-displayed error output when using Quick Upload (i.e. when uploading wrong file type, no error msg was returned) 
+ 				2.0.1 February 26, 2011: Added debug text to the json output, if an error occured.
+ 				2.0 November 17, 2010: see change list at http://www.railodeveloper.com/post.cfm/ckeditor-3-with-coldfusion-filemanager-version-2-0-for-free
  				1.1 April 25, 2010: Fixed some bugs and added some functionality
- 				2.0 November 17, 2010: Lots of changes and bugfixes in the javascript code
  *	@copyright	Authors
 --->
 <cfif not isAllowed()>
