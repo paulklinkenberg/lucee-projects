@@ -6,43 +6,23 @@ By Tjarko Rikkerink (http://carlosgallupa.com/)
 Modified by Paul Klinkenberg for the Filemanager CFM connector
  *
  *	@license	MIT License
- *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/cfm-connector-for-ckeditor-corefive-Filemanager
- *  @date		February 28, 2010
- *  @version	1.0
+ *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/ckeditor-3-with-coldfusion-filemanager-version-2-0-for-free
+ *  @date		March 19, 2011
+ *  @version	2.1: Added support for network share storage; merged setting files into one Application.cfm; revised some internal functions (path checking etc.); fixed a bug with non-displayed error output when using Quick Upload (i.e. when uploading wrong file type, no error msg was returned) 
+ 				2.0.1 February 26, 2011: Added debug text to the json output, if an error occured.
+ 				2.0 November 17, 2010: see change list at http://www.railodeveloper.com/post.cfm/ckeditor-3-with-coldfusion-filemanager-version-2-0-for-free
+ 				1.1 April 25, 2010: Fixed some bugs and added some functionality
  *	@copyright	Authors
----><!---
-
-		!!!!!!!!!!!!!!SECURITY INSTRUCTIONS!!!!!!!!!!
-The script underneath can potentially list all the files within your webroot. This is a pretty big security issue.
-So you have to tell this script which starting directory within your webroot to use.
-
-To do that, add the following line to your Application.cfm/cfc file:
-
-	<cfset variables.jqueryFileTree_webroot = "/the-allowed-root-folder/" />
-
-If you want to allow all files within your website, then use: 
-
-	<cfset variables.jqueryFileTree_webroot = "/" />
----><cfcontent reset="yes" />
+---><cfcontent reset="yes" type="text/html" />
 <cfif not structKeyExists(variables, "jqueryFileTree_webroot")>
 	<ul class="jqueryFileTree">
-		<li style="color:red;font-size:10px;">CFM developer: see <cfoutput>#rereplace(getCurrentTemplatePath(), "([/\\])", "\1 ", "all")#</cfoutput> for security instructions!</li>
+		<li style="color:red;font-size:10px;">CFM developer: see Application.cfm for security instructions!</li>
 	</ul>
 	<cfabort />
 </cfif>
 <cfif structKeyExists(form, 'dir') and len(form.dir)>
-	<!--- remove references to underlying directories (to prevent listing unwanted directories) --->
-	<cfset form.dir = rereplace(URLDecode(form.dir), "\.\.[/\\]", "", "all") />
-	<!--- check if the allowed webroot is included in the given form.dir--->
-	<cfif findNoCase(variables.jqueryFileTree_webroot, form.dir) eq 1>
-		<cfset variables.absDirectory = expandPath(form.dir) />
-		<cfset form.dir = replaceNoCase(form.dir, variables.jqueryFileTree_webroot, "/") />
-	<cfelse>
-		<cfset variables.absDirectory = expandPath(variables.jqueryFileTree_webroot & form.dir) />
-	</cfif>
-	<cfif right(form.dir, 1) neq "/">
-		<cfset form.dir = form.dir & "/" />
-	</cfif>
+	<cfset variables.absDirectory = application.filemanager_obj.getFullPath(form.dir) />
+	<cfset variables.webDirectory = application.filemanager_obj.getWebPath(variables.absDirectory) />
 	
 	<cftry>
 		<cfdirectory action="LIST" directory="#variables.absDirectory#" name="qDir" sort="type, name" />
@@ -57,9 +37,9 @@ If you want to allow all files within your website, then use:
 		</cfif>
 		<cfoutput query="qDir"><cfif find(".", qDir.name) neq 1>
 			<cfif type eq "dir">
-				<li class="directory collapsed"><a href="##" rel="#form.dir##name#/">#name#</a></li>
+				<li class="directory collapsed"><a href="##" rel="#webDirectory##name#/">#name#</a></li>
 			<cfelseif type eq "file">
-				<li class="file ext_#lCase(listLast(name,'.'))#"><a href="##" rel="#form.dir##name#">#name# (#round(size/1024)#KB)</a></li>
+				<li class="file ext_#lCase(listLast(name,'.'))#"><a href="##" rel="#webDirectory##name#">#name# (#round(size/1024)#KB)</a></li>
 			</cfif>
 		</cfif></cfoutput>
 	</ul>

@@ -8,6 +8,7 @@
  *	@author		Paul Klinkenberg, www.railodeveloper.com/post.cfm/ckeditor-3-with-coldfusion-filemanager-version-2-0-for-free
  *  @date		March 19, 2011
  *  @version	2.1: Added support for network share storage; merged setting files into one Application.cfm; revised some internal functions (path checking etc.); fixed a bug with non-displayed error output when using Quick Upload (i.e. when uploading wrong file type, no error msg was returned) 
+ 				2.0.1 February 26, 2011: Added debug text to the json output, if an error occured.
  				2.0 November 17, 2010: see change list at http://www.railodeveloper.com/post.cfm/ckeditor-3-with-coldfusion-filemanager-version-2-0-for-free
  				1.1 April 25, 2010: Fixed some bugs and added some functionality
  *	@copyright	Authors
@@ -157,7 +158,7 @@
 		<cfset var data_arr = arrayNew(1) />
 		<cfset var currData_struct = "" />
 		<cfset var imageData_struct = "" />
-		<cfset var dirPath = _getPath(arguments.path) />
+		<cfset var dirPath = (arguments.path) />
 		<cfset var webDirPath = _getWebPath(dirPath) />
 		<cfset var displayWebPath = _getWebPath(path=dirPath, includeUploadRoot=false) />
 		
@@ -382,7 +383,14 @@
 		<cfabort />
 	</cffunction>
 
-
+	
+	<cffunction name="getFullPath" access="public" returntype="string" output="no">
+		<cfreturn _getPath(arguments[1]) />
+	</cffunction>
+	<cffunction name="getWebPath" access="public" returntype="string" output="no">
+		<cfreturn _getWebPath(arguments[1]) />
+	</cffunction>
+	
 	<cffunction name="_getPath" access="private" returntype="string">
 		<cfargument name="path" type="string" required="yes" />
 		<cfargument name="filename" type="string" required="no" default="" />
