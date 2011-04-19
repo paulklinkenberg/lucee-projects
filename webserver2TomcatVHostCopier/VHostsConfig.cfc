@@ -4,8 +4,8 @@
  * VHostsConfig.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2011-02-22 22:44:00 +0100
- * Revision: 0.3.03
+ * Date: 2011-04-18 23:12:00 +0100
+ * Revision: 0.4.00
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -59,23 +59,9 @@
 	<cffunction name="handleError" access="public" returntype="void">
 		<cfargument name="msg" type="string" required="yes" />
 		<cfargument name="type" type="string" required="no" default="WARNING" />
-		<!--- rotate logs, max. 3--->
-		<cfset var qLogFileSize = "" />
-		<cfdirectory action="list" directory="." filter="parserLog.log" name="qLogFileSize" />
-		<cfloop query="qLogFileSize">
-			<cfif int(qLogFileSize.size) gt 500*1024>
-				<cfif fileExists('parserLog3.log')>
-					<cfset fileDelete('parserLog3.log') />
-				</cfif>
-				<cfif fileExists('parserLog2.log')>
-					<cffile action="rename" source="parserLog2.log" destination="parserLog3.log"  />
-				</cfif>
-				<cffile action="rename" source="parserLog.log" destination="parserLog2.log"  />
-			</cfif>
-			<cfbreak />
-		</cfloop>
-		<!--- write log file --->
-		<cffile action="append" file="parserLog.log" output="#dateformat(now(), 'dd-mm-yyyy')# #timeformat(now(), 'HH:mm:ss')#	#arguments.type#	#arguments.msg#" addnewline="yes" fixnewline="yes" />
+		<cfset var cflogfilename = "VHostCopier" />
+		
+		<cflog file="#cflogfilename#" type="#arguments.type#" text="#arguments.msg#" />
 		
 		<!--- CRITICAL? Abort the operation, and optionally send debug mail --->
 		<cfif arguments.type eq "CRIT">
@@ -87,20 +73,21 @@
 				<cfelse>
 					<cfset var numMailsSent = 0 />
 				</cfif>
-				<cfif numMailsSent lt 10>
+				<cfif numMailsSent lt 20>
 					<cfset fileWrite(mailsSentCounterFile, ++numMailsSent) />
 					
-					<cfmail to="#variables.errorMailTo#" from="#variables.errorMailTo#" subject="VHostParser error" type="html"><!---
-						---><cfmailparam file="parserLog.log" /><!---
-						also send the previous logfile, since it might have been backed up just now
-						---><cfif fileExists('parserLog2.log')><cfmailparam file="parserLog2.log" /></cfif>
+					<cfmail to="#variables.errorMailTo#" from="#variables.errorMailTo#" subject="VHostParser error" type="html">
 						Date: #now()#<br />
 						<cfdump var="#getConfig()#" label="config" />
-						<cfdump var="#form#" label="form data" />
+						<cfdump eval=arguments />
+						<cfif isDefined("form")>
+							<cfdump var="#form#" label="form data" />
+						</cfif>
 					</cfmail>
 					<cfoutput>Debug mail for this critical error has been sent to the developer<br /></cfoutput>
 				<cfelse>
-					<cffile action="append" file="parserLog.log" output="#dateformat(now(), 'dd-mm-yyyy')# #timeformat(now(), 'HH:mm:ss')#	The maximum amount of debug mails has been reached. No mail was sent." addnewline="yes" fixnewline="yes" />
+					<cflog file="#cflogfilename#" type="WARNING"
+						text="The maximum amount of debug mails has been reached. No mail was sent." />
 				</cfif>
 			</cfif>
 			<cfoutput><p style="color:red;">CRITICAL ERROR: #msg#</p>
