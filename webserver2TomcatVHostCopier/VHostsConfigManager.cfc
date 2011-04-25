@@ -134,7 +134,7 @@
 			<cfset filepath = replaceNoCase(filepath, "%systemroot%", systemroot) />
 			<cfset filepath = replaceNoCase(filepath, "%systemDrive%", left(systemroot, 1)) />
 			<cfif find("%", filepath)>
-				<cfset handleError(msg="Fnc getAbsPath(): Filepath could not be translated: #filepath#", type="CRIT") />
+				<cfset handleError(msg="Fnc getAbsPath(): Filepath could not be translated: #filepath#", type="fatal") />
 			</cfif>
 		</cfif>
 		<!--- if already an abs path, return --->
@@ -142,7 +142,7 @@
 			<cfreturn filePath />
 		</cfif>
 		<cfif not structKeyExists(arguments, "currentPath")>
-			<cfset handleError(msg="Fnc getAbsPath(): given filepath is not absolute, but no 'currentPath' argument was given to calculate the abs path! (filepath=#filepath#)", type="CRIT") />
+			<cfset handleError(msg="Fnc getAbsPath(): given filepath is not absolute, but no 'currentPath' argument was given to calculate the abs path! (filepath=#filepath#)", type="fatal") />
 		</cfif>
 		
 		<cfset var fullPath = rereplace(GetDirectoryFromPath(currentPath) & "/" & filePath, '[\\/]+', '/', 'all') />

@@ -4,8 +4,8 @@
  * ApacheConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2011-04-19 17:57:00 +0100
- * Revision: 0.4.01
+ * Date: 2011-04-25 15:51:00 +0100
+ * Revision: 0.4.02
  *
  * Copyright (c) 2010 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -48,7 +48,7 @@
 		<cfset var loopcounter = 0 />
 		<cfloop condition="refind(includeLineRegex, httpdContents)">
 			<cfif ++loopcounter gt 50>
-				<cfset handleError(msg="Infinite loop seems to occur with the following filecontent:#chr(13)##httpdContents#", type="CRIT") />
+				<cfset handleError(msg="Infinite loop seems to occur with the following filecontent:#chr(13)##httpdContents#", type="fatal") />
 			</cfif>
 			
 			<cfset regexFoundPos = refind(includeLineRegex, httpdContents, 1, true) />
@@ -85,7 +85,7 @@
 				<cfset loopcounter2 = 0 />
 				<cfloop condition="refind(includeLineRegex, includeFileContents)">
 					<cfif ++loopcounter2 gt 50>
-						<cfset handleError(msg="Infinite loop seems to occur with the following filecontent (main file=#mainIncludeFilePath#):#chr(13)##includeFileContents#", type="CRIT") />
+						<cfset handleError(msg="Infinite loop seems to occur with the following filecontent (main file=#mainIncludeFilePath#):#chr(13)##includeFileContents#", type="fatal") />
 					</cfif>
 					<cfset regexFoundPos = refind(includeLineRegex, includeFileContents, 1, true) />
 					<cfset subIncludeFilePath = mid(includeFileContents, regexFoundPos.pos[3], regexFoundPos.len[3]) />
@@ -99,7 +99,7 @@
 				<cfset httpdContents = rereplace(httpdContents, includeLineRegex & "[^\r\n]*", "#chr(10)### THE CONTENTS OF \1 HAS BEEN INCLUDED UNDERNEATH HERE#chr(10)#ADD-SUB-CONTENTS-HERE-8291543056278252165") />
 				<cfset httpdContents = replace(httpdContents, "ADD-SUB-CONTENTS-HERE-8291543056278252165", includeFileContents) />
 			<cfelse>
-				<cfset handleError(msg="In the httpd.conf file, the Include path '#mainIncludeFilePath#' does not exist?!", type="CRIT") />
+				<cfset handleError(msg="In the httpd.conf file, the Include path '#mainIncludeFilePath#' does not exist?!", type="fatal") />
 			</cfif>
 		</cfloop>
 		
@@ -116,7 +116,7 @@
 			<cfset var defaultWebroot = rereplace(httpdContents, "(.*\n|^)[\t ]*DocumentRoot[\t ]+['""]?([^\n##""']+).*", "\2") />
 			<!--- no webroot found! --->
 			<cfif defaultWebroot eq httpdContents>
-				<cfset handleError(msg="The httpd.conf file does not have any webroot setup! #httpdContents#", type="CRIT") />
+				<cfset handleError(msg="The httpd.conf file does not have any webroot setup! #httpdContents#", type="fatal") />
 			</cfif>
 	
 			<cfset arrayAppend(VHosts, createVHostContainer(path=defaultWebroot)) />

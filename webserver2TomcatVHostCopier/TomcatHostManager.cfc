@@ -68,7 +68,7 @@
 			<cfhttp url="#listURL#" username="#variables.config.hostmanagerusername#"
 				password="#variables.config.hostmanagerpassword#" timeout="10" throwonerror="yes" />
 			<cfcatch>
-				<cfset handleError(msg="A list of the hosts could not be retrieved by using the hostmanager.#chr(10)#Error msg: #cfcatch.Message# #cfcatch.Detail#.#chr(10)#URL: #listURL##chr(10)#", type="CRIT") />
+				<cfset handleError(msg="A list of the hosts could not be retrieved by using the hostmanager.#chr(10)#Error msg: #cfcatch.Message# #cfcatch.Detail#.#chr(10)#URL: #listURL##chr(10)#", type="fatal") />
 			</cfcatch>
 		</cftry>
 		<!---returns:

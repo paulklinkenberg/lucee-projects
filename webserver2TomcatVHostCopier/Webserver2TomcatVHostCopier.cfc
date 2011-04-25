@@ -63,7 +63,7 @@
 						<cfset var VHosts = IISConfigManager.getVHostsFromIIS7File() />
 					</cfif>
 				<cfelse>
-					<cfset tomcatConfigManager.handleError(msg="Webserver type '#parserConfig.webservertype#' is not yet implemented in the VHostParser. Only one of the following is allowed: IIS6, IIS7, Apache", type="CRIT") />
+					<cfset tomcatConfigManager.handleError(msg="Webserver type '#parserConfig.webservertype#' is not yet implemented in the VHostParser. Only one of the following is allowed: IIS6, IIS7, Apache", type="fatal") />
 					<cfreturn />
 				</cfif>
 			
@@ -129,7 +129,7 @@
 					</cfsavecontent>
 					#temp#
 					<br /><br />
-					<cfset tomcatConfigManager.handleError(rereplace(temp, '(<.*?>| &nbsp;|[\r\n\t])+', chr(10), 'all'), "MESSAGE") />
+					<cfset tomcatConfigManager.handleError(rereplace(temp, '(<.*?>| &nbsp;|[\r\n\t])+', chr(10), 'all'), "information") />
 					
 					<!--- create the xml text with the VHosts for tomcat --->
 					<cfset var VHostsText = tomcatConfigManager.createTomcatVHosts(tomcatVHosts) />
@@ -183,7 +183,7 @@
 					
 					Data saved to tomcat. Done.
 				<cfelse>
-					<cfset tomcatConfigManager.handleError("No changes in the VHosts", "MESSAGE") />
+					<cfset tomcatConfigManager.handleError("No changes in the VHosts", "information") />
 					No changes in the VHosts.
 				</cfif>
 				<cfcatch>

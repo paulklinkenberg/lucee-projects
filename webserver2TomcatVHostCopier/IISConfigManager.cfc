@@ -161,7 +161,7 @@
 				AppRoot="/LM/W3SVC/1551821403/Root" Path="D:\www\awstats.xitesystem.com\data">--->
 				<cfset var VHostPath = rereplaceNoCase(IISFileContents, '.*<IIsWebVirtualDir[^>]*[[:space:]]Location[[:space:]]*=[[:space:]]*"#VHostIISPathName#/root"[^>]*[[:space:]]Path[[:space:]]*=[[:space:]]*"([^"]+)".*', "\1") />
 				<cfif VHostPath eq IISFileContents>
-					<cfset handleError(msg="Web root for IIS site could not be found. Current VHost: #rereplace(iiswebserverTag, '[\r\n]+', ' ', 'all')##chr(13)#Filecontent:#chr(13)##IISFileContents#", type="CRIT") />
+					<cfset handleError(msg="Web root for IIS site could not be found. Current VHost: #rereplace(iiswebserverTag, '[\r\n]+', ' ', 'all')##chr(13)#Filecontent:#chr(13)##IISFileContents#", type="fatal") />
 				</cfif>
 				<!--- get the mappings --->
 				<!---<IIsWebVirtualDir	Location ="/LM/W3SVC/15500/Root/aliastest/aliasinalias" ...
@@ -175,7 +175,7 @@
 					<cfset lastMappingFoundIndex = mappingFoundPos.pos[1] + 1 />
 					<cfset mappings[mid(IISFileContents, mappingFoundPos.pos[2], mappingFoundPos.len[2])] = mid(IISFileContents, mappingFoundPos.pos[3], mappingFoundPos.len[3]) />
 					<cfif ++loopCounter gt 50>
-						<cfset handleError(msg="An infinite loop seems to occur in fnc getVHostsFromIIS6File(), where the Mappings are to be retrieved.", type="CRIT") />
+						<cfset handleError(msg="An infinite loop seems to occur in fnc getVHostsFromIIS6File(), where the Mappings are to be retrieved.", type="fatal") />
 					</cfif>
 				</cfloop>
 				
