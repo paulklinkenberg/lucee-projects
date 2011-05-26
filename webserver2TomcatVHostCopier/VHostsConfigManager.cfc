@@ -146,8 +146,8 @@
 		</cfif>
 		
 		<cfset var fullPath = rereplace(GetDirectoryFromPath(currentPath) & "/" & filePath, '[\\/]+', '/', 'all') />
-		<cfloop condition="find('../', fullPath)">
-			<cfset fullPath = rereplace(fullPath, "(/[^/:]+/|^/|^[a-zA-Z]:/)/../", "/", "all") />
+		<cfloop condition="refind('/[^/]*[^\.]/\.\./', fullPath)">
+			<cfset fullPath = rereplace(fullPath, "/[^/]*[^\.]/\.\./", "/", "all") />
 		</cfloop>
 		<cfreturn fullPath />
 	</cffunction>

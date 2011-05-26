@@ -64,7 +64,7 @@
 		<cflog file="#cflogfilename#" type="#arguments.type#" text="#arguments.msg#" />
 		
 		<!--- CRITICAL? Abort the operation, and optionally send debug mail --->
-		<cfif arguments.type eq "CRIT">
+		<cfif arguments.type eq "FATAL">
 			<cfif variables._sendCriticalErrors>
 				<!--- check how many mails have been sent in the meanwhile --->
 				<cfset var mailsSentCounterFile = "mailsSentCounter.txt" />

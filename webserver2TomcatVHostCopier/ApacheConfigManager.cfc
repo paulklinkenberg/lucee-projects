@@ -42,6 +42,7 @@
 		<cfset var ipList = "" />
 		<cfset var VHostData = "" />
 		<cfset var hostAliases = "" />
+		<cfset var ali = "" />
 		
 		<!--- include all include files --->
 		<cfset var includeLineRegex = '[\r\n][ \t]*(Include[[:space:]]+[''"]?([^##\r\n\t''"]+))' />
@@ -64,7 +65,7 @@
 			Edit: since Includes can also have the format "Include /bla/bla/*.conf", I will check this too. --->
 			<cfif not fileExists(mainIncludeFilePath)
 			and (not findNoCase('*.', mainIncludeFilePath) or not directoryExists(GetDirectoryFromPath(mainIncludeFilePath)))>
-				<cfset relativeIncludeFilePath = listRest(relativeIncludeFilePath, '\/') />
+				<cfset relativeIncludeFilePath = "../" & relativeIncludeFilePath />
 				<cfset mainIncludeFilePath = getCleanedAbsPath(relativeIncludeFilePath, arguments.file) />
 			</cfif>
 			<cfif fileExists(mainIncludeFilePath)
@@ -75,7 +76,7 @@
 				<!--- now read the include file(s) --->
 				<cfset includeFileContents = "" />
 				<cfloop query="qConfFiles">
-					<cfset includeFileContents &= fileRead(qConfFiles.directory & "/" & qConfFiles.name) & chr(10) />
+					<cfset includeFileContents &= "## #qConfFiles.directory#/#qConfFiles.name#:" & chr(10) & fileRead(qConfFiles.directory & "/" & qConfFiles.name) & chr(10) & "## END #qConfFiles.directory#/#qConfFiles.name#" & chr(10) />
 				</cfloop>
 				<cfif not len(includeFileContents)>
 					<cfset includeFileContents = "## THE FILE #mainIncludeFilePath# DOES NOT EXIST!" />
@@ -91,11 +92,11 @@
 					<cfset subIncludeFilePath = mid(includeFileContents, regexFoundPos.pos[3], regexFoundPos.len[3]) />
 					<cfset subIncludeFilePath = getCleanedAbsPath(subIncludeFilePath, mainIncludeFilePath) />
 			
-					<cfset includeFileContents = rereplace(includeFileContents, includeLineRegex & "[^\r\n]*", "REMOVETHESEWORDS Include #replace(subIncludeFilePath, '\', '/', 'all')#") />
+					<cfset includeFileContents = rereplace(includeFileContents, includeLineRegex & "[^\r\n]*", "#chr(10)#REMOVETHESEWORDS Include #replace(subIncludeFilePath, '\', '/', 'all')#") />
 				</cfloop>
 				<cfset includeFileContents = replace(includeFileContents, "REMOVETHESEWORDS Include", "Include", "all") />
 				
-				<!--- now insert the retrieved Includes' file contents into hte http contents --->
+				<!--- now insert the retrieved Includes' file contents into the http contents --->
 				<cfset httpdContents = rereplace(httpdContents, includeLineRegex & "[^\r\n]*", "#chr(10)### THE CONTENTS OF \1 HAS BEEN INCLUDED UNDERNEATH HERE#chr(10)#ADD-SUB-CONTENTS-HERE-8291543056278252165") />
 				<cfset httpdContents = replace(httpdContents, "ADD-SUB-CONTENTS-HERE-8291543056278252165", includeFileContents) />
 			<cfelse>
@@ -127,7 +128,6 @@
 		<cfset var serverRoot = rereplace(httpdContents, "(.*\n|^)ServerRoot ([^##\n]+)(\n.*|$)", "\2") />
 		<cfif ServerRoot eq httpdContents>
 			<cfset serverRoot = "" />
-			<cfoutput><pre>#HTMLEditFormat(httpdContents)#</pre><cfabort /></cfoutput>
 			<cfset handleError(msg="No ServerRoot was found in httpd.conf", type="WARNING") />
 		<cfelse>
 			<cfset serverRoot = rereplace(serverRoot, "['""]", "", "all") & "/" />
@@ -149,7 +149,9 @@
 				<cfif findNoCase("ServerName ", line) eq 1>
 					<cfset VHostData.host = listFirst(rereplace(trim(listRest(line, " ")), "['""]", "", "all"), ':') />
 				<cfelseif findNoCase("ServerAlias ", line) eq 1>
-					<cfset VHostData.aliases[listFirst(rereplace(trim(listRest(line, " ")), "['""]", "", "all"), ':')] = "" />
+					<cfloop list="#listRest(line, ' ')#" index="ali" delimiters=" ">
+						<cfset VHostData.aliases[listFirst(rereplace(ali, "['""]", "", "all"), ':')] = "" />
+					</cfloop>
 				<cfelseif findNoCase("Alias ", line) eq 1>
 					<cfset var mappingAlias = trim(rereplace(listRest(line, " "), "^(['""])(.*?)\1", "\2")) />
 					<cfif mappingAlias eq trim(listRest(line, " "))>
