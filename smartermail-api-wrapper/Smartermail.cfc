@@ -4,8 +4,8 @@
  * Smartermail.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/smartermail-api-wrapper-coldfusion
  *
- * Date: 2011-02-26 01:13:00 +0100
- * Revision: 1.3.0
+ * Date: 2011-06-17 09:21:00 +0100
+ * Revision: 1.3.1
  *
  * Copyright (c) 2011 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -121,13 +121,13 @@
 			<cfset currentArg = rereplace(extraSoapBody, '.*\[\$(.*?)\$\].*', '\1') />
 			<cfset insertValue = iif(structKeyExists(arguments.args, currentArg), 'arguments.args[currentArg]', 'arguments.defaultArgValue') />
 			<!--- removes all spaces and returns from start and end of string --->
-			<cfset insertValue = rereplace(insertValue, '(^[\r\t\n ]+|[\r\t\n ]+$)', '', 'all') />
+			<cfset insertValue = xmlFormat(rereplace(insertValue, '(^[\r\t\n ]+|[\r\t\n ]+$)', '', 'all')) />
 			<!--- if the arg is multi-line, it can have multiple answers, which are divided by returns,
 			and enclosed in the xml as <string>value</string> --->
 			<cfif findNoCase('<#currentArg# multiline="true">', extraSoapBody)>
-				<cfset insertValue = "<string>" & rereplace(trim(insertValue), '[\r\n]+', '</string><string>', 'all') & "</string>" />
+				<cfset insertValue = "<string>" & rereplace(xmlFormat(trim(insertValue)), '[\r\n]+', '</string><string>', 'all') & "</string>" />
 			</cfif>
-			<cfset extraSoapBody = replaceNoCase(extraSoapBody, "[$#currentArg#$]", xmlFormat(insertValue), "all") />
+			<cfset extraSoapBody = replaceNoCase(extraSoapBody, "[$#currentArg#$]", insertValue, "all") />
 		</cfloop>
 		<cfset extraSoapBody = replaceNoCase(extraSoapBody, ' multiline="true"', '', 'all') />
 		
