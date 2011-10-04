@@ -5,6 +5,7 @@
 	This software is licensed under the BSD license. See http://www.opensource.org/licenses/bsd-license.php
 	Project page: http://www.railodeveloper.com/post.cfm/railo-custom-tag-cfcsv
 	Version: 1.0, 3 february 2011
+	Version 1.1.2, September 22, 2011 : Added option to write output to any variable within the pagecontext
 	
 	Copyright (c) 2011, Paul Klinkenberg (paul@ongevraagdadvies.nl)
 	All rights reserved.
@@ -90,7 +91,7 @@
 		</cfif>
 		<cfif action eq "parse">
 			<!---  output format correct? --->
-			<cfif not listfind("query,array", outputFormat)>
+			<cfif not listfindNoCase("query,array", outputFormat)>
 				<cfthrow message="cfcsv: atribute [output] can only be one of the values [query,array]" />
 			</cfif>
 			<cfif not attributeExists("file") and not attributeExists("data")>
@@ -157,18 +158,27 @@
 	
 
 
-	<cffunction name="_insertValueIntoCaller" access="private" returntype="void" output="no">
-		<cfargument name="caller" type="struct" required="yes" />
-		<cfargument name="value" type="any" required="yes" hint="The value to insert into the caller page" />
-		<cfargument name="optionalToSTDOUT" type="boolean" required="no" default="false" hint="If no 'variable' attr. is given, should we output the value to STDOUT or to a variable with the name of this tag" />
-		<cfif attributeExists('variable')>
-			<cfset arguments.caller[getAttribute('variable')] = arguments.value />
-		<cfelseif arguments.optionalToSTDOUT>
-			<cfoutput>#arguments.value#</cfoutput>
+<cffunction name="_insertValueIntoCaller" access="private" returntype="void" output="no">
+	<cfargument name="caller" type="struct" required="yes" />
+	<cfargument name="value" type="any" required="yes" hint="The value to insert into the caller page" />
+	<cfargument name="optionalToSTDOUT" type="boolean" required="no" default="false" hint="If no 'variable' attr. is given, should we output the value to STDOUT or to a variable with the name of this tag" />
+	<cfif attributeExists('variable')>
+		<cfset var varname = getAttribute('variable') />
+		<cfset var scopeName = listFirst(varName, '.') />
+		<cfif listLen(varname, '.') eq 1
+		or scopeName eq "local"
+		or scopeName eq "variables"
+		or not listFindNoCase("server,cookie,request,form,url,application,client,session,cfthread", scopeName)>
+			<cfset setVariable("arguments.caller.#varname#", arguments.value) />
 		<cfelse>
-			<cfset arguments.caller["cfcsv"] = arguments.value />
+			<cfset setVariable(varName, arguments.value) />
 		</cfif>
-	</cffunction>
+	<cfelseif arguments.optionalToSTDOUT>
+		<cfoutput>#arguments.value#</cfoutput>
+	<cfelse>
+		<cfset arguments.caller["cfcsv"] = arguments.value />
+	</cfif>
+</cffunction>
 
 
 	<!---   attributes   --->

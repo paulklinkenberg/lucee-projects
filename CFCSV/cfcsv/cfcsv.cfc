@@ -10,6 +10,8 @@
 		 * Since it can now also output as query, I changed the name to parseCSV.
 		 * Also added the parameters 'textqualifier', 'returntype', and 'hasColumnNames'.
 		 * Paul Klinkenberg, www.railodeveloper.com, January 30, 2011
+		 * Version 1.1, September 22, 2011 : Removed the verbose flag for the regex pattern, so we can use tabs/spaces as delimiters.
+		 * Version 1.1.2, September 22, 2011 : Added option to write output to any variable within the pagecontext
 		 */
 	---- --------------------------------------------------------------------------------------- --->
 	<cffunction name="parseCSV" access="public" returntype="any" output="false"
@@ -79,36 +81,9 @@
 		<cfset local.escapedTextqualifier = regExSafe(arguments.textqualifier) />
 
 		<!---
-			Now, let's define the pattern for parsing the CSV data. We
-			are going to use verbose regular expression since this is a
-			rather complicated pattern.
-	 
-			NOTE: We are using the verbose flag such that we can use
-			white space in our regex for readability.
+			Now, let's define the pattern for parsing the CSV data.
 		--->
-		<cfsavecontent variable="local.regEx"><cfoutput>(?x)
-			<!--- Make sure we pick up where we left off. --->
-			\G
-			<!---
-				We are going to start off with a field value since
-				the first thing in our file should be a field (or a
-				completely empty file).
-			--->
-			(?:
-				<!--- Quoted value - GROUP 1 --->
-				#local.escapedTextqualifier#([^#local.escapedTextqualifier#]*+ (?>#local.escapedTextqualifier##local.escapedTextqualifier#[^#local.escapedTextqualifier#]*+)* )#local.escapedTextqualifier#
-				|
-				<!--- Standard field value - GROUP 2 --->
-				([^#local.escapedTextqualifier##local.escapedDelimiter#\r\n]*+)
-			)
-			<!--- Delimiter - GROUP 3 --->
-			(
-				#local.escapedDelimiter# |
-				\r\n? |
-				\n |
-				$
-			)
-		</cfoutput></cfsavecontent>
+		<cfsavecontent variable="local.regEx"><cfoutput>\G(?:#local.escapedTextqualifier#([^#local.escapedTextqualifier#]*+(?>#local.escapedTextqualifier##local.escapedTextqualifier#[^#local.escapedTextqualifier#]*+)*)#local.escapedTextqualifier#|([^#local.escapedTextqualifier##local.escapedDelimiter#\r\n]*+))(#local.escapedDelimiter#|\r\n?|\n|$)</cfoutput></cfsavecontent>
 	 
 		<!---
 			Create a compiled Java regular expression pattern object
