@@ -4,8 +4,8 @@
  * ApacheConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2011-05-26 23:10:00 +0100
- * Revision: 0.5.01
+ * Date: 2011-11-27 22:18:00 +0100
+ * Revision: 0.6.03
  *
  * Copyright (c) 2011 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -64,12 +64,12 @@
 			Since I'm starting to get irritated, I will just go one directory deeper, since that will match most situations.
 			Edit: since Includes can also have the format "Include /bla/bla/*.conf", I will check this too. --->
 			<cfif not fileExists(mainIncludeFilePath)
-			and (not findNoCase('*.', mainIncludeFilePath) or not directoryExists(GetDirectoryFromPath(mainIncludeFilePath)))>
+			and (not find('*.', mainIncludeFilePath) or not directoryExists(GetDirectoryFromPath(mainIncludeFilePath)))>
 				<cfset relativeIncludeFilePath = "../" & relativeIncludeFilePath />
 				<cfset mainIncludeFilePath = getCleanedAbsPath(relativeIncludeFilePath, arguments.file) />
 			</cfif>
 			<cfif fileExists(mainIncludeFilePath)
-			or (findNoCase('*.', mainIncludeFilePath) and directoryExists(GetDirectoryFromPath(mainIncludeFilePath)))>
+			or (find('*.', mainIncludeFilePath) and directoryExists(GetDirectoryFromPath(mainIncludeFilePath)))>
 				<!--- Since the include directive allows for "Include /dir/*.conf", we'll do a dir listing --->
 				<cfdirectory action="list" directory="#getdirectoryFromPath(mainIncludeFilePath)#" filter="#listLast(mainIncludeFilePath, '/\')#" name="qConfFiles" sort="name" />
 				
@@ -100,7 +100,7 @@
 				<cfset httpdContents = rereplace(httpdContents, includeLineRegex & "[^\r\n]*", "#chr(10)### THE CONTENTS OF \1 HAS BEEN INCLUDED UNDERNEATH HERE#chr(10)#ADD-SUB-CONTENTS-HERE-8291543056278252165") />
 				<cfset httpdContents = replace(httpdContents, "ADD-SUB-CONTENTS-HERE-8291543056278252165", includeFileContents) />
 			<cfelse>
-				<cfset handleError(msg="In the httpd.conf file, the Include path '#mainIncludeFilePath#' does not exist?!", type="fatal") />
+				<cfset handleError(msg="In the httpd.conf file, the Include path '#mainIncludeFilePath#' does not exist?!", type="error") />
 			</cfif>
 		</cfloop>
 		

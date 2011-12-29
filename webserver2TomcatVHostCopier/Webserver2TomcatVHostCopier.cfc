@@ -4,8 +4,8 @@
  * Webserver2TomcatVHostCopier.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2011-04-19 17:57:00 +0100
- * Revision: 0.4.01
+ * Date: 2011-11-27 22:18:00 +0100
+ * Revision: 0.6.03
  *
  * Copyright (c) 2011 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -187,6 +187,9 @@
 					No changes in the VHosts.
 				</cfif>
 				<cfcatch>
+					<!--- log the error --->
+					<cfset tomcatConfigManager.handleError("Error caught in fnc. copyWebserverVHosts2Tomcat: #cfcatch.message# #cfcatch.detail#. See #getdirectoryFromPath(getCurrenttemplatepath())#dirwatcher-error.html for more details.", "error") />
+					
 					<cfset var debugdata = "" />
 					<cfsavecontent variable="debugdata">
 						Date: #now()#<br />
@@ -204,11 +207,12 @@
 						</cfif>
 						<cfif numMailsSent lt 10>
 							<cfset fileWrite(mailsSentCounterFile, ++numMailsSent) />
-							<cfmail to="paul@ongevraagdadvies.nl" from="paul@ongevraagdadvies.nl" subject="Webserver2Tomcat dirwatcher error" type="html">
+							<cfmail to="paul@ongevraagdadvies.nl" from="paul@ongevraagdadvies.nl" subject="Webserver2Tomcat dirwatcher error #cgi.http_host#" type="html">
 								#debugdata#
 							</cfmail>
 						</cfif>
 					</cfif>
+					
 					<cffile action="write" file="dirwatcher-error.html" output="#debugdata#" />
 					<cfrethrow />
 				</cfcatch>

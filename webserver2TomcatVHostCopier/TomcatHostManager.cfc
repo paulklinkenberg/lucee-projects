@@ -4,8 +4,8 @@
  * TomcatHostManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2011-05-26 23:10:00 +0100
- * Revision: 0.5.01
+ * Date: 2011-11-27 22:18:00 +0100
+ * Revision: 0.6.03
  *
  * Copyright (c) 2011 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -28,7 +28,7 @@
 --->	
 
 	<cfset variables.config = getConfig() />
-	<cfset variables.hostmanagerURL = "http://localhost:#variables.config.tomcatport#/host-manager" />
+	<cfset variables.hostmanagerURL = "http://localhost:#variables.config.tomcatport#/host-manager#variables.config.tomcatversion eq 6 ? '': '/html'#" />
 	
 
 	<cffunction name="addHost" returntype="void" output="no" access="public">

@@ -4,8 +4,8 @@
  * VHostsConfigManager.cfc, developed by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
- * Date: 2011-05-26 23:10:00 +0100
- * Revision: 0.5.01
+ * Date: 2011-11-27 22:18:00 +0100
+ * Revision: 0.6.03
  *
  * Copyright (c) 2011 Paul Klinkenberg, Ongevraagd Advies
  * Licensed under the GPL license.
@@ -145,6 +145,7 @@
 			<cfset handleError(msg="Fnc getAbsPath(): given filepath is not absolute, but no 'currentPath' argument was given to calculate the abs path! (filepath=#filepath#)", type="fatal") />
 		</cfif>
 		
+		<!--- remove ../ references--->
 		<cfset var fullPath = rereplace(GetDirectoryFromPath(currentPath) & "/" & filePath, '[\\/]+', '/', 'all') />
 		<cfloop condition="refind('/[^/]*[^\.]/\.\./', fullPath)">
 			<cfset fullPath = rereplace(fullPath, "/[^/]*[^\.]/\.\./", "/", "all") />
