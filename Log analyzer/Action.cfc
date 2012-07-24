@@ -139,7 +139,7 @@
 	<cffunction name="getLogs" output="Yes" returntype="query">
 		<cfset var qGetLogs = ""/>
 		<cfset var tempFilePath = getLogPath() />
-		<cfdirectory action="list" listinfo="Name,datelastmodified,size" directory="#tempFilePath#" filter="*.log|*.bak" name="qGetLogs" sort="name asc" />
+		<cfdirectory action="list" listinfo="Name,datelastmodified,size" directory="#tempFilePath#" filter="*.log,*.bak" name="qGetLogs" sort="name asc" />
 		<cfreturn qGetLogs />
 	</cffunction>	
 	
