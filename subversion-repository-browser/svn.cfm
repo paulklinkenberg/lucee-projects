@@ -92,7 +92,9 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 		<cfobject component="diff" name="cfcDiff" />
 		<cfset diffHtml = cfcdiff.diffFormat(LeftFile,RightFile, fulldiff) />
 	<cfelse>
-		<cfthrow message="Something went wrong; the diff can't be done!" />
+		<!--- instead of throwing an error, just get out of here --->
+		<h1>Something went wrong; the diff can't be done!</h1>
+		<cfexit method="exittemplate" />
 	</cfif>
 	<cfset variables.action = "diff" />
 <cfelseif IsNumeric(Version) or Version eq "HEAD">
@@ -263,7 +265,7 @@ When you did, you'd better call svn.cfm?init=1 in your browser afterwards. --->
 							</cfif>
 							#NumberFormat(Revision)#
 						</td>
-						<cfif NOT variables.isDir><td align="center"><cfif CanDiff AND (CurrentRow LT RecordCount)><a href="#variables.urlToThisFile#?repositorypath=#Path#%3A#f.Revision[IncrementValue(CurrentRow)]#%3A#Revision#f">#DiffGraphic#</a><cfelse> </cfif></td></cfif>
+						<cfif NOT variables.isDir><td align="center"><cfif CanDiff AND (CurrentRow LT RecordCount)><a href="#variables.urlToThisFile#?repositorypath=#FilePath#%3A#f.Revision[IncrementValue(CurrentRow)]#%3A#Revision#f">#DiffGraphic#</a><cfelse> </cfif></td></cfif>
 				
 						<cfif variables.isDir><td nowrap="nowrap" class="num"><cfif (Kind EQ 'file') AND IsNumeric(Size)>#NumberFormat(Size)#</cfif></td></cfif>
 						<td class="date<cfif IsDate(Date)> #FreshnessRating(Date)#</cfif>" nowrap="nowrap"><cfif IsDate(Date)>#DateFormat(Date,"yyyy-mm-dd")# #TimeFormat(Date,"HH:mm:ss")#<cfelse>#HTMLEditFormat(Date)#</cfif></td>
