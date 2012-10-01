@@ -2,8 +2,8 @@
  * this file was created by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/railo-tasks-viewer-extension
  *
- * Date: 2012-06-04
- * Revision: 1.2.5
+ * Date: 2012-10-01
+ * Revision: 1.2.6
  *
  * Copyright (c) 2012 Paul Klinkenberg, railodeveloper.com
  * Licensed under the GPL license.

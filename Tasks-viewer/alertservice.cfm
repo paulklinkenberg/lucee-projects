@@ -3,8 +3,8 @@
  * this file was created by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/railo-tasks-viewer-extension
  *
- * Date: 2012-06-04
- * Revision: 1.2.5
+ * Date: 2012-10-01
+ * Revision: 1.2.6
  *
  * Copyright (c) 2012 Paul Klinkenberg, railodeveloper.com
  * Licensed under the GPL license.
@@ -46,6 +46,7 @@
 		</cfif>
 		<cfset removeConfigData('email') />
 		<cfset removeConfigData('serviceInterval') />
+		<cfset removeConfigData('errorIgnorePatterns') />
 		<cfset removeConfigData('webContextPassword') />
 		<cfif directoryExists(savePath)>
 			<cftry>
@@ -73,7 +74,8 @@
 		<cfset setConfigData('email', form.email) />
 		<cfset setConfigData('serviceInterval', serviceInterval) />
 		<cfset setConfigData('webContextPassword', form.webContextPassword) />
-		
+		<cfset setConfigData('errorIgnorePatterns', rereplace(trim(form.errorIgnorePatterns), "[\r\n]+", chr(10), 'all')) />
+
 		<!--- save the necessary file to the web context --->
 		<cfset URLPath = "http#cgi.SERVER_PORT eq 443 or cgi.https eq 'on' ? 's':''#://#cgi.http_host##getDirectoryFromPath(cgi.script_name)#" />
 		<cfif right(URLPath, 1) neq "/">
@@ -250,6 +252,14 @@ OK
 							});
 						});
 					</script>
+				</td>
+			</tr>
+			<tr>
+				<td>Error texts to ignore
+					<br /><i>In case you don't want to receive notifications about one or more error texts, add them here. One per line)</i>
+				</td>
+				<td>
+					<textarea name="errorIgnorePatterns" rows="4" cols="50" placeholder="Read timed out">#getConfigData('errorIgnorePatterns')#</textarea>
 				</td>
 			</tr>
 			<tr>

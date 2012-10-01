@@ -4,8 +4,8 @@
  * this file was created by Paul Klinkenberg
  * http://www.railodeveloper.com/post.cfm/railo-tasks-viewer-extension
  *
- * Date: 2012-06-04
- * Revision: 1.2.5
+ * Date: 2012-10-01
+ * Revision: 1.2.6
  *
  * Copyright (c) 2012 Paul Klinkenberg, railodeveloper.com
  * Licensed under the GPL license.
@@ -402,14 +402,19 @@
 		<cfargument name="logData" type="string" />
 		<cfargument name="timeout" type="numeric" />
 		<cfargument name="startDate" type="date" required="no" />
+		<cfset var errorIgnorePatterns = listToArray(getConfigData('errorIgnorePatterns'), chr(10)) />
 		<cfset var arrIndex = 1 />
 		<cfset var line = "" />
 		<cfloop list="#logdata#" delimiters="#chr(10)##chr(13)#" index="line">
 			<cfif find('"ERROR",', line) eq 1 or refind(',"executed"$', line)>
 				<cfset var execdate = getExecDate(line) />
 				<cfif not structKeyExists(arguments, "startDate") or arguments.startDate lte execdate>
-					<cfset var isError = find('"ERROR",', line) eq 1 ? 1:0 />
 					<cfset var logMsg = rereplace(line, '^([^,]+,){5}', '') />
+					<cfset var isError = find('"ERROR",', line) eq 1 ? 1:0 />
+					<cfif isError and arrayFindNoCase(errorIgnorePatterns, unQuote(logMsg))>
+						<cfset isEror = 0 />
+						<cfset logMsg &= " (error ignored)" />
+					</cfif>
 					<cfif arrIndex gt arrayLen(execDates)>
 						<cfset ArrayAppend(execDates, {date:execDate, missed:0, error:isError, notscheduled:1, text:"#logMsg#"}) />
 					<cfelse>
@@ -427,7 +432,7 @@
 								<cfset ArrayAppend(execDates, {date:execDate, missed:0, error:isError, notscheduled:1, text:"#logMsg#"}) />
 							<cfelse>
 								<cfset var found = 0 />
-								<cfloop condition="not found and arrIndex lt arrayLen(execDates)">
+								<cfloop condition="found eq 0 and arrIndex lt arrayLen(execDates)">
 									<cfset ++arrIndex />
 									<cfset evalDate = execDates[arrIndex].date />
 									<cfset secondsDiff = dateDiff('s', evalDate, execdate) />
@@ -499,6 +504,15 @@
 		<cfwddx action="cfml2wddx" input="#variables._configData#" output="data" />
 		<cfset fileWrite(variables._configDataFile, data) />
 	</cffunction>
-	
+
+
+	<cffunction name="unQuote" returntype="string" output="no">
+		<cfargument name="str" />
+		<cfif arguments.str neq "" and left(arguments,str, 1) eq '"' and right(arguments,str, 1) eq '"'>
+			<cfreturn mid(arguments.str, 2, len(arguments.str)-2) />
+		</cfif>
+		<cfreturn arguments.str />
+	</cffunction>
+
 
 </cfcomponent>
