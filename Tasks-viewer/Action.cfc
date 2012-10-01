@@ -412,7 +412,7 @@
 					<cfset var logMsg = rereplace(line, '^([^,]+,){5}', '') />
 					<cfset var isError = find('"ERROR",', line) eq 1 ? 1:0 />
 					<cfif isError and arrayFindNoCase(errorIgnorePatterns, unQuote(logMsg))>
-						<cfset isEror = 0 />
+						<cfset isError = 0 />
 						<cfset logMsg &= " (error ignored)" />
 					</cfif>
 					<cfif arrIndex gt arrayLen(execDates)>
@@ -508,7 +508,7 @@
 
 	<cffunction name="unQuote" returntype="string" output="no">
 		<cfargument name="str" />
-		<cfif arguments.str neq "" and left(arguments,str, 1) eq '"' and right(arguments,str, 1) eq '"'>
+		<cfif arguments.str neq "" and left(arguments.str, 1) eq '"' and right(arguments.str, 1) eq '"'>
 			<cfreturn mid(arguments.str, 2, len(arguments.str)-2) />
 		</cfif>
 		<cfreturn arguments.str />
