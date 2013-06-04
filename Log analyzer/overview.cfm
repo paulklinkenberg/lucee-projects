@@ -29,11 +29,11 @@
 	<cfset var tempFilePath = getLogPath(file=url.delfile) />
 	<cftry>
 		<cffile action="delete" file="#tempFilePath#" />
-		<cfoutput><p class="CheckOk">#replace(arguments.lang.logfilehasbeendeleted, "%1", listLast(tempFilePath, '/\'))#</p></cfoutput>
+		<cfoutput><p class="message">#replace(arguments.lang.logfilehasbeendeleted, "%1", listLast(tempFilePath, '/\'))#</p></cfoutput>
 		<cfcatch>
-			<p style="color:red;">The file could not be deleted; instead we will erase the contents:</p>
+			<p class="error">The file could not be deleted; instead we will erase the contents:</p>
 			<cffile action="write" file="#tempFilePath#" output="" />
-			<cfoutput><p class="CheckOk">#replace(arguments.lang.logfilehasbeencleared, "%1", listLast(tempFilePath, '/\'))#</p></cfoutput>
+			<cfoutput><p class="message">#replace(arguments.lang.logfilehasbeencleared, "%1", listLast(tempFilePath, '/\'))#</p></cfoutput>
 		</cfcatch>
 	</cftry>
 </cfif>
@@ -67,28 +67,35 @@
 	</cfif>
 </cfif>
 
-<cfoutput><table class="tbl" width="650">
-	<tr>
-		<td class="tblHead">#arguments.lang.logfilename#</td>
-		<td class="tblHead">#arguments.lang.logfiledate#</td>
-		<td class="tblHead">#arguments.lang.logfilesize#</td>
-		<td class="tblHead">#arguments.lang.actions#</td>
-	</tr>
+<cfoutput><table class="maintbl">
+	<thead>
+		<tr>
+			<th>#arguments.lang.logfilename#</th>
+			<th>#arguments.lang.logfiledate#</th>
+			<th>#arguments.lang.logfilesize#</th>
+			<th>#arguments.lang.actions#</th>
+		</tr>
+	</thead>
 	<cfset frmaction = rereplace(action('list'), "^[[:space:]]+", "") />
 	<cfset downloadaction = rereplace(action('download'), "^[[:space:]]+", "") />
-	<cfloop query="arguments.req.logfiles">
-		<tr>
-			<td class="tblContent">#name#</td>
-			<td class="tblContent"><abbr title="#dateformat(datelastmodified, arguments.lang.dateformat)# #timeformat(datelastmodified, arguments.lang.timeformatshort)#">#getTextTimeSpan(datelastmodified, arguments.lang)#</abbr></td>
-			<td class="tblContent"><cfif size lt 1024>#size# #arguments.lang.bytes#<cfelse>#ceiling(size/1024)# #arguments.lang.KB#</cfif></td>
-			<td class="tblContent" style="text-align:right; white-space:nowrap; width:1%"><form action="#frmaction#" method="post" style="display:inline;margin:0;padding:0;">
-				<input type="hidden" name="logfile" value="#name#" />
-				<input type="submit" value="#arguments.lang.details#" class="button" />
-				<input type="button" class="button" onclick="self.location.href='#downloadaction#&amp;file=#name#'" value="#arguments.lang.download#" />
-				<input type="button" class="button" onclick="self.location.href='#thispageaction#&amp;delfile=#name#'" value="#arguments.lang.delete#" />
-			</form></td>
-		</tr>
-	</cfloop>
+	<cfset viewlogaction = rereplace(action('viewlog'), "^[[:space:]]+", "") />
+
+	<tbody>
+		<cfloop query="arguments.req.logfiles">
+			<tr>
+				<td class="tblContent">#name#</td>
+				<td class="tblContent"><abbr title="#dateformat(datelastmodified, arguments.lang.dateformat)# #timeformat(datelastmodified, arguments.lang.timeformatshort)#">#getTextTimeSpan(datelastmodified, arguments.lang)#</abbr></td>
+				<td class="tblContent"><cfif size lt 1024>#size# #arguments.lang.bytes#<cfelse>#ceiling(size/1024)# #arguments.lang.KB#</cfif></td>
+				<td class="tblContent" style="text-align:right; white-space:nowrap; width:1%"><form action="#frmaction#" method="post" style="display:inline;margin:0;padding:0;">
+					<input type="hidden" name="logfile" value="#name#" />
+					<input type="submit" value="#arguments.lang.details#" class="button" />
+					<input type="button" class="button" onclick="self.location.href='#viewlogaction#&amp;file=#name#'" value="#arguments.lang.viewlog#" />
+					<input type="button" class="button" onclick="self.location.href='#downloadaction#&amp;file=#name#'" value="#arguments.lang.download#" />
+					<input type="button" class="button" onclick="self.location.href='#thispageaction#&amp;delfile=#name#'" value="#arguments.lang.delete#" />
+				</form></td>
+			</tr>
+		</cfloop>
+	</tbody>
 </table>
 <p>#arguments.lang.logfilelocation#: <em>#arguments.req.logfiles.directory#</em></p>
 </cfoutput>

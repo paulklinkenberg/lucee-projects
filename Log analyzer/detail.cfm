@@ -72,29 +72,29 @@
 	</cfquery>
 	
 	<h3>#form.logfile# - <em>#htmlEditFormat(rereplace(stData.message, "([^[:space:]]{50}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all"))#</em></h3>
-	<table class="tbl" width="650">
+	<table class="maintable">
 		<tr>
-			<td class="tblHead">#arguments.lang.Message#</td>
-			<td class="tblContent">#htmlEditFormat(rereplace(stData.message, "([^[:space:]]{50}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all"))#</td>
+			<th scope="row">#arguments.lang.Message#</th>
+			<td>#htmlEditFormat(rereplace(stData.message, "([^[:space:]]{50}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all"))#</td>
 		</tr><tr>
-			<td class="tblHead" style="white-space:nowrap">#arguments.lang.Lastoccurence#</td>
-			<td class="tblContent">#getTextTimeSpan(dMax, arguments.lang)#: #dateFormat(dMax, arguments.lang.dateformat)# #timeFormat(dMax, arguments.lang.timeformat)#</td>
+			<th scope="row" style="white-space:nowrap">#arguments.lang.Lastoccurence#</th>
+			<td>#getTextTimeSpan(dMax, arguments.lang)#: #dateFormat(dMax, arguments.lang.dateformat)# #timeFormat(dMax, arguments.lang.timeformat)#</td>
 		</tr><tr>
-			<td class="tblHead">#arguments.lang.Threadname#</td>
-			<td class="tblContent">#stData.thread#</td>
+			<th scope="row">#arguments.lang.Threadname#</th>
+			<td>#stData.thread#</td>
 		</tr><tr>
-			<td class="tblHead">#arguments.lang.Type#</td>
-			<td class="tblContent">#stData.type#</td>
+			<th scope="row">#arguments.lang.Type#</th>
+			<td>#stData.type#</td>
 		</tr>
 		<cfif len(trim(stData.file))>
 			<tr>
-				<td class="tblHead">#arguments.lang.File#</td>
-				<td class="tblContent">#stData.file#, #arguments.lang.line# #stData.line#</td>
+				<th scope="row">#arguments.lang.File#</th>
+				<td>#stData.file#, #arguments.lang.line# #stData.line#</td>
 			</tr>
 		</cfif>
 		<tr>
-			<td class="tblHead" style="vertical-align:top;">#arguments.lang.Occurences#</td>
-			<td class="tblContent">#stData.iCount#<!---
+			<th scope="row" style="vertical-align:top;">#arguments.lang.Occurences#</th>
+			<td>#stData.iCount#<!---
 				---><cfif stData.iCount gt 1>,
 					<cfif dMin eq dMax>#arguments.lang.allinthesameminute#: #DateFormat(dMin, arguments.lang.dateformat)# #TimeFormat(dMin, arguments.lang.timeformatshort)#
 					<cfelse>
@@ -112,8 +112,8 @@
 				</cfif>
 			</td>
 		</tr><tr>
-			<td class="tblHead">#arguments.lang.Detail#</td>
-			<td class="tblContent" style="word-wrap:break-word;">#replace(rereplace(htmlEditFormat(rereplace(stData.detail, "([^[:space:]]{90}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all")), "\(([^\(\)]+\. ?cf[cm]:[0-9]+)\)", "(<strong style='background-color:##FF3'>\1</strong>)", "all"), chr(10), '<br />', 'all')#</td>
+			<th scope="row">#arguments.lang.Detail#</th>
+			<td class="longwords">#replace(rereplace(htmlEditFormat(rereplace(stData.detail, "([^[:space:]]{90}.*?[,\.\(\)\{\}\[\]])", "\1 ", "all")), "\(([^\(\)]+\. ?cf[cm]:[0-9]+)\)", "(<strong style='background-color:##FF3'>\1</strong>)", "all"), chr(10), '<br />', 'all')#</td>
 		</tr>
 		<tr><td colspan="2"><form action="#action('list')#" method="post">
 			<input type="hidden" name="logfile" value="#form.logfile#">

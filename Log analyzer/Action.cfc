@@ -62,7 +62,7 @@
 		<cfif structKeyExists(arguments, "file") and len(arguments.file)>
 			<cfset logDir = rereplace(logDir, "\#server.separator.file#$", "") & server.separator.file & listLast(arguments.file, "/\") />
 			<cfif not fileExists(logDir)>
-				<cfthrow message="log directory '#logDir#' does not exist!" />
+				<cfthrow message="log file '#logDir#' does not exist!" />
 			</cfif>
 		</cfif>
 		<cfreturn logDir />
@@ -139,14 +139,20 @@
 	<cffunction name="getLogs" output="Yes" returntype="query">
 		<cfset var qGetLogs = ""/>
 		<cfset var tempFilePath = getLogPath() />
-		<cfdirectory action="list" listinfo="Name,datelastmodified,size" directory="#tempFilePath#" filter="*.log,*.bak" name="qGetLogs" sort="name asc" />
+		<cfdirectory action="list" listinfo="Name,datelastmodified,size" directory="#tempFilePath#"
+				filter="#logsFilter#" name="qGetLogs" sort="name asc" />
 		<cfreturn qGetLogs />
-	</cffunction>	
+	</cffunction>
+
+	<cffunction name="logsFilter" returntype="boolean" output="no">
+		<cfargument name="path"/>
+		<cfreturn listfindNoCase("log,bak", right(path,3)) />
+	</cffunction>
 	
 	<cffunction name="list" output="no" hint="analyze the logfile">
 		<cfargument name="lang" type="struct">
 		<cfargument name="app" type="struct">
-		<cfargument name="req" type="struct" required="yes" />
+		<cfargument name="req" type="struct">
 		<cfset var i        = 0>
 		<cfset var j        = 0>
 		<cfset var stErrors = StructNew()>
@@ -154,7 +160,6 @@
 		<cfset var aDump    = ArrayNew(1)>
 		<cfset var sTmp     = "">
 		<cfset var st       = arrayNew(1)>
-		<cfset var aTmp		= "" />
 		
 		<!--- when viewing logs in the server admin, then a webID must be defined --->
 		<cfif request.admintype eq "server">

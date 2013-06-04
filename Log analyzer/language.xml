@@ -25,6 +25,7 @@
 		<custom key="actions">actions</custom>
 		<custom key="delete">Delete</custom>
 		<custom key="download">Download</custom>
+		<custom key="viewlog">View</custom>
 		<custom key="details">Details</custom>
 		<custom key="to">to</custom>
 		<custom key="perpage">per page</custom>
@@ -70,6 +71,7 @@
 		<custom key="actions">actions</custom>
 		<custom key="delete">Delete</custom>
 		<custom key="download">Download</custom>
+		<custom key="viewlog">View</custom>
 		<custom key="details">Details</custom>
 		<custom key="to">to</custom>
 		<custom key="perpage">per page</custom>
