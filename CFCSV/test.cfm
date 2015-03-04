@@ -1,8 +1,7 @@
 <cfset x = new cfcsv.cfcsv() />
 
-<cfset x.parseCSV(file="fdgdfgd") />
-
-<cfdirectory action="list" directory="#expandpath('/WEB-INF/railo/logs')#" name="q" />
+<cfdirectory action="list" directory="#expandpath('/WEB-INF/lucee/logs')#" name="q" />
+<cfdump var="#q#"/>
 <table border="1" cellpadding="3" cellspacing="0">
 	<thead>
 		<tr>
