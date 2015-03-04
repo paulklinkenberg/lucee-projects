@@ -9,7 +9,7 @@
 		 * This function was originally called csvToArray.
 		 * Since it can now also output as query, I changed the name to parseCSV.
 		 * Also added the parameters 'textqualifier', 'returntype', and 'hasColumnNames'.
-		 * Paul Klinkenberg, www.railodeveloper.com, January 30, 2011
+		 * Paul Klinkenberg, www.lucee.nl, January 30, 2011
 		 * Version 1.1, September 22, 2011 : Removed the verbose flag for the regex pattern, so we can use tabs/spaces as delimiters.
 		 * Version 1.1.2, September 22, 2011 : Added option to write output to any variable within the pagecontext
 		 */
@@ -24,7 +24,9 @@
 		<cfargument name="trim" type="boolean" required="false" default="true" hint="I flags whether or not to trim the END of the file for line breaks and carriage returns." />
 		<cfargument name="returnType" type="string" hint="array / query" default="query" required="yes" />
 		<cfargument name="hasColumnNames" type="boolean" default="true" hint="When using returntype=query, should the first line be used as the column names" />
-		
+		<cfargument name="trimlines" type="boolean" required="false" default="false" hint="I flag whether or not to trim the END of every line in the file: removing tabs and spaces" />
+		<cfargument name="charset" type="string" required="false" hint="When given, this is the charset to read the file in" />
+
 		<!--- Define the local scope. --->
 		<cfset var local = {} />
 	 
@@ -41,14 +43,28 @@
 		--->
 		<cfif len( arguments.file )>
 			<!--- Read the file into Data. --->
-			<cfset arguments.csv = fileRead( arguments.file ) />
+			<cfif structKeyExists(arguments, "charset") and arguments.charset neq "">
+				<cfset arguments.csv = fileRead(arguments.file, arguments.charset) />
+			<cfelse>
+				<cfset arguments.csv = fileRead( arguments.file ) />
+			</cfif>
 		</cfif>
 	 
 		<!---
 			ASSERT: At this point, no matter how the data was passed in,
 			we now have it in the CSV variable.
 		--->
-	 
+
+		<!--- Remove trailing spaces and tabs at the end of each line --->
+		<cfif arguments.trimlines>
+			<cfset arguments.csv = reReplace(
+				arguments.csv,
+				"[\t ]+([\r\n]|$)",
+				"\1",
+				"all"
+			) />
+		</cfif>
+
 		<!---
 			Check to see if we need to trim the data. Be default, we are
 			going to pull off any new line and carraige returns that are
@@ -56,7 +72,6 @@
 			tabs as those are field delimiters).
 		--->
 		<cfif arguments.trim>
-	 
 			<!--- Remove trailing line breaks and carriage returns. --->
 			<cfset arguments.csv = reReplace(
 				arguments.csv,
@@ -64,7 +79,6 @@
 				"",
 				"all"
 			) />
-	
 		</cfif>
 	
 		<!--- Make sure the delimiter is just one character. --->
@@ -314,6 +328,21 @@
 		<cfargument name="str" type="string" required="yes" />
 		<cfargument name="qualifier" type="string" required="no" default="""" />
 		<cfargument name="listdelimiter" type="string" required="no" default="," />
+		<!--- if we get a timestamp like {ts '2000-01-01 12:34:56'}, change it to a date-time string
+		 For Duncan, http://www.lucee.nl/post.cfm/railo-custom-tag-cfcsv#comment-091D7D78-0A5B-4CA7-9BADBCAFDE6E9B2A
+		--->
+		<cfif find("{ts '", arguments.str) eq 1 and isDate(arguments.str)>
+			<cftry>
+				<cfset arguments.str = replace(dateformat(arguments.str, "yyyy-mm-dd ") & timeFormat(arguments.str, "HH:mm:ss"), " 00:00:00", "") />
+				<cfcatch></cfcatch>
+			</cftry>
+		<cfelseif find("{d '", arguments.str) eq 1 and isDate(arguments.str)>
+			<cftry>
+				<cfset arguments.str = dateformat(arguments.str, "yyyy-mm-dd") />
+				<cfcatch></cfcatch>
+			</cftry>
+		</cfif>
+
 		<cfif refind("[\r\n#regExSafe(arguments.listdelimiter)##regExSafe(arguments.qualifier)#]", arguments.str)>
 			<cfreturn arguments.qualifier & replace(arguments.str, arguments.qualifier, arguments.qualifier & arguments.qualifier, "all") & arguments.qualifier />
 		<cfelse>
@@ -322,17 +351,18 @@
 	</cffunction>
 	
 	
-	<!--- http://www.railodeveloper.com/post.cfm/railo-tip-get-a-query-s-columnlist-case-sensitive --->
+	<!--- http://www.lucee.nl/post.cfm/railo-tip-get-a-query-s-columnlist-case-sensitive --->
 	<cffunction name="getQueryColumnList" returntype="string" output="no">
 		<cfargument name="q" type="query" required="yes" />
-		<cfif structKeyExists(server, "railo")>
+		<cfif (structKeyExists(server, "railo") or structKeyExists(server, "lucee"))
+				and structKeyExists(arguments.q, "getColumnList")>
 			<cfreturn arguments.q.getColumnlist(false) />
 		<cfelse>
-			<cfreturn arrayToList(arguments.q.getMetaData().getColumnLabels()) />
+			<cfreturn arguments.q.columnlist />
 		</cfif>
 	</cffunction>
 	
-	<!---  http://www.railodeveloper.com/post.cfm/regexsafe-function-for-coldfusion --->
+	<!---  http://www.lucee.nl/post.cfm/regexsafe-function-for-coldfusion --->
 	<cffunction name="regExSafe" returntype="string" access="public" output="no">
 		<cfargument name="str" type="string" required="yes" />
 		<cfparam name="variables.regexSafeTranslations" default="#{}#" />

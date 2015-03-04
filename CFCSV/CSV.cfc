@@ -7,7 +7,7 @@
 	Version: 1.0, 3 february 2011
 	Version 1.1.2, September 22, 2011 : Added option to write output to any variable within the pagecontext
 	
-	Copyright (c) 2011, Paul Klinkenberg (paul@ongevraagdadvies.nl)
+	Copyright (c) 2011-2015, Paul Klinkenberg (paul@ongevraagdadvies.nl)
 	All rights reserved.
 	
 	Redistribution and use in source and binary forms, with or without modification,
@@ -48,6 +48,8 @@
 		, hascolumnnames:		{required:false, type:"boolean", default:true}
 		, query:				{required:false, type:"query"}
 		, includeColumnNames:	{required:false, type:"boolean", default:true}
+		, trimlines:			{required:false, type:"boolean", default:false}
+		, charset:				{required:false, type:"string"}
 	}>
 	<cfset this.metadata.requiredAttributesPerAction = {
 		parse: []
@@ -117,7 +119,7 @@
 		<cfif action eq "parse">
 			<cfset var i = "" />
 			<cfinvoke component="#CSVObj#" method="parseCSV" returnvariable="returnedData">
-				<cfloop list="file,textqualifier,delimiter,hascolumnnames" index="i">
+				<cfloop list="file,textqualifier,delimiter,hascolumnnames,charset,trimlines" index="i">
 					<cfif attributeExists(i)>
 						<cfinvokeargument name="#i#" value="#getAttribute(i)#" />
 					</cfif>

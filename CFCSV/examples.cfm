@@ -26,6 +26,14 @@ line break',second col
 <cfcsv action="create" query="#parsedDataQuery#" variable="csvData" delimiter="|" textqualifier="'" />
 <pre><cfoutput>#htmleditformat(csvData)#</cfoutput></pre>
 
+<!---  Check if dates are converted correctly --->
+<cfset aDates = [] /><cfloop from="1" to="#parsedDataQuery.recordcount#" index="i"><cfset aDates[i] = dateAdd('y', i*-1, now()) /></cfloop>
+<cfset queryAddColumn(parsedDataQuery, "dateTest", "cf_sql_timestamp", aDates) />
+<cfset aDates = [] /><cfloop from="1" to="#parsedDataQuery.recordcount#" index="i"><cfset aDates[i] = dateAdd('yyyy', i*-1, createDate(2000,12,12)) /></cfloop>
+<cfset queryAddColumn(parsedDataQuery, "dateTest2", "cf_sql_varchar", aDates) />
+<cfcsv action="create" query="#parsedDataQuery#" variable="csvData" includeColumnNames=true />
+<pre><cfoutput>#htmleditformat(csvData)#</cfoutput></pre>
+
 <!--- Parse a csv file, returning it as an array of arrays --->
 <cfcsv action="parse" file="testdata.csv" variable="myArray" output="array" delimiter=";" />
 <cfdump eval=myArray />
@@ -44,3 +52,23 @@ This will result in a few extra query rows, because every line will be seen as a
 <cfcsv action="parse" file="testdata.csv" variable="myQuery" hascolumnnames=false delimiter=";" />
 <cfdump eval=myQuery />
 
+<!--- 2 steps: first add spaces and tabs at the start and end of each data row.
+ Then parse the csv with trimlines=true --->
+<cfset testData = fileRead('testdata.csv') />
+<cfset testData = "  		" & replace(testData, chr(10), "  		 #chr(10)#  		  	", "all") />
+
+<cfoutput>
+	<textarea>#htmleditformat(testdata)#</textarea>
+</cfoutput>
+
+<cfcsv action="parse" data="#testData#" variable="qWithSpacesAndTabs_isInvalidCSV" output="query" trimlines=false delimiter=";" />
+<cfdump eval=qWithSpacesAndTabs_isInvalidCSV />
+<cfcsv action="parse" data="#testData#" variable="qWITHOUTSpacesAndTabs" output="query" trimlines=true delimiter=";" trimendoffile=true />
+<cfdump eval=qWITHOUTSpacesAndTabs />
+
+<!--- Test what a regular doc with utf-16 content looks like when not using a charset --->
+<cfcsv action="parse" file="vietnamese.txt" variable="qNoCharset" hascolumnnames=false delimiter=";" />
+<cfdump eval=qNoCharset />
+<!--- Test what utf-16 looks like when using a charset --->
+<cfcsv action="parse" file="vietnamese.txt" charset="UTF-16LE" variable="qWithCharset" hascolumnnames=false delimiter=";" />
+<cfdump eval=qWithCharset />
