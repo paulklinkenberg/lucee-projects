@@ -3,12 +3,12 @@
 /*
  * Action.cfc, enhanced by Paul Klinkenberg
  * Originally written by Gert Franz
- * http://www.railodeveloper.com/post.cfm/railo-admin-log-analyzer
+ * http://www.lucee.nl/post.cfm/railo-admin-log-analyzer
  *
  * Date: 2010-12-02 15:27:00 +0100
  * Revision: 2.1.1
  *
- * Copyright (c) 2010 Paul Klinkenberg, railodeveloper.com
+ * Copyright (c) 2010 Paul Klinkenberg, lucee.nl
  * Licensed under the GPL license.
  *
  *    This program is free software: you can redistribute it and/or modify

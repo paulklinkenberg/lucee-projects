@@ -3,7 +3,7 @@
 	>> ALSO SEE THE COPYRIGHT LICENSE AT ./cfdns/DNS.cfc and other files within ./cfdns
 	
 	This software is licensed under the BSD license. See http://www.opensource.org/licenses/bsd-license.php
-	Project page: http://www.railodeveloper.com/post.cfm/railo-custom-tag-cfdns
+	Project page: http://www.lucee.nl/post.cfm/railo-custom-tag-cfdns
 	Version: 1.0
 	Copyright (c) 2011, Paul Klinkenberg (paul@ongevraagdadvies.nl)
 	All rights reserved.

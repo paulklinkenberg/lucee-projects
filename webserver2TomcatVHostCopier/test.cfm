@@ -1,7 +1,7 @@
 <!---
 /*
  * test.cfm, developed by Paul Klinkenberg
- * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
+ * http://www.lucee.nl/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
  * Date: 2011-11-27 22:18:00 +0100
  * Revision: 0.6.03
@@ -38,7 +38,7 @@
 <body>
 	<h1>Test page for the Webserver2TomcatVHostCopier</h1>
 	<p><em>If you encounter any errors which are not already sent by email, and also if everything went smoothly, please mail <a href="mailto:paul@ongevraagdadvies.nl">Paul Klinkenberg</a> about it, or add a comment to</em>
-		<a href="http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo" target="_blank" title="Opens in new window">http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo</a>
+		<a href="http://www.lucee.nl/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo" target="_blank" title="Opens in new window">http://www.lucee.nl/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo</a>
 	</p>
 	<cfif structKeyExists(form, "configdata")>
 		<cftry>

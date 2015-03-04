@@ -1,12 +1,12 @@
 <!---
 /*
  * viewlog.cfm, created by Paul Klinkenberg
- * http://www.railodeveloper.com/post.cfm/railo-admin-log-analyzer
+ * http://www.lucee.nl/post.cfm/railo-admin-log-analyzer
  *
  * Date: 2013-06-04
  * Revision: 1.0
  *
- * Copyright (c) 2013 Paul Klinkenberg, railodeveloper.com
+ * Copyright (c) 2013 Paul Klinkenberg, lucee.nl
  * Licensed under the GPL license.
  *
  *    This program is free software: you can redistribute it and/or modify

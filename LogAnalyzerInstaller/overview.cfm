@@ -2,12 +2,12 @@
 /*
  * overview.cfm, enhanced by Paul Klinkenberg
  * Originally written by Gert Franz
- * http://www.railodeveloper.com/post.cfm/railo-admin-log-analyzer
+ * http://www.lucee.nl/post.cfm/railo-admin-log-analyzer
  *
  * Date: 2010-12-02 20:12:00 +0100
  * Revision: 2.2.0
  *
- * Copyright (c) 2010 Paul Klinkenberg, railodeveloper.com
+ * Copyright (c) 2010 Paul Klinkenberg, lucee.nl
  * Licensed under the GPL license.
  *
  *    This program is free software: you can redistribute it and/or modify
@@ -77,7 +77,7 @@
 </script>
 <cfset frmaction = rereplace(action('overview'), "^[[:space:]]+", "") />
 <cfoutput>
-	<p>Use the form underneath to install or update the <a href="http://www.railodeveloper.com/post.cfm/railo-admin-log-analyzer" target="_blank" title="More info; links opens new window">Log analyzer plugin</a> into your websites.</p>
+	<p>Use the form underneath to install or update the <a href="http://www.lucee.nl/post.cfm/railo-admin-log-analyzer" target="_blank" title="More info; links opens new window">Log analyzer plugin</a> into your websites.</p>
 	<form action="#frmaction#" method="post">
 		<table class="tbl" width="650">
 			<tr>

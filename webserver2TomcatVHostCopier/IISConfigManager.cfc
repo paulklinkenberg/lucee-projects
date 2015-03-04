@@ -2,7 +2,7 @@
 <!---
 /*
  * IISConfigManager.cfc, developed by Paul Klinkenberg
- * http://www.railodeveloper.com/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
+ * http://www.lucee.nl/post.cfm/apache-iis-to-tomcat-vhost-copier-for-railo
  *
  * Date: 2011-11-27 22:18:00 +0100
  * Revision: 0.6.03
