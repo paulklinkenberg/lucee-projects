@@ -57,7 +57,7 @@ By Paul Klinkenberg, www.lucee.nl
 		destination="#savepath#" overwrite="yes" />
 		
 		<!---  clear the tag/function cache --->
-		<cfif server.lucee.version gte "3.3.0.005">
+		<cfif not structKeyExists(server, "railo") or server.railo.version gte "3.3.0.005">
 			<cfset systemCacheClear(variables.libraryType) />
 		</cfif>
 		
